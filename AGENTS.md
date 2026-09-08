@@ -9,10 +9,11 @@ Guidance for AI coding agents working in this repository.
 
 ## First Files To Read
 
-- `README_CLAUDE_DREAMS.md`: entry point and file map.
-- `IMPLEMENTATION_SUMMARY.md`: high-level architecture and intent.
-- `CLAUDE_DREAMS_IMPLEMENTATION.md`: detailed API behavior and patterns.
-- `DREAMS_QUICK_REFERENCE.md`: fast API/lifecycle lookup.
+- `START_HERE.md`: orientation and quickstart.
+- `README_DREAMS.md`: concepts and file map.
+- `IMPLEMENTATION_SUMMARY.md`: quick reference and cost guide.
+- `CLAUDE_DREAMS_GUIDE.md`: complete API and architecture reference.
+- `Docs/legacy_dreams/`: archived May 12–13 reference variants.
 
 ## Code Entry Points
 
