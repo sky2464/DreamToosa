@@ -165,7 +165,18 @@ Then push the branch and open a PR with `mcp__github__create_pull_request`:
    session id, repos reviewed, repos skipped), each repo's `last_reviewed_sha`,
    `last_report_date`, `issues_filed`, `prs_opened`, `last_skip_reason`, and the
    advanced `fix_rotation`.
-2. Add the report and the state file in one commit on a branch in the DreamToosa
+2. **Validate before committing:**
+   ```
+   python3 /home/user/DreamToosa/dreamtoosa/validate.py
+   ```
+   This checks that `state.json` still parses, that it tracks exactly the repos in
+   `repos.yml`, and that the rotation index is in range. If it exits non-zero, your
+   edit broke the control plane — **fix it and re-run before committing**. Committing
+   a broken `state.json` disables every future run via the Phase 0 fail-safe, and the
+   failure is silent until someone reads a run log. If `PyYAML` is missing, run
+   `pip install pyyaml` first; if it still cannot run, say so in the report rather
+   than skipping the commit.
+3. Add the report and the state file in one commit on a branch in the DreamToosa
    clone:
    ```
    git -C /home/user/DreamToosa checkout -b dreamtoosa/report-$RUN_DATE
@@ -173,7 +184,7 @@ Then push the branch and open a PR with `mcp__github__create_pull_request`:
    git -C /home/user/DreamToosa commit -m "chore: dream report for $RUN_DATE"
    git -C /home/user/DreamToosa push -u origin dreamtoosa/report-$RUN_DATE
    ```
-3. Open one PR against DreamToosa `main` with the report index as the body summary.
+4. Open one PR against DreamToosa `main` with the report index as the body summary.
    `draft: false`.
 
 The state file and the report must land in the **same commit**. If the report merges
