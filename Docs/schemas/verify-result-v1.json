@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agtoosa.dev/schemas/verify-result-v1.json",
+  "title": "AgToosa verify-result-v1",
+  "description": "Machine-readable output for agtoosa-verify.sh and agtoosa.sh --doctor.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "tool", "exit_code", "summary", "findings"],
+  "properties": {
+    "schema_version": {
+      "const": "verify-result-v1",
+      "description": "Document version pin for consumers."
+    },
+    "tool": {
+      "type": "string",
+      "enum": ["verify", "doctor"]
+    },
+    "exit_code": {
+      "type": "integer",
+      "enum": [0, 1, 2],
+      "description": "0 pass, 1 findings, 2 usage/setup error."
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pass", "warn", "fail"],
+      "properties": {
+        "pass": { "type": "integer", "minimum": 0 },
+        "warn": { "type": "integer", "minimum": 0 },
+        "fail": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "severity", "problem", "impact", "fix"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "severity": { "type": "string", "enum": ["fail", "warn", "info"] },
+          "problem": { "type": "string" },
+          "impact": { "type": "string" },
+          "fix": { "type": "string" },
+          "ac_refs": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^AC-[0-9]{3}$" }
+          },
+          "assurance": {
+            "type": "string",
+            "enum": ["guided", "evidenced", "enforced"],
+            "description": "guided = advisory; evidenced = file-backed; enforced = machine gate."
+          }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "description": "Doctor-only labeled summaries of version/lock/state surfaces (rev4 §5).",
+      "additionalProperties": false,
+      "properties": {
+        "version_marker": { "$ref": "#/$defs/provenance_surface" },
+        "lock_file": { "$ref": "#/$defs/provenance_surface" },
+        "state_file": { "$ref": "#/$defs/provenance_surface" }
+      }
+    }
+  },
+  "$defs": {
+    "provenance_surface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "present", "committed", "authority"],
+      "properties": {
+        "path": { "type": "string" },
+        "present": { "type": "boolean" },
+        "committed": {
+          "type": "boolean",
+          "description": "Whether this surface is expected to be committed when used."
+        },
+        "authority": { "type": "string" },
+        "value": { "type": "string" }
+      }
+    }
+  }
+}
