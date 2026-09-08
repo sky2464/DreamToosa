@@ -1,0 +1,44 @@
+# Inert AgToosa governance policy example — NEVER auto-active.
+# Copy to .agtoosa/policy.yaml or Docs/Context/agtoosa-policy.yaml after human review.
+# Secret names only — never store tokens, passwords, or private keys here.
+version: 1
+
+paths:
+  - id: PATH-001
+    description: Prefer edits under Docs/, src/, and tests/ unless the story scope says otherwise
+    enforcement_class: agent-instructed
+    on_violation: instruct_stop
+
+tools:
+  - id: TOOL-001
+    description: Prefer AgToosa lifecycle commands over undocumented host tooling
+    enforcement_class: agent-instructed
+    on_violation: warn
+
+network:
+  - id: NET-001
+    description: AgToosa does not provide a universal network sandbox; treat outbound limits as roadmap unless the host agent supplies its own controls
+    enforcement_class: roadmap
+    on_violation: warn
+
+secrets:
+  - id: SEC-001
+    description: Reference secret names and handling only; never embed secret values in policy
+    enforcement_class: CI-enforced
+    on_violation: instruct_stop
+    names:
+      - API_TOKEN
+      - DATABASE_PASSWORD
+
+approvals:
+  - id: APR-001
+    description: Material policy changes require human approval before activation
+    enforcement_class: manual
+    on_violation: instruct_stop
+
+risky_actions:
+  - id: RISK-001
+    description: Registry packs cannot write denylisted destinations such as .github/workflows
+    enforcement_class: generator-enforced
+    on_violation: block_generator
+    generator_operation: pack_destination_denylist

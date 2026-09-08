@@ -97,9 +97,8 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 
 | ID | Title | Stories | Status |
 |----|-------|---------|--------|
-| [DEV-XX] | Epic: [product area name] | [N open / N total] | ⬜ Backlog |
-
-*(Run `/agtoosa-init` to populate this table with your project's Epics.)*
+| DEV-100 | Epic: Multi-repo maintainer routine | 1 open / 1 total | 🟨 In Progress |
+| DEV-101 | Epic: Claude Dreams memory curation | 0 open / 0 total | ⬜ Backlog |
 
 ## Active Diagnosis
 

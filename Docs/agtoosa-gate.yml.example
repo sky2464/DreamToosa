@@ -1,0 +1,65 @@
+# AgToosa Gate — deterministic lifecycle verification in CI.
+#
+# This file is a TEMPLATE ONLY until you copy it and observe a real
+# workflow run. AgToosa never writes into .github/workflows/ automatically
+# (CI is a sensitive surface). Do not call the uncopied .example CI-enforced.
+#
+# Safe enablement (inspect → copy → review → push → observe):
+#   1. Inspect .github/workflows/ — STOP if agtoosa-gate.yml already exists
+#      (do not silently overwrite a customized workflow).
+#   2. mkdir -p .github/workflows
+#   3. cp Docs/agtoosa-gate.yml.example .github/workflows/agtoosa-gate.yml
+#      (Maintainer Dogfood Mode: use docs/agtoosa-gate.yml.example instead.)
+#   4. Review the diff, commit, and push.
+#   5. Observe a real GitHub Actions run before calling the gate CI-enforced.
+#
+# Full adoption guide: docs/examples/verifier-ci-adoption.md
+#   (generated projects: https://github.com/sky2464/AgToosa/blob/main/docs/examples/verifier-ci-adoption.md)
+#
+# The gate runs the repo-local verifier (no AI, no network) and fails the
+# check when AgToosa state is inconsistent: missing spec approval, unmapped
+# acceptance criteria, absent threat model, missing RED/GREEN TDD evidence.
+# Verifier exit status is preserved as the job result (JSON parse must not mask it).
+
+name: AgToosa Gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: AgToosa lifecycle verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - name: Run AgToosa verifier (JSON)
+        run: |
+          if [ -f Docs/agtoosa-verify.sh ]; then
+            VERIFY=Docs/agtoosa-verify.sh
+          elif [ -f docs/agtoosa-verify.sh ]; then
+            VERIFY=docs/agtoosa-verify.sh
+          else
+            echo "agtoosa-verify.sh not found — update AgToosa (bash agtoosa.sh --update .)"
+            exit 1
+          fi
+          set +e
+          out="$(bash "$VERIFY" --root . --format json)"
+          rc=$?
+          set -e
+          if [ -z "$out" ]; then
+            echo "Verifier produced empty JSON output"
+            exit 1
+          fi
+          echo "$out" | jq -e . >/dev/null
+          echo "$out"
+          exit "$rc"
+
+      # Optional: fail on warnings too once your repo is fully green.
+      # - name: Run AgToosa verifier (strict)
+      #   run: bash Docs/agtoosa-verify.sh --root . --format json --strict
