@@ -33,6 +33,7 @@
 | ID | Title | Type | Estimate | Status | Tasks Done |
 |----|-------|------|----------|--------|-----------|
 | DEV-001 | Feature: Multi-repo control plane for the Dream Report routine | Feature | M | 🟨 In Progress | 4/6 |
+| DEV-002 | Chore: Root README and control-plane CI | Chore | S | 🟨 In Progress | 4/5 |
 
 Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blocked · 🔧 Awaiting Manual · 🏁 Shipped
 
@@ -55,6 +56,15 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 - [ ] **4.** Verify
   - [ ] 4.1 Manual `RemoteTrigger run`; confirm all four clones touched and the AgToosa circuit breaker fires
   - [ ] 4.2 Second run confirms rotation advanced and no duplicate same-day report
+
+- [x] **5.** DEV-002: Root README and control-plane CI
+  - [x] 5.1 `dreamtoosa/validate.py` — 16 invariant checks (manifest/state parse, repo-set parity, rotation range, profile resolution, budget caps)
+  - [x] 5.2 `.github/workflows/control-plane.yml` — runs the validator on pushes and PRs touching `dreamtoosa/`, including the routine's own report PRs
+  - [x] 5.3 `ROUTINE_PROMPT.md` Phase 6 — routine validates its own `state.json` write before committing
+  - [x] 5.4 `README.md` — root orientation; three May-17 Dreams docs tracked so its links resolve
+  - [ ] 5.5 Confirm the workflow runs green on the PR, and again on the next routine report PR
+
+> **Decision recorded (DEV-002):** GitHub's suggested workflows — Python application, Python package, Django — were all rejected. They are inferred from the language histogram, not the repo's behaviour: there is no `requirements.txt`, no packaging metadata, no Django, and no test suite, so `pytest` exits 5 and the badge is red on the first run. The Dreams code also needs `ANTHROPIC_API_KEY` and beta access and cannot execute in CI. Control-plane validation was built instead.
 
 > **Blocked on a human decision (see Charter → Unresolved questions):** AgToosa has 15 open PRs against a `main` frozen since 2026-08-29, with `validate` red on `main` itself. Task 4 cannot prove the fix path there until that is drained or AgToosa is set review-only.
 
@@ -97,7 +107,7 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 
 | ID | Title | Stories | Status |
 |----|-------|---------|--------|
-| DEV-100 | Epic: Multi-repo maintainer routine | 1 open / 1 total | 🟨 In Progress |
+| DEV-100 | Epic: Multi-repo maintainer routine | 2 open / 2 total | 🟨 In Progress |
 | DEV-101 | Epic: Claude Dreams memory curation | 0 open / 0 total | ⬜ Backlog |
 
 ## Active Diagnosis

@@ -1,0 +1,42 @@
+# Guards the DreamToosa control plane.
+#
+# The "Dream Report" routine reads dreamtoosa/repos.yml and state.json at the start
+# of every run, and its Phase 0 fail-safe stops the run cold if the manifest is
+# missing or unparseable. That is the right behaviour, but it means a malformed
+# control plane produces a routine that silently does nothing, daily, until someone
+# reads a run log. This catches it at PR time instead — including on the routine's
+# own daily report PRs, which rewrite state.json.
+
+name: control-plane
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'dreamtoosa/**'
+      - '.github/workflows/control-plane.yml'
+  pull_request:
+    paths:
+      - 'dreamtoosa/**'
+      - '.github/workflows/control-plane.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate manifest and state
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install PyYAML
+        run: pip install --quiet pyyaml
+
+      - name: Validate control plane
+        run: python3 dreamtoosa/validate.py
