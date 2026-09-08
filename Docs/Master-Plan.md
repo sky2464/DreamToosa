@@ -33,7 +33,7 @@
 | ID | Title | Type | Estimate | Status | Tasks Done |
 |----|-------|------|----------|--------|-----------|
 | DEV-001 | Feature: Multi-repo control plane for the Dream Report routine | Feature | M | 🟨 In Progress | 4/6 |
-| DEV-002 | Chore: Root README and control-plane CI | Chore | S | 🟨 In Progress | 4/5 |
+| DEV-002 | Chore: Root README and control-plane CI | Chore | S | ✅ Done | 5/5 |
 
 Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blocked · 🔧 Awaiting Manual · 🏁 Shipped
 
@@ -62,7 +62,7 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
   - [x] 5.2 `.github/workflows/control-plane.yml` — runs the validator on pushes and PRs touching `dreamtoosa/`, including the routine's own report PRs
   - [x] 5.3 `ROUTINE_PROMPT.md` Phase 6 — routine validates its own `state.json` write before committing
   - [x] 5.4 `README.md` — root orientation; three May-17 Dreams docs tracked so its links resolve
-  - [ ] 5.5 Confirm the workflow runs green on the PR, and again on the next routine report PR
+  - [x] 5.5 Confirm the workflow runs green on the PR, and again on the next routine report PR (verified green on PR #5)
 
 > **Decision recorded (DEV-002):** GitHub's suggested workflows — Python application, Python package, Django — were all rejected. They are inferred from the language histogram, not the repo's behaviour: there is no `requirements.txt`, no packaging metadata, no Django, and no test suite, so `pytest` exits 5 and the badge is red on the first run. The Dreams code also needs `ANTHROPIC_API_KEY` and beta access and cannot execute in CI. Control-plane validation was built instead.
 
