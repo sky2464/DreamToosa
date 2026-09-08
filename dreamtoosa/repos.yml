@@ -30,7 +30,7 @@ repos:
     enabled: true
     max_open_prs: 5
     review_window: "2 days ago"
-    fix_eligible: true
+    fix_eligible: false # Review-only: 15-PR backlog on main pending drain
 
   - repo: sky2464/Crapsino
     profile: web-playwright
