@@ -14,10 +14,12 @@ on:
     branches: [main]
     paths:
       - 'dreamtoosa/**'
+      - 'tests/**'
       - '.github/workflows/control-plane.yml'
   pull_request:
     paths:
       - 'dreamtoosa/**'
+      - 'tests/**'
       - '.github/workflows/control-plane.yml'
 
 permissions:
@@ -25,7 +27,7 @@ permissions:
 
 jobs:
   validate:
-    name: Validate manifest and state
+    name: Validate manifest, state, and test suite
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -40,3 +42,7 @@ jobs:
 
       - name: Validate control plane
         run: python3 dreamtoosa/validate.py
+
+      - name: Run unit tests
+        run: python3 -m unittest discover tests -v
+

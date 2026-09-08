@@ -38,7 +38,9 @@ Full detail: **[dreamtoosa/README.md](dreamtoosa/README.md)**.
 ## Layout
 
 ```
-dreamtoosa/            control plane
+dreamtoosa/            control plane & memory curation
+├── dreamer.py         local memory curation engine (dedup, conflicts, synthesis)
+├── __main__.py        package CLI (`python3 -m dreamtoosa --demo`)
 ├── repos.yml          targets, per-repo PR caps, run budget
 ├── profiles/          review criteria per stack (shell · python · dart · web)
 ├── state.json         cross-run memory — the routine has no session persistence
@@ -46,6 +48,7 @@ dreamtoosa/            control plane
 ├── ROUTINE_PROMPT.md  canonical prompt text — edit here, then apply
 └── README.md          how it all fits together
 
+tests/                 unit test suite (`python3 -m unittest discover tests`)
 reports/               per-repo dated reports plus a per-run index
 Docs/                  AgToosa framework — workflow docs, lifecycle scripts, context
 .claude/               slash commands, skills, git guardrail hook
@@ -99,16 +102,14 @@ bash Docs/agtoosa-verify.sh   # deterministic lifecycle gate
 ## CI
 
 [`.github/workflows/control-plane.yml`](.github/workflows/control-plane.yml) runs
-`dreamtoosa/validate.py` on every push and PR touching `dreamtoosa/`, including the
-routine's own daily report PRs. It checks that the manifest and state parse, that they
-describe the same set of repos, that the rotation index is in range, and that every
-`profile:` resolves to a real file.
+`dreamtoosa/validate.py` and the unit test suite (`python3 -m unittest discover tests`)
+on every push and PR touching `dreamtoosa/` or `tests/`. It checks that the manifest
+and state parse, that they describe the same set of repos, that the rotation index is
+in range, and that memory curation unit tests pass.
 
 This matters more than it looks: the routine's Phase 0 fail-safe halts the run if the
 manifest is unparseable — correct behaviour, but it means a malformed control plane
 yields a routine that silently does nothing, every day, until someone reads a run log.
 
-There is deliberately **no** Python build, lint, or test workflow. The Python here is
-reference code for a beta API that requires `ANTHROPIC_API_KEY` and cannot execute in
-CI, and the repo has no test suite — a generic Python workflow would fail on its first
-run and teach everyone to ignore the badge.
+The unit tests verify deterministic local functionality (deduplication, conflict resolution,
+and schema parsing) using Python's standard library with zero external runtime dependencies.
