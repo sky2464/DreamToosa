@@ -1,0 +1,63 @@
+{
+  "id": "memstore_cf48cb36362d",
+  "created_at": "2026-09-08T00:39:51.643317",
+  "count": 8,
+  "memories": [
+    {
+      "id": "mem_f61e0064",
+      "content": "Team standup moved to Tuesday and Thursday at 9:30am PST (Updated: superseded previous Monday schedule)",
+      "category": "team_workflow",
+      "session_id": "sesn_04",
+      "timestamp": "2026-09-08T00:39:51.643845"
+    },
+    {
+      "id": "mem_e00af96d",
+      "content": "Database is PostgreSQL hosted on AWS RDS with read replicas",
+      "category": "infrastructure",
+      "session_id": "sesn_05",
+      "timestamp": "2026-09-08T00:39:51.644981"
+    },
+    {
+      "id": "mem_58c42195",
+      "content": "CI/CD pipeline uses GitHub Actions with self-hosted runners",
+      "category": "infrastructure",
+      "session_id": "sesn_04",
+      "timestamp": "2026-09-08T00:39:51.645685"
+    },
+    {
+      "id": "mem_aa70161b",
+      "content": "User prefers Python over TypeScript for backend work",
+      "category": "developer_preferences",
+      "session_id": "sesn_01",
+      "timestamp": "2026-09-08T00:39:51.646121"
+    },
+    {
+      "id": "mem_40bda560",
+      "content": "User strongly dislikes slow feedback loops in test suites",
+      "category": "developer_preferences",
+      "session_id": "sesn_03",
+      "timestamp": "2026-09-08T00:39:51.646494"
+    },
+    {
+      "id": "mem_adf01706",
+      "content": "Project uses Antigravity agentic platform with Gemini 3.8",
+      "category": "stack",
+      "session_id": "sesn_01",
+      "timestamp": "2026-09-08T00:39:51.646773"
+    },
+    {
+      "id": "mem_e3346c12",
+      "content": "Deployment target is Kubernetes on EKS",
+      "category": "infrastructure",
+      "session_id": "sesn_03",
+      "timestamp": "2026-09-08T00:39:51.647010"
+    },
+    {
+      "id": "mem_8ff6b4f7",
+      "content": "Consolidated System Profile: Python-first microservices hosted on AWS EKS with PostgreSQL RDS (read-replicated), managed by Antigravity Gemini 3.8. Team observes Tue/Thu standup cadence and requires fast-feedback CI/CD via self-hosted GitHub Actions.",
+      "category": "synthesized_insights",
+      "session_id": "dream_synthesis",
+      "timestamp": "2026-09-08T00:39:51.647247"
+    }
+  ]
+}
