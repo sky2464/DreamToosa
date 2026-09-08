@@ -1,0 +1,69 @@
+# DreamToosa target manifest
+#
+# Read at the start of every run of the "Dream Report – Daily Code Review"
+# routine (trig_01PvQiwSRhJktFxMXwxf14Qi). Every repo listed here must also
+# appear in the routine's `sources` array, or its clone will not exist in the
+# sandbox.
+#
+# Clone path in the sandbox is /home/user/<repo basename>.
+#
+# Fields
+#   repo          owner/name on GitHub. Must match a `sources` entry.
+#   profile       basename of a file in dreamtoosa/profiles/ — the review criteria.
+#   enabled       false skips the repo entirely (no review, no report section).
+#   max_open_prs  circuit breaker. If the repo has MORE open PRs than this,
+#                 the run reports "skipped: backlog" and opens nothing there.
+#                 Set to 0 to make a repo permanently review-only.
+#   review_window argument passed to `git log --since=`.
+#   fix_eligible  false means review + report only; never open a fix PR here.
+
+schema_version: 1
+
+defaults:
+  review_window: "2 days ago"
+  max_open_prs: 5
+  fix_eligible: true
+
+repos:
+  - repo: sky2464/AgToosa
+    profile: shell-spec-driven
+    enabled: true
+    max_open_prs: 5
+    review_window: "2 days ago"
+    fix_eligible: true
+
+  - repo: sky2464/Crapsino
+    profile: web-playwright
+    enabled: true
+    max_open_prs: 3
+    fix_eligible: true
+
+  - repo: sky2464/DreamToosa
+    profile: python-lib
+    enabled: true
+    max_open_prs: 3
+    fix_eligible: true
+
+  - repo: sky2464/miToosa
+    profile: dart-flutter
+    enabled: true
+    max_open_prs: 3
+    fix_eligible: true
+
+# Where the consolidated report lands. This repo is the control plane: reports
+# for ALL targets are committed here, so there is one merge point instead of N.
+hub:
+  repo: sky2464/DreamToosa
+  reports_dir: reports
+  state_file: dreamtoosa/state.json
+  manifest: dreamtoosa/repos.yml
+  profiles_dir: dreamtoosa/profiles
+
+# Per-run limits. Runs that exceed these should stop cleanly and record what
+# they completed, rather than being cut off mid-write.
+budget:
+  max_repos_reviewed_per_run: 6
+  max_fix_repos_per_run: 1        # one repo carries fixes per run, by rotation
+  max_issues_per_repo_per_run: 3
+  max_prs_per_run: 2              # 1 hub report PR + at most 1 fix PR
+  soft_time_box_minutes_per_repo: 6
