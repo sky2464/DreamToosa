@@ -33,7 +33,8 @@
 | ID | Title | Type | Estimate | Status | Tasks Done |
 |----|-------|------|----------|--------|-----------|
 | DEV-001 | Feature: Multi-repo control plane for the Dream Report routine | Feature | M | 🟨 In Progress | 4/6 |
-| DEV-002 | Chore: Root README and control-plane CI | Chore | S | ✅ Done | 5/5 |
+| DEV-002 | Chore: Root README and control-plane CI | Chore | S | 🏁 Shipped | 5/5 |
+| DEV-003 | Feature: Local agent memory curation engine and CLI | Feature | S | 🏁 Shipped | 4/4 |
 
 Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blocked · 🔧 Awaiting Manual · 🏁 Shipped
 
@@ -107,8 +108,8 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 
 | ID | Title | Stories | Status |
 |----|-------|---------|--------|
-| DEV-100 | Epic: Multi-repo maintainer routine | 2 open / 2 total | 🟨 In Progress |
-| DEV-101 | Epic: Claude Dreams memory curation | 0 open / 0 total | ⬜ Backlog |
+| DEV-100 | Epic: Multi-repo maintainer routine | 1 open / 2 total | 🟨 In Progress |
+| DEV-101 | Epic: Claude Dreams memory curation | 1 shipped / 1 total | 🏁 Shipped |
 
 ## Active Diagnosis
 
@@ -130,9 +131,8 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 
 | ID | Title | Shipped | Archived Spec |
 |----|-------|---------|--------------|
-| [DEV-XX] | Feature: [name] | [YYYY-MM-DD] | [spec-[DEV-XX].md](archived/spec-[DEV-XX].md) |
-
-*(Empty until `/agtoosa-ship` closes the first story.)*
+| DEV-002 | Chore: Root README and control-plane CI | 2026-09-08 | [spec-DEV-002.md](archived/spec-DEV-002.md) |
+| DEV-003 | Feature: Local agent memory curation engine and CLI | 2026-09-08 | [spec-DEV-003.md](archived/spec-DEV-003.md) |
 
 ## Update Log
 
@@ -140,6 +140,12 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 
 | Date | Event | By |
 |------|-------|----|
-| [YYYY-MM-DD] | [phase] [Story ID] [started / completed / blocked / shipped] | AgToosa |
+| 2026-09-07 | spec DEV-001 started | AgToosa |
+| 2026-09-07 | build DEV-001 started | AgToosa |
+| 2026-09-07 | spec DEV-002 started | AgToosa |
+| 2026-09-08 | build DEV-002 completed | AgToosa |
+| 2026-09-08 | ship DEV-002 shipped | AgToosa |
+| 2026-09-08 | spec DEV-003 started | AgToosa |
+| 2026-09-08 | build DEV-003 completed | AgToosa |
+| 2026-09-08 | ship DEV-003 shipped | AgToosa |
 
-*(Run `/agtoosa-init` to add the first entry.)*
