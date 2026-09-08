@@ -6,3 +6,9 @@
 
 # Machine-local Claude Code settings — per-developer permission grants, not shared config
 .claude/settings.local.json
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+.venv/
+

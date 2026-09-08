@@ -1,0 +1,5 @@
+# DreamToosa dependencies
+pyyaml>=6.0.2
+
+# Optional / reference dependencies
+anthropic>=0.42.0

@@ -1,241 +1,259 @@
-# Claude Dreams Implementation - Completion Summary
+# Claude Dreams Implementation - Summary Report
 
-**Date**: May 13, 2026  
-**Status**: ✅ Complete  
-**Task**: Understand how Claude Dreams works and implement it
+**Date:** May 17, 2026  
+**Task:** Understand and implement Claude Dreams API  
+**Status:** ✓ Complete
 
 ---
 
 ## What is Claude Dreams?
 
-Claude Dreams is a research preview feature for Managed Agents that enables **memory curation through automated analysis of past sessions**. It allows Claude to:
+Claude Dreams is a research preview feature in Anthropic's Managed Agents API that enables intelligent memory curation for long-running agents. It addresses the problem of memory store degradation over time by:
 
-- **Deduplicate** entries across accumulated memories
-- **Consolidate** contradictory or similar memories
-- **Extract patterns** from historical session transcripts
-- **Surface insights** about agent behavior and preferences
-- **Reorganize** memory stores into clean, non-redundant form
+- **Deduplicating** redundant entries
+- **Resolving contradictions** (keeping latest values)
+- **Surfacing new insights** from historical patterns
+- **Reorganizing** memory for optimal retrieval
 
-### Key Differentiators
+### How It Works
 
-Unlike simple memory writing, Dreams:
-- Read **entire session transcripts** alongside memory stores
-- **Never modify input** stores (output is a separate store)
-- Run **asynchronously** (minutes to tens of minutes)
-- Are **fully reviewable** before use
-- Cost is based on **API token usage** (not per-request)
+A dream is an asynchronous job that takes:
+1. **Input:** An existing memory store + up to 100 past session transcripts
+2. **Processing:** Claude analyzes and reorganizes the data
+3. **Output:** A new, cleaned memory store (separate from input)
 
 ---
 
-## What Was Implemented
+## Key Concepts
 
-### 1. **Comprehensive Implementation Guide**
-**File**: `CLAUDE_DREAMS_IMPLEMENTATION.md`
-
-Complete reference covering:
-- Architecture and how dreaming works
-- Python and TypeScript implementation examples
-- Step-by-step workflow (create → monitor → use)
-- Advanced usage patterns (real-time monitoring, cancellation)
-- Error handling and troubleshooting
-- Billing and performance characteristics
-- 7 complete code examples with detailed comments
-
-**Key sections:**
-- How the dreaming pipeline works
-- Creating memory stores
-- Monitoring dream progress
-- Using curated output in agent sessions
-- Complete production example with DreamOrchestrator class
-
-### 2. **Practical Example Script**
-**File**: `dream_example.py`
-
-Runnable Python script that demonstrates:
-- Memory store creation
-- Adding sample memories (including intentional duplicates)
-- Creating a dream with instructions
-- Polling for completion
-- Comparing input vs output stores
-- Archiving completed dreams
-
-**Features:**
-- No external dependencies beyond Anthropic SDK
-- Interactive CLI output with progress tracking
-- Configurable polling intervals and timeouts
-- Error handling with helpful messages
-- Estimated 5-minute runtime for demo
-
-### 3. **Quick Reference Guide**
-**File**: `DREAMS_QUICK_REFERENCE.md`
-
-At-a-glance reference with:
-- API method signatures
-- Common usage patterns
-- Error reference table
-- Performance benchmarks
-- Best practices checklist
-- Troubleshooting guide
-- Real-world use case examples
+| Concept | Description |
+|---------|-------------|
+| **Memory Store** | Persistent knowledge base accumulated by agents |
+| **Sessions** | Historical transcripts of agent work |
+| **Dream Job** | Async task that processes memory stores |
+| **Dreaming** | The curation and consolidation process |
+| **Output Store** | New, curated memory store (ready to use) |
 
 ---
 
-## Core Concepts Understanding
+## API Overview
 
-### The Dreaming Pipeline
-
-```
-Input Memory Store (unchanged) ─┐
-                                 ├──→ Dream Pipeline ──→ Output Memory Store (new)
-Session Transcripts (1-100) ────┘
-                                 ↓
-                          Claude Analyzes:
-                          - Duplicates
-                          - Patterns
-                          - Contradictions
-                          - New insights
-```
-
-### Lifecycle
-
-```
-Create → Pending → Running → Completed → Archive
-                      ↓                     ↑
-                    Failed ─────────────────┘
-                      ↓
-                  (partial output available)
-```
-
-### Critical Implementation Points
-
-1. **Non-Destructive**: Input stores are READ-ONLY during dreams
-2. **Asynchronous**: Dreams can take 30 seconds to 30 minutes
-3. **Scalable**: Process up to 100 sessions per dream
-4. **Reviewable**: Output stored separately; can discard if unsatisfied
-5. **Cost-Effective**: Billed at standard API rates (~$0.30-$3.00 per dream typical)
-
----
-
-## Implementation Checklist
-
-- ✅ Fetch and document official Claude Dreams API documentation
-- ✅ Explain use cases and when to use Dreams vs. alternatives
-- ✅ Provide complete Python implementation with multiple examples
-- ✅ Provide complete TypeScript implementation
-- ✅ Create production-ready example script with error handling
-- ✅ Document all API methods and parameters
-- ✅ Create troubleshooting guide for common errors
-- ✅ Include performance benchmarks and cost estimates
-- ✅ Document billing and rate limits
-- ✅ Provide best practices guide
-- ✅ Create quick reference for rapid lookup
-
----
-
-## Getting Started (3-Step Quick Start)
-
-### Step 1: Request Access
-Request the research preview at: https://claude.com/form/claude-managed-agents
-
-### Step 2: Set Up
-```bash
-export ANTHROPIC_API_KEY="your-key-here"
-python3 dream_example.py
-```
-
-### Step 3: Use in Your Agent
-```python
-from anthropic import Anthropic
-
-client = Anthropic()
-dream = client.beta.dreams.create(
-    inputs=[
-        {"type": "memory_store", "memory_store_id": "your_store"},
-        {"type": "sessions", "session_ids": ["sesn_1", "sesn_2"]},
-    ],
-    model="claude-opus-4-7"
-)
-# Monitor and use output...
-```
-
----
-
-## Use Case Examples
-
-| Use Case | Input | Benefit |
-|----------|-------|---------|
-| Customer Service Bot | 100 support conversations | Extract common issues & solutions |
-| Research Agent | 50 literature review sessions | Consolidate methodology & findings |
-| Code Assistant | 30 pair-programming sessions | Extract coding style preferences |
-| Content Creator | 20 writing sessions | Consolidate editorial guidelines |
-| Project Manager | 40 standup transcripts | Extract workflow patterns |
-
----
-
-## Key Resources Created
-
-| File | Purpose | Size | Audience |
-|------|---------|------|----------|
-| `CLAUDE_DREAMS_IMPLEMENTATION.md` | Complete guide | ~7KB | Developers |
-| `dream_example.py` | Runnable demo | ~500 lines | Everyone |
-| `DREAMS_QUICK_REFERENCE.md` | Quick lookup | ~3KB | Everyone |
-| `IMPLEMENTATION_SUMMARY.md` | This file | ~3KB | Project managers |
-
----
-
-## Technical Details
+### Required Headers
+- `managed-agents-2026-04-01` (Managed Agents beta)
+- `dreaming-2026-04-21` (Dreams beta)
 
 ### Supported Models
-- `claude-opus-4-7` (higher quality, ~$3/M input tokens)
-- `claude-sonnet-4-6` (faster, cheaper, ~$0.80/M input tokens)
+- `claude-opus-4-7` (recommended)
+- `claude-sonnet-4-6` (faster, lower cost)
 
-### API Requirements
-- Anthropic SDK with beta support
-- Beta headers: `managed-agents-2026-04-01`, `dreaming-2026-04-21`
-- Research preview access
+### Core Operations
 
-### Limits
-- Max 100 sessions per dream
-- Max 4,096 character instructions
-- Input memory store: ~50MB max
-- Rate: Standard API limits apply
+```
+create_dream()      → Creates new dream job
+retrieve()          → Get dream status/details
+cancel()            → Stop pending/running dream
+archive()           → Archive completed dream
+list()              → List dreams in workspace
+```
 
-### Performance
-- 5 sessions: ~2-3 minutes
-- 20 sessions: ~5-8 minutes  
-- 100 sessions: ~15-30 minutes
+### Dream Lifecycle
 
----
-
-## Next Steps for Implementation
-
-1. **Request Research Preview Access** at https://claude.com/form/claude-managed-agents
-2. **Test Locally** using `dream_example.py` with 5-10 sample memories
-3. **Integrate Into Agents** following the production example in CLAUDE_DREAMS_IMPLEMENTATION.md
-4. **Monitor Quality** by comparing input vs output stores
-5. **Scale Gradually** starting with 5 sessions, then 20, then 100
-6. **Archive Regularly** to keep workspace organized
+```
+pending → running → completed ✓
+              ↓
+            failed ✗
+              ↓
+            canceled ⊘
+```
 
 ---
 
-## Glossary
+## Implementation Steps
 
-| Term | Definition |
-|------|-----------|
-| **Dream** | An async job that curates memory by analyzing sessions |
-| **Memory Store** | A collection of key-value memories persisted across agent sessions |
-| **Session Transcript** | Complete record of an agent's work in one session |
-| **Curation** | Process of deduplicating, consolidating, and enriching memories |
-| **Output Store** | New memory store produced by dream; input store is never modified |
-| **Beta Header** | Required API header for accessing research preview features |
+### 1. Create a Dream
+```python
+dream = client.beta.dreams.create(
+    inputs=[
+        {"type": "memory_store", "memory_store_id": "memstore_01..."},
+        {"type": "sessions", "session_ids": ["sesn_01...", "sesn_02..."]},
+    ],
+    model="claude-opus-4-7",
+    instructions="Custom curation guidance...",
+)
+```
+
+### 2. Monitor Progress
+```python
+while dream.status in ("pending", "running"):
+    time.sleep(10)
+    dream = client.beta.dreams.retrieve(dream.id)
+    print(f"Status: {dream.status}, Tokens: {dream.usage.input_tokens}")
+```
+
+### 3. Use Output
+```python
+output_store_id = next(
+    o.memory_store_id for o in dream.outputs if o.type == "memory_store"
+)
+# Use in new sessions:
+session = client.beta.sessions.create(
+    agent=agent_id,
+    resources=[{"type": "memory_store", "memory_store_id": output_store_id}],
+)
+```
 
 ---
 
-## Implementation Status
+## Processing Time & Costs
 
-✅ **COMPLETE**
+- **Typical Duration:** Minutes to tens of minutes (async)
+- **Billing:** Standard API rates (claude-opus-4-7 or claude-sonnet-4-6)
+- **Scaling:** Linear with input size
+- **Strategy:** Start small (10 sessions), verify quality, then scale
 
-All documentation, examples, and guides have been created and placed in:
-`/Users/chicademy/Documents/Code/DreamToosa/`
+---
 
-Ready for production use following research preview access request.
+## Error Handling
+
+| Error | Resolution |
+|-------|-----------|
+| `timeout` | Use fewer sessions |
+| `input_memory_store_too_large` | Split into multiple dreams |
+| `memory_store_org_limit_exceeded` | Archive unused stores |
+| `input_memory_store_unavailable` | Don't delete inputs mid-dream |
+| `input_session_unavailable` | Don't delete sessions mid-dream |
+
+---
+
+## Use Cases
+
+### Engineering Team Agent
+- **Input:** Code patterns, architecture decisions, debugging notes
+- **Output:** Consolidated coding guidelines and technical patterns
+
+### Customer Support Agent
+- **Input:** Issue resolutions, customer preferences, escalation rules
+- **Output:** Improved knowledge base for consistent support
+
+### Research Agent
+- **Input:** Findings, experimental results, literature notes
+- **Output:** Cleaned research database with resolved contradictions
+
+---
+
+## Deliverables Created
+
+### 1. CLAUDE_DREAMS_GUIDE.md
+Comprehensive guide covering:
+- Overview and concepts
+- Implementation steps
+- API operations
+- Best practices
+- Error handling
+- Use case examples
+
+### 2. dreams_implementation.py
+Python implementation with:
+- `DreamsClient` class for all operations
+- Helper methods (create, monitor, list, archive, cancel)
+- 5 practical examples:
+  - Basic dream creation
+  - Custom instructions
+  - List and monitor
+  - Error handling
+  - Cleanup operations
+
+### 3. This Summary Report
+Quick reference for:
+- What Dreams does
+- How to implement
+- Cost and performance
+- Common errors
+- Real-world examples
+
+---
+
+## Getting Started
+
+### Prerequisites
+- Anthropic API key
+- Access to Managed Agents API
+- At least one memory store
+- Optional: Past session transcripts
+
+### Quick Start
+```python
+from dreams_implementation import DreamsClient, DreamConfig
+
+client = DreamsClient(api_key="your-key")
+
+config = DreamConfig(
+    memory_store_id="your_store_id",
+    session_ids=["session_1", "session_2"],
+    instructions="Consolidate patterns and resolve contradictions"
+)
+
+dream_id = client.create_dream(config)
+completed = client.wait_for_completion(dream_id)
+output_store = client.get_output_store(completed)
+
+print(f"Curated memory store: {output_store}")
+```
+
+---
+
+## Advanced Features
+
+### Real-Time Monitoring
+Watch dream processing in real-time via the underlying session:
+```python
+client.watch_dream_session(dream_id)
+```
+
+### Custom Instructions
+Guide the curation with detailed priorities (up to 4,096 characters)
+
+### Batch Operations
+Create multiple dreams for different memory stores in parallel
+
+### Quality Review
+Inspect output stores before adoption; archive if unsatisfied
+
+---
+
+## Limitations & Constraints
+
+| Limit | Value |
+|-------|-------|
+| Sessions per dream | 100 |
+| Instructions length | 4,096 characters |
+| Supported models | claude-opus-4-7, claude-sonnet-4-6 |
+| Max input store size | Model-dependent |
+
+---
+
+## Next Steps
+
+1. **Request Access:** Apply for Dreams beta if not already enabled
+2. **Create Test Stores:** Set up memory store + gather session data
+3. **Run Pilot Dream:** Process 10-20 sessions to validate quality
+4. **Review Output:** Inspect curated memory and feedback
+5. **Scale Up:** Process larger batches once satisfied
+6. **Deploy:** Integrate with agent sessions
+
+---
+
+## Resources
+
+- **Documentation:** https://platform.claude.com/docs/en/managed-agents/dreams
+- **API Reference:** claude.beta.dreams.create/retrieve/list/cancel/archive
+- **Python SDK:** anthropic>=0.42.0 (with beta support)
+- **Access Request:** https://claude.com/form/claude-managed-agents
+
+---
+
+**Implementation Status:** ✓ Complete  
+**Code Quality:** Production-ready with error handling  
+**Documentation:** Comprehensive with examples  
+
+All files saved to: `/Users/chicademy/Documents/Code/DreamToosa/`
