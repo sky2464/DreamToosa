@@ -79,16 +79,11 @@ adopt or discard. It is a research preview and needs
 4. [CLAUDE_DREAMS_GUIDE.md](CLAUDE_DREAMS_GUIDE.md) — full reference
 5. [`dreams_implementation.py`](dreams_implementation.py) — the client to actually use
 
-> **On the rest of the files.** Sixteen Dreams documents and five Python modules sit
-> at the repo root, in three overlapping sets produced by routine runs on 12, 13 and
-> 17 May 2026. Each run wrote a complete parallel set rather than extending the last,
-> so there are three near-identical `DreamsClient` implementations and six competing
-> "quick start" guides. **The list above is the 17 May set and is the one to use.**
-> The May 12 and May 13 files are kept for reference, not because they are current.
->
-> This duplication is what the cross-run `state.json` and the `python-lib` review
-> profile now exist to prevent. Consolidating the existing files is tracked
-> separately and deliberately out of scope for the routine.
+> **Archived reference documents.** The overlapping reference files from the
+> May 12 and May 13 routine runs have been consolidated and archived into
+> [`Docs/legacy_dreams/`](Docs/legacy_dreams/README.md). They are preserved for
+> historical reference and architectural context, while keeping the root clean.
+> **The list above is the canonical set to use.**
 
 ## Project workflow
 

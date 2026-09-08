@@ -15,7 +15,7 @@
 | Non-goals | Merging PRs on the user's behalf; consolidating this repo's legacy Dreams docs; a hosted orchestrator or swarm runtime |
 | Assumptions | Cloud sandbox clones every `sources` repo to `/home/user/<name>`; `mcp__github__*` is platform-injected; `gh` CLI is not authenticated |
 | Risks | AgToosa's 15-PR backlog and red `validate` gate everything downstream; four-repo runs may exceed the run time box; Dreams API remains beta-gated |
-| Unresolved questions | Whether to unjam AgToosa first or drop it from the manifest and prove the path on the three clean repos |
+| Unresolved questions | Resolved: AgToosa set to review-only (fix_eligible: false) in repos.yml while backlog is drained; fix rotation proceeds across clean repos |
 | GitHub repo | https://github.com/sky2464/DreamToosa |
 | Milestone | Unreleased |
 | Active cycle | Multi-repo routine enablement |
@@ -66,7 +66,7 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 
 > **Decision recorded (DEV-002):** GitHub's suggested workflows — Python application, Python package, Django — were all rejected. They are inferred from the language histogram, not the repo's behaviour: there is no `requirements.txt`, no packaging metadata, no Django, and no test suite, so `pytest` exits 5 and the badge is red on the first run. The Dreams code also needs `ANTHROPIC_API_KEY` and beta access and cannot execute in CI. Control-plane validation was built instead.
 
-> **Blocked on a human decision (see Charter → Unresolved questions):** AgToosa has 15 open PRs against a `main` frozen since 2026-08-29, with `validate` red on `main` itself. Task 4 cannot prove the fix path there until that is drained or AgToosa is set review-only.
+> **Decision recorded (AgToosa rotation):** AgToosa has 15 open PRs against a `main` frozen since 2026-08-29. To allow the routine's fix rotation to advance cleanly across `Crapsino`, `DreamToosa`, and `miToosa`, AgToosa was marked `fix_eligible: false` in `repos.yml`. It continues to receive daily review and reporting.
 
 ## Manual / Deferred Tasks
 
