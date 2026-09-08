@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "_comment": "Cross-run state for the Dream Report routine (trig_01PvQiwSRhJktFxMXwxf14Qi). The routine runs with persist_session=false, so this committed file is the only memory between runs. Every run reads it first and writes it back in the same commit as the report.",
+  "last_run": {
+    "date": null,
+    "session_id": null,
+    "repos_reviewed": [],
+    "repos_skipped": []
+  },
+  "fix_rotation": {
+    "_comment": "Exactly one repo carries fix work per run. Advance last_index by 1 (mod length) each run, skipping repos that are disabled, not fix_eligible, or over max_open_prs.",
+    "order": [
+      "sky2464/AgToosa",
+      "sky2464/Crapsino",
+      "sky2464/DreamToosa",
+      "sky2464/miToosa"
+    ],
+    "last_index": -1,
+    "last_advanced": null
+  },
+  "repos": {
+    "sky2464/AgToosa": {
+      "last_reviewed_sha": null,
+      "last_report_date": null,
+      "issues_filed": [],
+      "prs_opened": [],
+      "last_skip_reason": null
+    },
+    "sky2464/Crapsino": {
+      "last_reviewed_sha": null,
+      "last_report_date": null,
+      "issues_filed": [],
+      "prs_opened": [],
+      "last_skip_reason": null
+    },
+    "sky2464/DreamToosa": {
+      "last_reviewed_sha": null,
+      "last_report_date": null,
+      "issues_filed": [],
+      "prs_opened": [],
+      "last_skip_reason": null
+    },
+    "sky2464/miToosa": {
+      "last_reviewed_sha": null,
+      "last_report_date": null,
+      "issues_filed": [],
+      "prs_opened": [],
+      "last_skip_reason": null
+    }
+  }
+}
