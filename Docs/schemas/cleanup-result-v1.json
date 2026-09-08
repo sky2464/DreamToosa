@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agtoosa.dev/schemas/cleanup-result-v1.json",
+  "title": "AgToosa cleanup-result-v1",
+  "description": "Machine-readable plan output for agtoosa.sh --cleanup --format json (and --dry-run).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "project_path", "generator_version", "summary", "candidates"],
+  "properties": {
+    "schema_version": {
+      "const": "cleanup-result-v1",
+      "description": "Document version pin for consumers."
+    },
+    "project_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "generator_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["backup", "orphan_doc", "orphan_platform", "total"],
+      "properties": {
+        "backup": { "type": "integer", "minimum": 0 },
+        "orphan_doc": { "type": "integer", "minimum": 0 },
+        "orphan_platform": { "type": "integer", "minimum": 0 },
+        "total": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "candidates": {
+      "type": "array",
+      "maxItems": 500,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["category", "path", "reason"],
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": ["backup", "orphan_doc", "orphan_platform"]
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Repository-relative path proposed for removal."
+          },
+          "reason": { "type": "string" }
+        }
+      }
+    }
+  }
+}
