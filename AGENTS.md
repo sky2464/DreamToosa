@@ -17,11 +17,16 @@ Guidance for AI coding agents working in this repository.
 
 ## Code Entry Points
 
+- Use the [implementation map](README.md#memory-curation-implementations) to choose
+  between local curation, the primary remote API reference, and historical variants.
+- `dreamtoosa/dreamer.py`: canonical local `Dreamer` and JSON `MemoryStore`;
+  import from `dreamtoosa` or run `python3 -m dreamtoosa --demo`.
 - `dream_example.py`: runnable end-to-end demo.
-- `dreams_client.py`: practical client and workflow wrapper.
-- `dreams_implementation.py`: production-style `DreamToosaManager`.
-- `dreamtoosa_dreams_integration.py`: domain orchestration and periodic dreaming.
+- `dreams_client.py`: historical remote client and workflow wrapper.
+- `dreams_implementation.py`: primary remote API reference (`DreamConfig`/`DreamsClient`).
+- `dreamtoosa_dreams_integration.py`: historical remote domain orchestration and periodic dreaming.
 - `dream_implementation_examples.py`: additional patterns and sample flows.
+- `antigravity_dream_example.py`: historical local prototype; extend the package for new local work.
 
 ## Environment And Commands
 
