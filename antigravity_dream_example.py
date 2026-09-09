@@ -2,6 +2,11 @@
 """
 Antigravity Dreams — Local Memory Curation Workflow
 
+Historical standalone prototype. For new local work, use Dreamer and MemoryStore
+from dreamtoosa, or run `python3 -m dreamtoosa --demo`. This file retains its
+original algorithm and MemoryStore for reference; the package does not import it.
+See README.md#memory-curation-implementations for the local/remote distinction.
+
 Demonstrates agent memory consolidation and curation without requiring
 proprietary external cloud endpoints:
 1. Initialize an active memory store with raw session observations
