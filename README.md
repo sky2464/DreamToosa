@@ -1,10 +1,11 @@
 # DreamToosa
 
-Control plane for the **Dream Report** multi-repo maintainer routine, and a reference
-implementation of the Claude Dreams API.
+Control plane for the **Dream Report** multi-repo maintainer routine, a local memory
+curation toolkit, and reference examples for the remote Claude Dreams API.
 
-Two things live here. The control plane is what runs today; the Dreams code is the
-repo's original purpose and is still beta-gated.
+The local toolkit runs offline with Python's standard library. The remote API
+examples are the repo's original purpose; they use the Anthropic SDK and require
+API credentials and service access.
 
 ---
 
@@ -52,7 +53,7 @@ tests/                 unit test suite (`python3 -m unittest discover tests`)
 reports/               per-repo dated reports plus a per-run index
 Docs/                  AgToosa framework — workflow docs, lifecycle scripts, context
 .claude/               slash commands, skills, git guardrail hook
-*.py, *_DREAMS*.md     Claude Dreams reference implementation (see below)
+root *.py, *_DREAMS*.md  remote API references & historical examples (see below)
 ```
 
 ## Changing the targets
@@ -67,6 +68,42 @@ One constraint the validator cannot check for you: every repo listed there must 
 appear in the routine's own `sources` array, or its clone will not exist in the
 sandbox. `sources` lives on the live routine, not in this repo.
 
+## Memory curation implementations
+
+Use [`dreamtoosa/dreamer.py`](dreamtoosa/dreamer.py) for local curation and
+[`dreams_implementation.py`](dreams_implementation.py) as the primary remote API
+reference. These serve different execution environments; the local package does
+not supersede or implement the remote API client interface.
+
+| Entry point | Purpose and persistence | Status / where to make changes |
+|---|---|---|
+| [`dreamtoosa/dreamer.py`](dreamtoosa/dreamer.py) (`Dreamer`, `MemoryStore`) | Offline curation using text normalization, keyword buckets, topic-specific selection rules, and a fixed synthesis example. `MemoryStore` saves and loads local JSON files. | Canonical local implementation, exported by `dreamtoosa` and covered by `tests/test_dreamer.py`. Extend this module for local behavior. |
+| [`dreams_implementation.py`](dreams_implementation.py) (`DreamConfig`, `DreamsClient`) | Submits and polls remote dream jobs through the Anthropic SDK; works with service-managed memory-store and session IDs. | Primary remote API reference used by the guides below. Start remote API changes here. |
+| [`dreams_client.py`](dreams_client.py) (`DreamConfig`, `DreamsClient`, `DreamWorkflow`) | Alternative remote wrapper with memory review, session creation, and batch workflow examples. | Historical reference variant. Prefer `dreams_implementation.py` for new remote client work. |
+| [`dreamtoosa_dreams_integration.py`](dreamtoosa_dreams_integration.py) (`DreamToosaDreamsManager`, `DreamToosaOrchestrator`) | Remote API orchestration with domain configuration, session counters, and periodic curation. | Historical domain-integration reference; it is not wired into the local package or maintainer routine. |
+| [`antigravity_dream_example.py`](antigravity_dream_example.py) | Earlier standalone local curation demo with its own JSON `MemoryStore`. | Historical prototype. Use the packaged `Dreamer` and `MemoryStore` for new local work. |
+
+For local use, import `Dreamer` and `MemoryStore` from `dreamtoosa`, or run:
+
+```bash
+python3 -m dreamtoosa --demo
+```
+
+The demo writes JSON stores under `reports/memory_stores/` in the current working
+directory. Local JSON stores and their generated IDs are not remote API resources;
+there is no adapter or automatic synchronization between the two. The local
+heuristics are not a substitute for remote model-based curation. The routine's
+[`state.json`](dreamtoosa/state.json) is separate review-tracking state, not a
+`MemoryStore`.
+
+[`dream_example.py`](dream_example.py) and
+[`dream_implementation_examples.py`](dream_implementation_examples.py) are remote
+API demos, not additional supported backends. The historical files remain in place
+to preserve educational examples and existing imports. The remote variants still
+overlap; consolidating their internals is separate work. Extend the appropriate
+entry point above instead of adding another parallel implementation, and update
+the relevant guide when changing API usage.
+
 ## Claude Dreams reference implementation
 
 Dreams curate an agent's memory store — deduplicating entries, resolving
@@ -74,19 +111,20 @@ contradictions, and surfacing patterns across past sessions into a new store you
 adopt or discard. It is a research preview and needs
 [access](https://claude.com/form/claude-managed-agents).
 
-**Start here**, in order:
+**For the remote API reference**, read in order:
 
 1. [START_HERE.md](START_HERE.md) — orientation
 2. [README_DREAMS.md](README_DREAMS.md) — concepts and file map
 3. [IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md) — API and cost at a glance
 4. [CLAUDE_DREAMS_GUIDE.md](CLAUDE_DREAMS_GUIDE.md) — full reference
-5. [`dreams_implementation.py`](dreams_implementation.py) — the client to actually use
+5. [`dreams_implementation.py`](dreams_implementation.py) — primary remote client reference
 
 > **Archived reference documents.** The overlapping reference files from the
 > May 12 and May 13 routine runs have been consolidated and archived into
 > [`Docs/legacy_dreams/`](Docs/legacy_dreams/README.md). They are preserved for
 > historical reference and architectural context, while keeping the root clean.
-> **The list above is the canonical set to use.**
+> **The list above is the canonical remote API reference set.** For offline
+> curation, use the local package described above.
 
 ## Project workflow
 

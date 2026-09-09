@@ -1,6 +1,15 @@
 """
-DreamToosa-specific integration of Claude Dreams
-Includes memory management, periodic curation, and domain-specific handling
+DreamToosa domain integration: historical remote API reference variant.
+
+DreamToosaDreamsManager and DreamToosaOrchestrator demonstrate domain-specific
+memory management and periodic curation through the Anthropic SDK. They retain
+their own remote API calls and are not wired into the local dreamtoosa package
+or the Dream Report maintainer routine.
+
+Start new remote client work in dreams_implementation.py, the primary remote
+reference. For offline curation and local JSON persistence, use Dreamer and
+MemoryStore from dreamtoosa. See README.md#memory-curation-implementations for
+the implementation map and the remaining historical variants.
 """
 
 from typing import Optional, List, Dict, Any

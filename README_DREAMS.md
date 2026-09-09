@@ -1,5 +1,11 @@
 # Claude Dreams - Complete Implementation Kit
 
+> **Scope: remote API reference.** This guide uses
+> [`dreams_implementation.py`](dreams_implementation.py). For offline curation,
+> use `Dreamer` and `MemoryStore` from `dreamtoosa`. See the
+> [implementation map](README.md#memory-curation-implementations) for the local
+> package, remote client, and historical variants.
+
 ## 📋 Overview
 
 This package contains a complete understanding and implementation guide for **Claude Dreams**, a research preview feature of Anthropic's Managed Agents API. Dreams enable intelligent memory curation for long-running agents by analyzing historical sessions and cleaning up memory stores.

@@ -1,10 +1,18 @@
 #!/usr/bin/env python3
 """
-DreamToosa Memory Curation Engine (Dreamer).
+DreamToosa Memory Curation Engine (Dreamer): canonical local implementation.
 
-Provides local agent memory consolidation, deduplication, temporal
-conflict resolution, and higher-order insight synthesis.
-Can be used programmatically or via CLI (`python3 -m dreamtoosa.dreamer`).
+Provides offline curation with Python's standard library: normalized-text
+deduplication, keyword grouping, topic-specific selection rules, and a fixed
+synthesis example. MemoryStore persists local JSON files. Import Dreamer and
+MemoryStore from dreamtoosa, or run `python3 -m dreamtoosa --demo`.
+
+This module is independent of the remote Anthropic API wrappers. It does not
+implement their client interface or synchronize local stores with the service.
+For remote API examples, start with dreams_implementation.py; dreams_client.py
+and dreamtoosa_dreams_integration.py are historical remote reference variants.
+For new local work, extend this module instead of antigravity_dream_example.py.
+See README.md#memory-curation-implementations for the implementation map.
 """
 
 import argparse
@@ -20,8 +28,10 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 class MemoryStore:
     """
-    Persistent key-value memory store for AI coding agents.
-    Saves and loads memories in a JSON representation.
+    Local JSON memory store for AI coding agents.
+
+    Saves and loads memories on disk; its generated IDs do not identify remote
+    Anthropic memory stores. Call save() to persist entries added with write_memory().
     """
 
     def __init__(self, store_id: Optional[str] = None, storage_dir: Optional[Path] = None):

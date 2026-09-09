@@ -1,6 +1,14 @@
 """
-Claude Dreams Client
-A practical implementation for using Claude Dreams with Managed Agents API
+Claude Dreams Client: historical remote API reference variant.
+
+Retains an alternative DreamConfig/DreamsClient pair and DreamWorkflow examples
+for memory review, session creation, and batch curation through the Anthropic SDK.
+These overlap with dreams_implementation.py, the primary remote client reference;
+use that module for new remote client work rather than adding another wrapper.
+
+For offline curation and local JSON persistence, use Dreamer and MemoryStore
+from dreamtoosa. This module is not used by that package. See
+README.md#memory-curation-implementations for the implementation map.
 """
 
 import time
