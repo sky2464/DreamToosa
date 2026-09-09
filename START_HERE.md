@@ -1,5 +1,10 @@
 # 🚀 Claude Dreams Implementation - START HERE
 
+> **Scope: remote API reference.** The walkthrough below uses the Anthropic SDK.
+> For offline curation, start with `python3 -m dreamtoosa --demo` and the
+> [implementation map](README.md#memory-curation-implementations), which explains
+> how the local package differs from these remote API examples.
+
 ## Task Completed ✓
 
 Your scheduled task to understand and implement Claude Dreams has been completed. All documentation and code is ready to use.

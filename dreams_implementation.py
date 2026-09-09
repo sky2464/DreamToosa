@@ -1,7 +1,15 @@
 #!/usr/bin/env python3
 """
-Claude Dreams Implementation
-Demonstrates how to use the Dreams API for agent memory curation.
+Claude Dreams: primary remote API reference implementation.
+
+DreamConfig and DreamsClient wrap service-managed dream jobs through the
+Anthropic SDK. This is the client used by START_HERE.md and README_DREAMS.md;
+start remote API changes here. It requires API credentials and service access.
+
+For offline curation and local JSON persistence, use Dreamer and MemoryStore
+from dreamtoosa. The local package is not an API-compatible replacement for
+this client. dreams_client.py and dreamtoosa_dreams_integration.py are retained
+historical remote variants. See README.md#memory-curation-implementations.
 """
 
 import anthropic
