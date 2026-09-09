@@ -2,16 +2,15 @@
   "schema_version": 1,
   "_comment": "Cross-run state for the Dream Report routine (trig_01PvQiwSRhJktFxMXwxf14Qi). The routine runs with persist_session=false, so this committed file is the only memory between runs. Every run reads it first and writes it back in the same commit as the report.",
   "last_run": {
-    "date": "2026-09-08",
-    "session_id": "local-antigravity-run-2026-09-08",
+    "date": "2026-09-09",
+    "session_id": "session_014gy8vTqjnoJ2HfdbyWEc4q",
     "repos_reviewed": [
-      "sky2464/DreamToosa"
-    ],
-    "repos_skipped": [
       "sky2464/AgToosa",
       "sky2464/Crapsino",
+      "sky2464/DreamToosa",
       "sky2464/miToosa"
-    ]
+    ],
+    "repos_skipped": []
   },
   "fix_rotation": {
     "_comment": "Exactly one repo carries fix work per run. Advance last_index by 1 (mod length) each run, skipping repos that are disabled, not fix_eligible, or over max_open_prs.",
@@ -21,37 +20,37 @@
       "sky2464/DreamToosa",
       "sky2464/miToosa"
     ],
-    "last_index": 0,
-    "last_advanced": "2026-09-08"
+    "last_index": 1,
+    "last_advanced": "2026-09-09"
   },
   "repos": {
     "sky2464/AgToosa": {
-      "last_reviewed_sha": null,
-      "last_report_date": null,
-      "issues_filed": [],
+      "last_reviewed_sha": "348c6377f8bdf334d5e810b66f9b11fef138b89c",
+      "last_report_date": "2026-09-09",
+      "issues_filed": [166],
       "prs_opened": [],
-      "last_skip_reason": "no clone"
+      "last_skip_reason": null
     },
     "sky2464/Crapsino": {
-      "last_reviewed_sha": null,
-      "last_report_date": null,
-      "issues_filed": [],
-      "prs_opened": [],
-      "last_skip_reason": "no clone"
-    },
-    "sky2464/DreamToosa": {
-      "last_reviewed_sha": "a8815ded67285032284cd775fb65a303562a4376",
-      "last_report_date": "2026-09-08",
+      "last_reviewed_sha": "ceb42b352e1975528ea541a4aa183e159226be5f",
+      "last_report_date": "2026-09-09",
       "issues_filed": [],
       "prs_opened": [],
       "last_skip_reason": null
     },
+    "sky2464/DreamToosa": {
+      "last_reviewed_sha": "e6d062ba4884a429717fe17758b03c571818d70e",
+      "last_report_date": "2026-09-09",
+      "issues_filed": [8],
+      "prs_opened": [],
+      "last_skip_reason": null
+    },
     "sky2464/miToosa": {
-      "last_reviewed_sha": null,
-      "last_report_date": null,
+      "last_reviewed_sha": "2114ef213120534db65eef17159bfc03f607923d",
+      "last_report_date": "2026-09-09",
       "issues_filed": [],
       "prs_opened": [],
-      "last_skip_reason": "no clone"
+      "last_skip_reason": null
     }
   }
 }
