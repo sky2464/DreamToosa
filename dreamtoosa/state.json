@@ -2,8 +2,8 @@
   "schema_version": 1,
   "_comment": "Cross-run state for the Dream Report routine (trig_01PvQiwSRhJktFxMXwxf14Qi). The routine runs with persist_session=false, so this committed file is the only memory between runs. Every run reads it first and writes it back in the same commit as the report.",
   "last_run": {
-    "date": "2026-09-09",
-    "session_id": "session_014gy8vTqjnoJ2HfdbyWEc4q",
+    "date": "2026-09-11",
+    "session_id": "session_014C5VzsjWe8SnFmrzibHprS",
     "repos_reviewed": [
       "sky2464/AgToosa",
       "sky2464/Crapsino",
@@ -20,34 +20,34 @@
       "sky2464/DreamToosa",
       "sky2464/miToosa"
     ],
-    "last_index": 1,
-    "last_advanced": "2026-09-09"
+    "last_index": 2,
+    "last_advanced": "2026-09-11"
   },
   "repos": {
     "sky2464/AgToosa": {
-      "last_reviewed_sha": "348c6377f8bdf334d5e810b66f9b11fef138b89c",
-      "last_report_date": "2026-09-09",
+      "last_reviewed_sha": "04e5ebc09ef1ca2e730cdb586fcfa0a8c53ae197",
+      "last_report_date": "2026-09-11",
       "issues_filed": [166],
       "prs_opened": [],
       "last_skip_reason": null
     },
     "sky2464/Crapsino": {
       "last_reviewed_sha": "ceb42b352e1975528ea541a4aa183e159226be5f",
-      "last_report_date": "2026-09-09",
+      "last_report_date": "2026-09-11",
       "issues_filed": [],
       "prs_opened": [],
       "last_skip_reason": null
     },
     "sky2464/DreamToosa": {
-      "last_reviewed_sha": "e6d062ba4884a429717fe17758b03c571818d70e",
-      "last_report_date": "2026-09-09",
+      "last_reviewed_sha": "29766d81260812232b6925af34801ab379881ff5",
+      "last_report_date": "2026-09-11",
       "issues_filed": [8],
       "prs_opened": [],
       "last_skip_reason": null
     },
     "sky2464/miToosa": {
       "last_reviewed_sha": "2114ef213120534db65eef17159bfc03f607923d",
-      "last_report_date": "2026-09-09",
+      "last_report_date": "2026-09-11",
       "issues_filed": [],
       "prs_opened": [],
       "last_skip_reason": null
