@@ -35,6 +35,7 @@
 | DEV-001 | Feature: Multi-repo control plane for the Dream Report routine | Feature | M | 🟨 In Progress | 4/6 |
 | DEV-002 | Chore: Root README and control-plane CI | Chore | S | 🏁 Shipped | 5/5 |
 | DEV-003 | Feature: Local agent memory curation engine and CLI | Feature | S | 🏁 Shipped | 4/4 |
+| DEV-004 | Feature: Resilient Multi-Repo Control Plane & PR Lifecycle | Feature | M | ✅ Done | 4/4 |
 
 Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blocked · 🔧 Awaiting Manual · 🏁 Shipped
 
@@ -43,27 +44,30 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 > Task breakdown for the current In Progress story. Created by `/agtoosa-spec` (Part 4).
 > Updated by `/agtoosa-build` — each completed sub-task gets `- [x]`.
 
-- [x] **1.** Control plane: manifest, profiles, cross-run state
-  - [x] 1.1 `dreamtoosa/repos.yml` — targets, per-repo caps, run budget
-  - [x] 1.2 `dreamtoosa/profiles/*.md` — per-stack review criteria replacing the hardcoded AgToosa checklist
-  - [x] 1.3 `dreamtoosa/state.json` — last-reviewed SHA, issues/PRs, fix rotation
-  - [x] 1.4 `reports/` layout — per-repo dirs plus a per-run index
-- [x] **2.** Routine prompt rewritten and version-controlled
-  - [x] 2.1 `dreamtoosa/ROUTINE_PROMPT.md` — repo-loop, `git -C`, MCP-only GitHub, circuit breaker, one fix repo per run
-- [x] **3.** Apply to the live routine
-  - [x] 3.1 Prompt + config pushed via `RemoteTrigger update`; stale `outcomes` branches cleared, `ToolSearch` added to `allowed_tools`, `model` restored to `claude-sonnet-5` after the first update blanked it
-  - [x] 3.2 Control plane merged to DreamToosa `main` (PR #1, commit `b474cba`) so the sandbox clone can find it
-  - [ ] 3.3 **Deferred — not API-settable:** the 6 unused MCP connectors ignore `mcp_connections: []`. Detach in the routine UI if wanted; no functional impact.
-- [ ] **4.** Verify
-  - [ ] 4.1 Manual `RemoteTrigger run`; confirm all four clones touched and the AgToosa circuit breaker fires
-  - [ ] 4.2 Second run confirms rotation advanced and no duplicate same-day report
+- [x] **1.** Specifications & Planning: Establish authoritative AgToosa spec and cycle tracking
+  - [x] 1.1 Author `Docs/archived/spec-DEV-004.md` adhering to `Docs/SPEC-FORMAT.md`
+  - [x] 1.2 Update `Docs/Master-Plan.md` with DEV-004 active story and architecture decisions
+- [x] **2.** Control Plane Manifest & Validator Extension
+  - [x] 2.1 Update `dreamtoosa/repos.yml` with hub circuit breaker, PR strategy, and clone root
+  - [x] 2.2 Extend `dreamtoosa/validate.py` with invariant checks for new hub keys
+  - [x] 2.3 Create `tests/test_validate.py` testing valid and invalid control plane configs
+- [x] **3.** Routine Prompt Source of Truth Hardening
+  - [x] 3.1 Refactor Phase 0 in `dreamtoosa/ROUTINE_PROMPT.md` for dynamic root discovery
+  - [x] 3.2 Implement Phase 0.5 pre-flight auth probing and push prohibition in READ_ONLY mode
+  - [x] 3.3 Implement hub circuit breaker check in Phase 2
+  - [x] 3.4 Implement worktree / non-destructive workspace isolation in Phase 5
+  - [x] 3.5 Implement PR chaining logic and lineage tracking in Phase 6
+  - [x] 3.6 Implement verification execution and baseline delta tracking
+- [x] **4.** Verification & Validation Audit
+  - [x] 4.1 Run `python3 -m unittest discover -s tests` across full test suite
+  - [x] 4.2 Run `python3 dreamtoosa/validate.py` confirming checks pass
+  - [x] 4.3 Verify `python3 -m py_compile *.py dreamtoosa/*.py tests/*.py` passes cleanly
 
-- [x] **5.** DEV-002: Root README and control-plane CI
-  - [x] 5.1 `dreamtoosa/validate.py` — 16 invariant checks (manifest/state parse, repo-set parity, rotation range, profile resolution, budget caps)
-  - [x] 5.2 `.github/workflows/control-plane.yml` — runs the validator on pushes and PRs touching `dreamtoosa/`, including the routine's own report PRs
-  - [x] 5.3 `ROUTINE_PROMPT.md` Phase 6 — routine validates its own `state.json` write before committing
-  - [x] 5.4 `README.md` — root orientation; three May-17 Dreams docs tracked so its links resolve
-  - [x] 5.5 Confirm the workflow runs green on the PR, and again on the next routine report PR (verified green on PR #5)
+> **Decision recorded (DEV-004 - PR Chaining):** When daily report PRs are not merged immediately by humans, the routine branches from the newest unmerged report branch on origin (chaining) rather than forking from stale `origin/main`. This ensures continuous `state.json` lineage and eliminates cascading merge conflicts.
+
+> **Decision recorded (DEV-004 - Hub Circuit Breaker):** The hub repository (`sky2464/DreamToosa`) enforces `hub.max_unmerged_report_prs`. When unmerged report PRs reach this cap, the routine stops pushing new remote branches and alerts maintainers, preventing unmerged branch spam.
+
+> **Decision recorded (DEV-004 - Degradation & Workspace Safety):** In read-only mode (e.g. 401 API credentials), the routine never pushes remote branches. Workspace files must never be destructively overwritten with `git checkout -- <file>`.
 
 > **Decision recorded (DEV-002):** GitHub's suggested workflows — Python application, Python package, Django — were all rejected. They are inferred from the language histogram, not the repo's behaviour: there is no `requirements.txt`, no packaging metadata, no Django, and no test suite, so `pytest` exits 5 and the badge is red on the first run. The Dreams code also needs `ANTHROPIC_API_KEY` and beta access and cannot execute in CI. Control-plane validation was built instead.
 
@@ -148,4 +152,7 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 | 2026-09-08 | spec DEV-003 started | AgToosa |
 | 2026-09-08 | build DEV-003 completed | AgToosa |
 | 2026-09-08 | ship DEV-003 shipped | AgToosa |
+| 2026-09-16 | spec DEV-004 started | DreamToosa |
+| 2026-09-16 | build DEV-004 started | DreamToosa |
+| 2026-09-16 | build DEV-004 completed | DreamToosa |
 
