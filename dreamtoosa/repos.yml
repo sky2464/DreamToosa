@@ -23,6 +23,7 @@ defaults:
   review_window: "2 days ago"
   max_open_prs: 5
   fix_eligible: true
+  clone_root_env: "DREAMTOOSA_CLONE_ROOT"
 
 repos:
   - repo: sky2464/AgToosa
@@ -58,6 +59,8 @@ hub:
   state_file: dreamtoosa/state.json
   manifest: dreamtoosa/repos.yml
   profiles_dir: dreamtoosa/profiles
+  max_unmerged_report_prs: 3        # Hub circuit breaker: stops branch pushing when unmerged report PRs reach cap
+  pr_strategy: "chain"              # "chain" (base new reports on latest unmerged report branch) or "independent"
 
 # Per-run limits. Runs that exceed these should stop cleanly and record what
 # they completed, rather than being cut off mid-write.
