@@ -10,7 +10,8 @@
       "sky2464/DreamToosa",
       "sky2464/miToosa"
     ],
-    "repos_skipped": []
+    "repos_skipped": [],
+    "notes": "GitHub MCP returned 401 — read-only mode. No issues filed, no PRs opened, no branch pushed to origin. Per-repo reports and index written locally. Branch dreamtoosa/report-2026-09-18 requires manual push."
   },
   "fix_rotation": {
     "_comment": "Exactly one repo carries fix work per run. Advance last_index by 1 (mod length) each run, skipping repos that are disabled, not fix_eligible, or over max_open_prs.",
@@ -43,8 +44,7 @@
       "last_report_date": "2026-09-18",
       "issues_filed": [8],
       "prs_opened": [],
-      "last_skip_reason": null,
-      "_note_2026-09-18": "GitHub API 401 — no new issues filed; findings: Master-Plan drift (DEV-004 not shipped in plan), CHANGELOG.md missing. Verify if issue #8 covers CHANGELOG before re-filing."
+      "last_skip_reason": null
     },
     "sky2464/miToosa": {
       "last_reviewed_sha": "2114ef213120534db65eef17159bfc03f607923d",
