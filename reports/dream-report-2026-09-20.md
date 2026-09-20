@@ -1,6 +1,6 @@
 # Dream Report Index — 2026-09-20
 
-> **⚠️ READ-ONLY MODE:** GitHub MCP tools returned `401 Bad credentials`. No issues were filed and no PRs were opened this run. All review findings and full test verification results across all four repositories are recorded here for human action. Re-authenticate GitHub credentials to restore remote issue and PR automation.
+> **⚠️ READ-ONLY MODE:** GitHub MCP tools returned `401 Bad credentials`. No issues were filed and no PRs were opened this run. All review findings and full test verification results across all five repositories are recorded here for human action. Re-authenticate GitHub credentials to restore remote issue and PR automation.
 
 **Run date:** 2026-09-20  
 **Session ID:** maintainer-run-2026-09-20  
@@ -11,11 +11,12 @@
 ## Status Table
 
 | Repo | Profile | Commits in Window | Findings | Skipped Reason |
-|------|---------|-------------------|----------|----------------|
+|------|---------|:-----------------:|----------|----------------|
 | sky2464/AgToosa | shell-spec-driven | 1 | 0 new (carry-forward tracked in #153, #141) | None |
 | sky2464/Crapsino | web-playwright | 0 | 0 (working tree coverage hygiene) | None |
 | sky2464/DreamToosa | python-lib | 4 | 0 new (DEV-004 & CHANGELOG resolved; carry-forward client duplication) | None |
 | sky2464/miToosa | dart-flutter | 0 | 0 (build directory analyzer exclude hygiene) | None |
+| sky2464/Agtoosa2 | python-spec-driven | 22 | 0 new (initial onboarding; build artifact hygiene) | None |
 
 **Circuit breaker:** GitHub API returned 401. No repos skipped on PR count; pass-through in read-only mode.
 
@@ -93,8 +94,8 @@ Carry-forward only — all tracked in existing issues:
 
 ### What Improved
 - Baseline stable with zero new commits in the review window.
-- Static analysis verified clean: `flutter analyze lib test` found 0 issues.
-- Full test suite verified: `flutter test` executed 950 tests in 36.5s with all 950 passing (0 failures).
+- Static analysis verified clean: `flutter analyze lib test` reported **0 issues**.
+- Full test suite verified: `flutter test` executed **950/950 tests passed** in 36.5 seconds.
 
 ### What Needs Attention
 - **Analyzer exclude hygiene:** A general `flutter analyze` at repo root flags third-party SPM packages in `build/macos/SourcePackages/`. Adding `build/**` to `analyzer.exclude` in `analysis_options.yaml` will ensure root analysis ignores external caches.
@@ -107,14 +108,36 @@ Carry-forward only — all tracked in existing issues:
 
 ---
 
+## sky2464/Agtoosa2
+
+**Profile:** python-spec-driven · **HEAD:** `d8b28cd`
+
+### What Improved
+- **Onboarded to DreamToosa control plane:** Profile `python-spec-driven` established with pytest suite verification and spec/plan governance.
+- **Cross-Platform Installer Parity (`0eb86bc`, `d8b28cd`):** Implemented native PowerShell installer (`install.ps1`) mirroring `install.sh`, complete with Windows terminal instructions, automatic PATH configuration, and v0.9.11 release bump.
+- **Autopilot & Agent Governance (`85e8d93`):** Shipped `agtoosa autopilot` to automate dependency indexing, cycle detection, and conformance checks in a single zero-friction invocation.
+- **Web Studio UX & Copilot (`f31e377`, `14ffea8`, `4d1cdfd`):** Added active copilot panel, interactive 3-step lifecycle loop, auto-port fallback for Studio web server, and resolved HTML entity rendering.
+- **Packaging & Asset Distribution (`125470b`):** Bundled web studio HTML/CSS/JS assets into package-data in `pyproject.toml` with graceful server fallback for local vs. pip-installed layouts.
+- **Adaptive Onboarding (`538d957`):** Delivered DEV-058 implementing genesis launchpad and workflow enforcement.
+- **Verification 100% Green:** Complete pytest suite executed and passed: **346/346 tests passed** in 11.48s.
+
+### What Needs Attention
+- **Build Artifact Hygiene:** Working directory has `agtoosa.egg-info/`, `build/`, and `dist/` directories. Ensure these remain untracked/gitignored.
+- **Spec Coverage:** Verify all newly shipped CLI commands have backing specs under `docs/specs/`.
+
+### Action Items
+1. **(Human)** Verify build directories remain gitignored.
+2. Confirm spec coverage for new CLI command suite.
+3. Integrated into multi-repo rotation cycle.
+
+---
+
 ## Fix Rotation
 
-- **Last index:** 3 (`sky2464/miToosa`)
-- **Advanced to:**
-  - Candidate 0 (`sky2464/AgToosa`): Skipped (`fix_eligible: false`, 15-PR backlog)
-  - Candidate 1 (`sky2464/Crapsino`): **Selected** (`enabled: true`, `fix_eligible: true`, under cap)
-- **Fix work status:** Did not execute this run due to `READ_ONLY` mode (GitHub API 401 Bad credentials).
-- `sky2464/Crapsino` retains the fix rotation for the next cycle.
+- **Current order:** `sky2464/AgToosa`, `sky2464/Crapsino`, `sky2464/DreamToosa`, `sky2464/miToosa`, `sky2464/Agtoosa2`
+- **Last index:** 1 (`sky2464/Crapsino`)
+- `sky2464/Crapsino` retains the fix target slot for the next run.
+- `sky2464/Agtoosa2` will enter rotation following `sky2464/miToosa`.
 
 ## Issues Filed This Run
 None — GitHub API unavailable (401 Bad credentials).

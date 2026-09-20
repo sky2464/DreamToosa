@@ -8,10 +8,11 @@
       "sky2464/AgToosa",
       "sky2464/Crapsino",
       "sky2464/DreamToosa",
-      "sky2464/miToosa"
+      "sky2464/miToosa",
+      "sky2464/Agtoosa2"
     ],
     "repos_skipped": [],
-    "notes": "GitHub MCP returned 401 — read-only mode. No issues filed, no PRs opened, no branch pushed to origin. Per-repo reports and index written locally. Full test suites executed across all 4 repos (bats smoke 19/19, vitest 418/418, python 13/13, flutter 950/950). Branch dreamtoosa/report-2026-09-20 requires manual push once credentials restored."
+    "notes": "GitHub MCP returned 401 — read-only mode. No issues filed, no PRs opened, no branch pushed to origin. Per-repo reports and index written locally. Full test suites executed across all 5 repos (bats smoke 19/19, vitest 418/418, python 13/13, flutter 950/950, pytest 346/346). Branch dreamtoosa/report-2026-09-20 requires manual push once credentials restored."
   },
   "fix_rotation": {
     "_comment": "Exactly one repo carries fix work per run. Advance last_index by 1 (mod length) each run, skipping repos that are disabled, not fix_eligible, or over max_open_prs.",
@@ -19,7 +20,8 @@
       "sky2464/AgToosa",
       "sky2464/Crapsino",
       "sky2464/DreamToosa",
-      "sky2464/miToosa"
+      "sky2464/miToosa",
+      "sky2464/Agtoosa2"
     ],
     "last_index": 1,
     "last_advanced": "2026-09-20"
@@ -48,6 +50,13 @@
     },
     "sky2464/miToosa": {
       "last_reviewed_sha": "2114ef213120534db65eef17159bfc03f607923d",
+      "last_report_date": "2026-09-20",
+      "issues_filed": [],
+      "prs_opened": [],
+      "last_skip_reason": null
+    },
+    "sky2464/Agtoosa2": {
+      "last_reviewed_sha": "d8b28cd4e69201c9caa9bbde43ae497a7eb7cbe4",
       "last_report_date": "2026-09-20",
       "issues_filed": [],
       "prs_opened": [],
