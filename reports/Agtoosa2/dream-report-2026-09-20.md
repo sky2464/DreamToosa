@@ -60,5 +60,5 @@ python3 -m py_compile agtoosa/*.py
 ## Action Items
 
 1. **(Human)** Verify that build directories (`build/`, `dist/`, `*.egg-info/`) remain in `.gitignore` and are not accidentally committed.
-2. Confirm that newly shipped CLI commands (`autopilot`, `update`, `upgrade`) have corresponding spec documents under `docs/specs/`.
+2. Filed **Issue #8** (`bug(governance): Spec drift detected for autopilot, self-update CLI, and Windows installer`) to backfill specs for `autopilot`, `update`, `upgrade`, and `install.ps1`.
 3. Added to DreamToosa multi-repo control plane with profile `python-spec-driven`.
