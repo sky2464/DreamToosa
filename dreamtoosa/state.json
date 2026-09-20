@@ -58,7 +58,7 @@
     "sky2464/Agtoosa2": {
       "last_reviewed_sha": "d8b28cd4e69201c9caa9bbde43ae497a7eb7cbe4",
       "last_report_date": "2026-09-20",
-      "issues_filed": [],
+      "issues_filed": [8],
       "prs_opened": [],
       "last_skip_reason": null
     }
