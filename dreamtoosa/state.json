@@ -2,8 +2,8 @@
   "schema_version": 1,
   "_comment": "Cross-run state for the Dream Report routine (trig_01PvQiwSRhJktFxMXwxf14Qi). The routine runs with persist_session=false, so this committed file is the only memory between runs. Every run reads it first and writes it back in the same commit as the report.",
   "last_run": {
-    "date": "2026-09-20",
-    "session_id": "maintainer-run-2026-09-20",
+    "date": "2026-10-03",
+    "session_id": "maintainer-run-2026-10-03",
     "repos_reviewed": [
       "sky2464/AgToosa",
       "sky2464/Crapsino",
@@ -12,7 +12,7 @@
       "sky2464/Agtoosa2"
     ],
     "repos_skipped": [],
-    "notes": "GitHub MCP returned 401 — read-only mode. No issues filed, no PRs opened, no branch pushed to origin. Per-repo reports and index written locally. Full test suites executed across all 5 repos (bats smoke 19/19, vitest 418/418, python 13/13, flutter 950/950, pytest 346/346). Branch dreamtoosa/report-2026-09-20 requires manual push once credentials restored."
+    "notes": "GitHub MCP returned 401 — read-only mode. No issues filed, no PRs opened, no branch pushed to origin. Per-repo reports and index written locally. Full test suites executed across all 5 repos (AgToosa fast checks & smoke 60/60 passing, Crapsino vitest 418/418 passing & Playwright 1/3 passing, DreamToosa unit tests 13/13 passing & validator 19/19 passing, miToosa flutter analyze clean & flutter test 950/950 passing, Agtoosa2 pytest 372/373 passing with 1 spec count regression). Fix rotation advanced to sky2464/DreamToosa (index 2)."
   },
   "fix_rotation": {
     "_comment": "Exactly one repo carries fix work per run. Advance last_index by 1 (mod length) each run, skipping repos that are disabled, not fix_eligible, or over max_open_prs.",
@@ -23,41 +23,41 @@
       "sky2464/miToosa",
       "sky2464/Agtoosa2"
     ],
-    "last_index": 1,
-    "last_advanced": "2026-09-20"
+    "last_index": 2,
+    "last_advanced": "2026-10-03"
   },
   "repos": {
     "sky2464/AgToosa": {
       "last_reviewed_sha": "9784e2d789c2f7765af2ca29d24fda66ad240b85",
-      "last_report_date": "2026-09-20",
+      "last_report_date": "2026-10-03",
       "issues_filed": [166, 168],
       "prs_opened": [],
       "last_skip_reason": null
     },
     "sky2464/Crapsino": {
       "last_reviewed_sha": "ceb42b352e1975528ea541a4aa183e159226be5f",
-      "last_report_date": "2026-09-20",
+      "last_report_date": "2026-10-03",
       "issues_filed": [],
       "prs_opened": [],
       "last_skip_reason": null
     },
     "sky2464/DreamToosa": {
-      "last_reviewed_sha": "a8b4beb50454ee8c57deba1f76d5b2d590160eec",
-      "last_report_date": "2026-09-20",
+      "last_reviewed_sha": "b7bab4e7e4e9f24279a72e5b7e3592bccdc2eb47",
+      "last_report_date": "2026-10-03",
       "issues_filed": [8],
       "prs_opened": [],
       "last_skip_reason": null
     },
     "sky2464/miToosa": {
       "last_reviewed_sha": "2114ef213120534db65eef17159bfc03f607923d",
-      "last_report_date": "2026-09-20",
+      "last_report_date": "2026-10-03",
       "issues_filed": [],
       "prs_opened": [],
       "last_skip_reason": null
     },
     "sky2464/Agtoosa2": {
-      "last_reviewed_sha": "d8b28cd4e69201c9caa9bbde43ae497a7eb7cbe4",
-      "last_report_date": "2026-09-20",
+      "last_reviewed_sha": "b8dd70dd4b5cdb2da2722322d2ff358f5150a999",
+      "last_report_date": "2026-10-03",
       "issues_filed": [8],
       "prs_opened": [],
       "last_skip_reason": null
