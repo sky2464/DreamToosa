@@ -1,7 +1,7 @@
 # Master-Plan
 
 > **Source of truth for active work.** Completed work lives in `Docs/archived/` — see Completed This Cycle for links.
-> **Last updated:** 2026-09-07 21:15
+> **Last updated:** 2026-10-13 00:00
 
 ## Project Charter
 
@@ -102,9 +102,8 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 
 | ID | Title | Type | Estimate | Epic | Priority | Clarity | Status |
 |----|-------|------|----------|------|----------|---------|--------|
-| [DEV-XX] | Feature: [name] | Feature | S | [DEV-YY] | High | needs-interview | ⬜ Backlog |
-
-*(Empty until stories are created via `/agtoosa-spec` or `/agtoosa-task`.)*
+| DEV-005a | Feature: Fleet Triage report core (sections, severity engine, visibility key) | Feature | M | DEV-100 | P1 | ready | 🟦 Todo — spec pending approval |
+| DEV-005b | Feature: Fleet Triage ledger, dark-routine heartbeat and urgent push | Feature | S | DEV-100 | P1 | ready | 🟦 Todo — spec pending approval |
 
 ## Epics
 
@@ -157,4 +156,6 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 | 2026-09-16 | build DEV-004 started | DreamToosa |
 | 2026-09-16 | build DEV-004 completed | DreamToosa |
 | 2026-09-18 | ship DEV-004 shipped | DreamToosa |
+| 2026-10-13 | spec DEV-005a drafted | DreamToosa |
+| 2026-10-13 | spec DEV-005b drafted | DreamToosa |
 
