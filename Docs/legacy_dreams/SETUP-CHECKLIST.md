@@ -31,7 +31,7 @@
   ```
 
 - [ ] Copy implementation files to your project:
-  - [ ] `dreams_client.py`
+  - [ ] `dreams_implementation.py`
   - [ ] `dreamtoosa_dreams_integration.py`
 
 - [ ] Verify API access
@@ -68,7 +68,7 @@
 
 - [ ] Create your first dream
   ```python
-  from dreams_client import DreamsClient, DreamConfig
+  from dreams_implementation import DreamsClient, DreamConfig
   
   client = DreamsClient()
   dream_id = client.create_dream(
@@ -188,7 +188,7 @@ Before going to production, verify:
 ### Create Dream
 ```bash
 python -c "
-from dreams_client import DreamsClient, DreamConfig
+from dreams_implementation import DreamsClient, DreamConfig
 client = DreamsClient()
 dream_id = client.create_dream(
     DreamConfig(memory_store_id='memstore_...', session_ids=['sesn_01...'])
@@ -220,7 +220,7 @@ for dream in client.beta.dreams.list(limit=5):
 ### Review Memory
 ```bash
 python -c "
-from dreams_client import DreamsClient
+from dreams_implementation import DreamsClient
 client = DreamsClient()
 client.review_memories('memstore_...', limit=15)
 "
@@ -260,7 +260,7 @@ Track these after first week:
 ### Quick (15 min)
 - This checklist
 - DREAMS-QUICK-START.md
-- Code examples in dreams_client.py
+- Code examples in dreams_implementation.py
 
 ### Comprehensive (1 hour)
 - claude-dreams-implementation.md

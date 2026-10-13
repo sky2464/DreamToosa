@@ -4,14 +4,10 @@ Python libraries, clients, and documentation bundles. Currently: `sky2464/DreamT
 
 ## What to review
 
-1. **Duplicate implementations** — this is the top priority for this profile.
-   Before reporting anything else, check whether a module, class, or guide
-   duplicates one that already exists. This repo has a documented history of
-   accumulating parallel implementations across runs (three separate
-   `DreamsClient` / `DreamConfig` definitions in `dreams_client.py`,
-   `dreams_implementation.py`, and `dreamtoosa_dreams_integration.py`; six
-   overlapping "quick start" documents). **Never add a new variant of an existing
-   file.** Extend the existing one or report the duplication.
+1. **Duplicate implementations** — remote `DreamConfig` / `DreamsClient` must
+   live only in `dreams_implementation.py` (DEV-005). Integration and workflow
+   modules must import that client, not reimplement SDK calls. Local curation
+   remains `dreamtoosa/dreamer.py`. **Never add a new remote client variant.**
 2. **Secrets** — no API keys, tokens, or real resource IDs committed. Example IDs
    must stay placeholders (`memstore_...`, `sesn_...`, `drm_...`). A real
    `sk-ant-` key or a live store ID is a `security` finding, always top priority.

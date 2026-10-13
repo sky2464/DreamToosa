@@ -323,7 +323,7 @@ Dreams are billed at standard API rates:
 
 ## Next Steps
 
-1. **Try the implementation**: Use `dreams_client.py` for a production-ready client
+1. **Try the implementation**: Use `dreams_implementation.py` for a production-ready client
 2. **Read full docs**: See `claude-dreams-implementation.md` for complete reference
 3. **Integrate**: Add periodic dreaming to your DreamToosa agent orchestration
 4. **Monitor**: Track memory quality metrics before and after dreaming

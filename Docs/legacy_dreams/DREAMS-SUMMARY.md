@@ -10,7 +10,7 @@ This implementation package contains everything needed to integrate Claude Dream
 - `DREAMS-SUMMARY.md` - This overview document
 
 ### 2. **Code Implementation**
-- `dreams_client.py` - Production-ready Dreams client with:
+- `dreams_implementation.py` - Production-ready Dreams client with:
   - `DreamsClient` - Low-level API wrapper
   - `DreamWorkflow` - High-level workflow orchestration
   - `DreamConfig` - Configuration dataclass
@@ -50,7 +50,7 @@ Better memory → Better agent decisions → Faster, higher-quality work
 
 ### Step 1: Create a Dream
 ```python
-from dreams_client import DreamsClient, DreamConfig
+from dreams_implementation import DreamsClient, DreamConfig
 
 client = DreamsClient()
 dream_id = client.create_dream(
@@ -340,7 +340,7 @@ orchestrator.print_all_stats()
   - Quick reference
 
 ### Code Files
-- **dreams_client.py** (~400 lines)
+- **dreams_implementation.py** (~400 lines)
   - `DreamsClient` - Core API client
   - `DreamConfig` - Configuration
   - `DreamWorkflow` - High-level workflows
@@ -361,7 +361,7 @@ orchestrator.print_all_stats()
 3. Skim `claude-dreams-implementation.md` (15 min)
 
 ### Step 2: Implement
-1. Copy `dreams_client.py` to your project
+1. Copy `dreams_implementation.py` to your project
 2. Update with your API credentials
 3. Create test memory store and sessions
 4. Run your first dream
