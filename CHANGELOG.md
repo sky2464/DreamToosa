@@ -9,6 +9,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), version
 
 ### Added
 
+- **Unified remote Dreams client (DEV-005).** Single `DreamConfig`/`DreamsClient` in `dreams_implementation.py`; `dreams_workflow.py` for workflows; removed `dreams_client.py`; integration delegates to canonical client; `tests/test_dreams_implementation.py`.
+
 - **Resilient Multi-Repo Control Plane & PR Lifecycle (DEV-004).**
   - **Dynamic clone root discovery (AC-004):** Replaces hardcoded sandbox assumptions with runtime environment resolution (`DREAMTOOSA_CLONE_ROOT` → sibling directory search → fallback).
   - **Pre-flight auth probe & push prohibition (AC-005):** Probes GitHub API credentials during initialization; on 401/403, transitions execution to `READ_ONLY` mode and explicitly prohibits remote `git push` operations.

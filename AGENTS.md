@@ -22,8 +22,8 @@ Guidance for AI coding agents working in this repository.
 - `dreamtoosa/dreamer.py`: canonical local `Dreamer` and JSON `MemoryStore`;
   import from `dreamtoosa` or run `python3 -m dreamtoosa --demo`.
 - `dream_example.py`: runnable end-to-end demo.
-- `dreams_client.py`: historical remote client and workflow wrapper.
-- `dreams_implementation.py`: primary remote API reference (`DreamConfig`/`DreamsClient`).
+- `dreams_implementation.py`: canonical remote API reference (`DreamConfig`/`DreamsClient`).
+- `dreams_workflow.py`: `DreamWorkflow` helpers importing the canonical client.
 - `dreamtoosa_dreams_integration.py`: historical remote domain orchestration and periodic dreaming.
 - `dream_implementation_examples.py`: additional patterns and sample flows.
 - `antigravity_dream_example.py`: historical local prototype; extend the package for new local work.

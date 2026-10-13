@@ -2,21 +2,20 @@
 DreamToosa domain integration: historical remote API reference variant.
 
 DreamToosaDreamsManager and DreamToosaOrchestrator demonstrate domain-specific
-memory management and periodic curation through the Anthropic SDK. They retain
-their own remote API calls and are not wired into the local dreamtoosa package
-or the Dream Report maintainer routine.
+memory management and periodic curation. They are not wired into the local
+dreamtoosa package or the Dream Report maintainer routine.
 
-Start new remote client work in dreams_implementation.py, the primary remote
-reference. For offline curation and local JSON persistence, use Dreamer and
-MemoryStore from dreamtoosa. See README.md#memory-curation-implementations for
-the implementation map and the remaining historical variants.
+Domain orchestration uses DreamsClient from dreams_implementation.py (canonical
+remote API). For offline curation, use Dreamer and MemoryStore from dreamtoosa.
+See README.md#memory-curation-implementations.
 """
 
 from typing import Optional, List, Dict, Any
 from dataclasses import dataclass
 from enum import Enum
 import time
-from anthropic import Anthropic
+
+from dreams_implementation import DreamConfig, DreamsClient
 
 
 class DreamDomain(Enum):
@@ -96,8 +95,8 @@ DOMAIN_CONFIGS = {
 class DreamToosaDreamsManager:
     """Manages Claude Dreams for DreamToosa agents"""
 
-    def __init__(self):
-        self.client = Anthropic()
+    def __init__(self, dreams_client: Optional[DreamsClient] = None):
+        self.dreams = dreams_client or DreamsClient()
         self.dream_history: Dict[str, List[Dict]] = {}  # track dreams per domain
         self.session_counters: Dict[str, int] = {}  # sessions since last dream
 
@@ -132,25 +131,23 @@ class DreamToosaDreamsManager:
         print(f"   Sessions: {len(session_ids)}")
         print(f"   Instructions: {instructions[:50]}...")
 
-        dream = self.client.beta.dreams.create(
-            inputs=[
-                {"type": "memory_store", "memory_store_id": memory_store_id},
-                {"type": "sessions", "session_ids": session_ids},
-            ],
-            model=config.preferred_model,
-            instructions=instructions,
+        dream_id = self.dreams.create_dream(
+            DreamConfig(
+                memory_store_id=memory_store_id,
+                session_ids=session_ids,
+                model=config.preferred_model,
+                instructions=instructions or "",
+            )
         )
 
-        # Track dream
         self.dream_history[domain.value].append({
-            "dream_id": dream.id,
-            "created_at": dream.created_at,
+            "dream_id": dream_id,
             "status": "pending",
             "session_count": len(session_ids),
         })
 
-        print(f"   ✓ Dream ID: {dream.id}")
-        return dream.id
+        print(f"   ✓ Dream ID: {dream_id}")
+        return dream_id
 
     def wait_and_finalize_dream(
         self,
@@ -181,9 +178,12 @@ class DreamToosaDreamsManager:
         while True:
             elapsed = time.time() - start_time
 
-            dream = self.client.beta.dreams.retrieve(dream_id)
+            if elapsed > timeout:
+                print(f"   ✗ Dream exceeded timeout")
+                return None
 
-            # Update tracking
+            dream = self.dreams.get_dream(dream_id)
+
             for entry in self.dream_history[domain.value]:
                 if entry["dream_id"] == dream_id:
                     entry["status"] = dream.status
@@ -192,30 +192,23 @@ class DreamToosaDreamsManager:
                     )
                     break
 
-            print(f"   [{elapsed:.0f}s] {dream.status} | "
-                  f"Tokens: {dream.usage.input_tokens + dream.usage.output_tokens}")
+            print(
+                f"   [{elapsed:.0f}s] {dream.status} | "
+                f"Tokens: {dream.usage.input_tokens + dream.usage.output_tokens}"
+            )
 
             if dream.status == "completed":
                 print(f"   ✓ Dream completed successfully")
-                output_store = next(
-                    (output.memory_store_id for output in dream.outputs
-                     if output.type == "memory_store"),
-                    None
-                )
+                output_store = self.dreams.get_dream_output(dream)
                 if output_store:
-                    self.session_counters[domain.value] = 0  # reset counter
+                    self.session_counters[domain.value] = 0
                 return output_store
 
-            elif dream.status == "failed":
-                print(f"   ✗ Dream failed: {dream.error}")
-                return None
-
-            elif dream.status == "canceled":
-                print(f"   ⊘ Dream was canceled")
-                return None
-
-            elif elapsed > timeout:
-                print(f"   ✗ Dream exceeded timeout")
+            if dream.status in ("failed", "canceled"):
+                if dream.status == "failed":
+                    print(f"   ✗ Dream failed: {dream.error}")
+                else:
+                    print(f"   ⊘ Dream was canceled")
                 return None
 
             time.sleep(poll_interval)
@@ -229,20 +222,10 @@ class DreamToosaDreamsManager:
         """Review memories in curated store"""
         print(f"\n📖 Curated memories for {domain.value}:")
 
-        memories = self.client.beta.memory.memories.list(
-            memory_store_id=memory_store_id,
-            limit=limit
-        )
-
-        contents = []
-        for i, memory in enumerate(memories.data, 1):
-            content = memory.content
-            contents.append(content)
-
-            # Truncate for display
+        contents = self.dreams.review_memories(memory_store_id, limit=limit)
+        for i, content in enumerate(contents, 1):
             display = content[:80] + "..." if len(content) > 80 else content
             print(f"   {i}. {display}")
-
         return contents
 
     def create_session_with_memory(
@@ -253,16 +236,13 @@ class DreamToosaDreamsManager:
         domain: DreamDomain
     ) -> str:
         """Create agent session with curated memory"""
-        session = self.client.beta.sessions.create(
-            agent=agent_id,
+        session_id = self.dreams.create_session_with_memory(
+            agent_id=agent_id,
             environment_id=environment_id,
-            resources=[
-                {"type": "memory_store", "memory_store_id": memory_store_id},
-            ],
+            memory_store_id=memory_store_id,
         )
-
-        print(f"\n✓ Session created for {domain.value}: {session.id}")
-        return session.id
+        print(f"\n✓ Session created for {domain.value}: {session_id}")
+        return session_id
 
     def get_domain_stats(self, domain: DreamDomain) -> Dict[str, Any]:
         """Get statistics for a domain"""
