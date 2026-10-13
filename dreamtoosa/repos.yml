@@ -51,6 +51,12 @@ repos:
     max_open_prs: 3
     fix_eligible: true
 
+  - repo: sky2464/Agtoosa2
+    profile: python-spec-driven
+    enabled: true
+    max_open_prs: 3
+    fix_eligible: true
+
 # Where the consolidated report lands. This repo is the control plane: reports
 # for ALL targets are committed here, so there is one merge point instead of N.
 hub:
