@@ -20,7 +20,7 @@ consolidated report back to this repo, and opens at most one fix PR per run.
 | Trigger | `trig_01PvQiwSRhJktFxMXwxf14Qi` — [manage](https://claude.ai/code/routines/trig_01PvQiwSRhJktFxMXwxf14Qi) |
 | Schedule | Daily, `0 10 * * *` (UTC) |
 | Model | `claude-sonnet-5` |
-| Targets | `AgToosa` · `Crapsino` · `DreamToosa` · `miToosa` |
+| Targets | `AgToosa` · `Agtoosa2` · `Crapsino` · `DreamToosa` · `miToosa` |
 | Output | `reports/<repo>/dream-report-<date>.md` + a per-run index, via PR |
 
 It is managed from the Claude Code desktop app's **Routines** sidebar but executes in

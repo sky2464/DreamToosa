@@ -1,37 +1,36 @@
 # Product Context
 
-<!-- Fill in during /agtoosa-init. Used by /agtoosa-spec for requirements research. -->
-
 ## App Type
-app_type: ""
-# e.g., Web SaaS, Mobile App, CLI Tool, API Service, Browser Extension
+app_type: "CLI tool + documentation bundle (Python control plane; optional remote Dreams API examples)"
 
 ## Target Users
-target_users: ""
-# Describe the primary user persona (e.g., "B2B: engineering teams at mid-size startups")
+target_users: "Maintainer operating a multi-repo portfolio (AgToosa, Crapsino, DreamToosa, miToosa, Agtoosa2) via the scheduled Dream Report routine; developers learning Claude Dreams memory curation patterns."
 
 ## Core Problem
-core_problem: ""
-# The single most important problem this product solves
+core_problem: "Daily code-health across many repos is fragmented—per-repo PR backlogs and ad-hoc reviews do not scale; memory curation examples are scattered across legacy scripts."
 
 ## Core Features
 core_features:
-  - ""
-  # List each live feature in production
+  - "Multi-repo control plane: manifest, stack profiles, cross-run state, validator, and routine prompt"
+  - "Scheduled Dream Report: consolidated reports under reports/ and bounded fix rotation"
+  - "Local Dreamer memory curation (dreamtoosa package) with JSON MemoryStore"
+  - "Reference implementations for remote Claude Dreams API workflows"
 
 ## Non-Goals
 non_goals:
-  - ""
-  # Explicitly out-of-scope items to prevent scope creep
+  - "Merging PRs automatically on the user's behalf"
+  - "Hosted orchestrator or swarm runtime"
+  - "Full consolidation of all legacy Dreams client variants in one release (document boundaries first)"
 
 ## Current Milestone
-current_milestone: ""
-# e.g., MVP, v1.0, v2.0 public launch
+current_milestone: "Unreleased — close DEV-001 (proof artifact + ship)"
 
 ## Success Metrics
 success_metrics:
-  - ""
-  # What does "it's working" look like? (e.g., DAU, conversion rate, p99 latency < 200ms)
+  - "Every enabled repo in dreamtoosa/repos.yml reviewed each routine run with reports committed to hub"
+  - "At most one hub report PR and one fix PR per run under budget caps"
+  - "dreamtoosa/validate.py and unit tests pass on main (CI green)"
+  - "state.json advances rotation and last-reviewed SHAs without manual re-derivation"
 
 ## Notes
-<!-- Add business context, competitive landscape, regulatory constraints, or stakeholder notes here. -->
+Product identity is **DreamToosa** (control plane + examples), not the AgToosa framework docs co-located under Docs/. Charter source of truth: Docs/Master-Plan.md → Project Charter.

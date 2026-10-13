@@ -1,7 +1,7 @@
 # Master-Plan
 
 > **Source of truth for active work.** Completed work lives in `Docs/archived/` — see Completed This Cycle for links.
-> **Last updated:** 2026-10-13 23:35
+> **Last updated:** 2026-10-13 23:45
 
 ## Project Charter
 
@@ -15,24 +15,23 @@
 | Non-goals | Merging PRs on the user's behalf; consolidating this repo's legacy Dreams docs; a hosted orchestrator or swarm runtime |
 | Assumptions | Cloud sandbox clones every `sources` repo to `/home/user/<name>`; `mcp__github__*` is platform-injected; `gh` CLI is not authenticated |
 | Risks | AgToosa's open PR backlog and intermittent red `validate` on `main`; five-repo runs may exceed the per-run time box; Dreams API remains beta-gated; GitHub MCP 401 forces read-only maintainer runs |
-| Unresolved questions | AgToosa remains `fix_eligible: false` while its PR backlog drains; fix rotation runs across Crapsino, DreamToosa, miToosa, and Agtoosa2; attach RemoteTrigger run log as DEV-001 proof artifact |
+| Unresolved questions | AgToosa remains `fix_eligible: false` while its PR backlog drains; optional: attach RemoteTrigger run log as supplemental audit artifact |
 | GitHub repo | https://github.com/sky2464/DreamToosa |
-| Milestone | Unreleased |
+| Milestone | v0.1.0 (DEV-001 shipped) |
 | Active cycle | Multi-repo routine enablement |
-| Cycle state | Active — DEV-001 in progress |
+| Cycle state | Idle — DEV-001 shipped; enroll next story via `/agtoosa-spec` |
 | Cycle capacity | 5 story points |
-| Current phase | ✏️ Spec · 🏗️ Build · **🔍 Review** · 🚢 Ship |
+| Current phase | ✏️ Spec · 🏗️ Build · 🔍 Review · **🚢 Ship** |
 
 > **Cycle state contract:** use `Active` while a story is enrolled; use `Idle — <reason>` only when an empty cycle is intentional.
 
 ## Active Cycle
 
 > Stories committed to the current sprint/cycle.
-> **Progress:** `▰▰▰▰▰▱▱▱ 4/6 tasks` ← updated by `/agtoosa-build` after each task completes
+> **Progress:** `▰▰▰▰▰▰▰▰ 6/6 tasks` ← DEV-001 closed via `/agtoosa-ship docs`
 
 | ID | Title | Type | Estimate | Status | Tasks Done |
 |----|-------|------|----------|--------|-----------|
-| DEV-001 | Feature: Multi-repo control plane for the Dream Report routine | Feature | M | 🟨 In Progress | 4/6 |
 | DEV-002 | Chore: Root README and control-plane CI | Chore | S | 🏁 Shipped | 5/5 |
 | DEV-003 | Feature: Local agent memory curation engine and CLI | Feature | S | 🏁 Shipped | 4/4 |
 | DEV-004 | Feature: Resilient Multi-Repo Control Plane & PR Lifecycle | Feature | M | 🏁 Shipped | 4/4 |
@@ -41,23 +40,9 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 
 ## Active Tasks
 
-> Task breakdown for the current In Progress story. Created by `/agtoosa-spec` (Part 4).
-> Updated by `/agtoosa-build` — each completed sub-task gets `- [x]`.
+> No story in progress. Enroll from Backlog via `/agtoosa-spec` or `/agtoosa-task`.
 
-- [x] **1.** Control plane baseline (DEV-001 AC-1..AC-4)
-  - [x] 1.1 `dreamtoosa/repos.yml`, `profiles/`, `state.json`, and `ROUTINE_PROMPT.md` on `main`
-  - [x] 1.2 Validator + unit tests green (`validate.py` 19/19; `tests/` 13/13 as of 2026-10-03 report)
-- [x] **2.** Resilience layer shipped (DEV-004 dependency)
-  - [x] 2.1 Hub circuit breaker, PR chaining, read-only degradation — see Completed This Cycle / `CHANGELOG.md`
-- [x] **3.** Five-repo routine coverage
-  - [x] 3.1 Onboard `sky2464/Agtoosa2` with `python-spec-driven` profile (merged PR #16)
-  - [x] 3.2 Dream reports 2026-09-20 and 2026-10-03 committed under `reports/` (merged PR #16)
-- [x] **4.** Dreams implementation boundary documentation (issue #8)
-  - [x] 4.1 Local vs remote curation docs merged (PR #17)
-- [ ] **5.** Routine proof artifact
-  - [ ] 5.1 Capture `RemoteTrigger list_runs` + `get_run_log` showing `git -C` across all enabled clones
-- [ ] **6.** Close DEV-001
-  - [ ] 6.1 Run `/agtoosa-ship` for DEV-001 (archive spec, move row to Completed This Cycle, trim `CHANGELOG.md` if needed)
+*(DEV-001 tasks archived — see `Docs/archived/spec-DEV-001.md` and Completed This Cycle.)*
 
 > **Decision recorded (DEV-004 - PR Chaining):** When daily report PRs are not merged immediately by humans, the routine branches from the newest unmerged report branch on origin (chaining) rather than forking from stale `origin/main`. This ensures continuous `state.json` lineage and eliminates cascading merge conflicts.
 
@@ -76,9 +61,8 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 
 | Story | Task # | Deferred Since | Description |
 |-------|--------|----------------|-------------|
-| DEV-001 | — | 2026-10-03 | [manual] Re-authenticate GitHub MCP (401) so maintainer runs can file issues and open PRs again |
 
-*(One manual task deferred on DEV-001.)*
+*(Empty — routine MCP re-auth is operational hygiene; re-open via `/agtoosa-task` if needed.)*
 
 ## Blocked
 
@@ -87,7 +71,6 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 
 | ID | Title | Blocked by | Since |
 |----|-------|-----------|-------|
-| [DEV-XX] | [title] | [DEV-YY / external reason] | [YYYY-MM-DD] |
 
 *(Empty — good!)*
 
@@ -108,7 +91,7 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 
 | ID | Title | Stories | Status |
 |----|-------|---------|--------|
-| DEV-100 | Epic: Multi-repo maintainer routine | 1 open / 3 shipped | 🟨 In Progress |
+| DEV-100 | Epic: Multi-repo maintainer routine | 0 open / 4 shipped | 🏁 Shipped |
 | DEV-101 | Epic: Claude Dreams memory curation | 1 shipped / 1 total | 🏁 Shipped |
 
 ## Active Diagnosis
@@ -131,6 +114,7 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 
 | ID | Title | Shipped | Archived Spec |
 |----|-------|---------|--------------|
+| DEV-001 | Feature: Multi-repo control plane for the Dream Report routine | 2026-10-13 | [spec-DEV-001.md](archived/spec-DEV-001.md) |
 | DEV-002 | Chore: Root README and control-plane CI | 2026-09-08 | [spec-DEV-002.md](archived/spec-DEV-002.md) |
 | DEV-003 | Feature: Local agent memory curation engine and CLI | 2026-09-08 | [spec-DEV-003.md](archived/spec-DEV-003.md) |
 | DEV-004 | Feature: Resilient Multi-Repo Control Plane & PR Lifecycle | 2026-09-18 | [spec-DEV-004.md](archived/spec-DEV-004.md) |
@@ -158,4 +142,8 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 | 2026-10-13 | build DEV-001 issue #8 docs merged (PR #17) | DreamToosa |
 | 2026-10-13 | build hub report PRs #16–#17 merged; agent skills on main | DreamToosa |
 | 2026-10-13 | status Master-Plan refresh (DEV-001 tasks realigned) | AgToosa |
+| 2026-10-13 | init context + architecture + Copilot instructions (brownfield re-init) | AgToosa |
+| 2026-10-13 | spec DEV-001 plan — architecture + STRIDE (spec R1 pending approval) | AgToosa |
+| 2026-10-13 | review DEV-001 — Review ✅ Approved (brownfield) | AgToosa |
+| 2026-10-13 | ship DEV-001 docs — archived spec/review; changelog + Master-Plan | AgToosa |
 

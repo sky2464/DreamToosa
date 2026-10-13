@@ -24,11 +24,9 @@ commit_strategy: "conventional"
 
 ## Linting
 
-linter: ""
-<!-- Tool used (e.g., eslint, ruff, golangci-lint) -->
+linter: "py_compile + dreamtoosa/validate.py (no dedicated ruff/eslint in hub repo)"
 
-lint_config: ""
-<!-- Config file path (e.g., .eslintrc.json, pyproject.toml) -->
+lint_config: "dreamtoosa/validate.py; .github/workflows/control-plane.yml"
 
 ## Cross-model review
 

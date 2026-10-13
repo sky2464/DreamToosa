@@ -20,11 +20,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), version
   - Canonical local `Dreamer` and JSON `MemoryStore` in `dreamtoosa/dreamer.py`.
   - Comprehensive unit test suite in `tests/test_dreamer.py`.
   - Runnable end-to-end demo via `python3 dream_example.py` and `python3 -m dreamtoosa --demo`.
-- **Multi-repo control plane for Dream Report routine (DEV-001).**
-  - Centralized manifest `dreamtoosa/repos.yml` defining target repos, review windows, and budget caps.
-  - Target stack profiles in `dreamtoosa/profiles/` (`shell-spec-driven`, `web-playwright`, `python-lib`, `dart-flutter`).
-  - Cross-run persistence file `dreamtoosa/state.json` tracking last reviewed SHAs, rotation index, and issues/PRs.
-  - Canonical prompt body in `dreamtoosa/ROUTINE_PROMPT.md`.
 - **Control plane CI validation (DEV-002).**
   - GitHub Actions workflow `.github/workflows/validate.yml` executing `python3 dreamtoosa/validate.py` on pull requests and pushes to `main`.
   - Root project `README.md` and architecture documentation.
+
+## [0.1.0] — 2026-10-13
+
+### Added
+
+- **Multi-repo control plane for Dream Report routine (DEV-001).** Five-repo manifest (`dreamtoosa/repos.yml`), stack profiles, cross-run `state.json`, canonical `ROUTINE_PROMPT.md`, validator CI, and dream reports through 2026-10-03. Archived spec and review under `Docs/archived/`.
