@@ -1,7 +1,7 @@
 # Master-Plan
 
 > **Source of truth for active work.** Completed work lives in `Docs/archived/` — see Completed This Cycle for links.
-> **Last updated:** 2026-09-07 21:15
+> **Last updated:** 2026-10-13 23:35
 
 ## Project Charter
 
@@ -14,21 +14,21 @@
 | Proof / evidence | `RemoteTrigger list_runs` + `get_run_log` showing `git -C` against each clone; `reports/<repo>/` populated for all targets; circuit breaker skipping a backlogged repo |
 | Non-goals | Merging PRs on the user's behalf; consolidating this repo's legacy Dreams docs; a hosted orchestrator or swarm runtime |
 | Assumptions | Cloud sandbox clones every `sources` repo to `/home/user/<name>`; `mcp__github__*` is platform-injected; `gh` CLI is not authenticated |
-| Risks | AgToosa's 15-PR backlog and red `validate` gate everything downstream; four-repo runs may exceed the run time box; Dreams API remains beta-gated |
-| Unresolved questions | Resolved: AgToosa set to review-only (fix_eligible: false) in repos.yml while backlog is drained; fix rotation proceeds across clean repos |
+| Risks | AgToosa's open PR backlog and intermittent red `validate` on `main`; five-repo runs may exceed the per-run time box; Dreams API remains beta-gated; GitHub MCP 401 forces read-only maintainer runs |
+| Unresolved questions | AgToosa remains `fix_eligible: false` while its PR backlog drains; fix rotation runs across Crapsino, DreamToosa, miToosa, and Agtoosa2; attach RemoteTrigger run log as DEV-001 proof artifact |
 | GitHub repo | https://github.com/sky2464/DreamToosa |
 | Milestone | Unreleased |
 | Active cycle | Multi-repo routine enablement |
 | Cycle state | Active — DEV-001 in progress |
 | Cycle capacity | 5 story points |
-| Current phase | ✏️ Spec · **🏗️ Build** · 🔍 Review · 🚢 Ship |
+| Current phase | ✏️ Spec · 🏗️ Build · **🔍 Review** · 🚢 Ship |
 
 > **Cycle state contract:** use `Active` while a story is enrolled; use `Idle — <reason>` only when an empty cycle is intentional.
 
 ## Active Cycle
 
 > Stories committed to the current sprint/cycle.
-> **Progress:** `▰▰▰▰▱▱▱▱ 0/0 tasks` ← updated by `/agtoosa-build` after each task completes
+> **Progress:** `▰▰▰▰▰▱▱▱ 4/6 tasks` ← updated by `/agtoosa-build` after each task completes
 
 | ID | Title | Type | Estimate | Status | Tasks Done |
 |----|-------|------|----------|--------|-----------|
@@ -44,24 +44,20 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 > Task breakdown for the current In Progress story. Created by `/agtoosa-spec` (Part 4).
 > Updated by `/agtoosa-build` — each completed sub-task gets `- [x]`.
 
-- [x] **1.** Specifications & Planning: Establish authoritative AgToosa spec and cycle tracking
-  - [x] 1.1 Author `Docs/archived/spec-DEV-004.md` adhering to `Docs/SPEC-FORMAT.md`
-  - [x] 1.2 Update `Docs/Master-Plan.md` with DEV-004 active story and architecture decisions
-- [x] **2.** Control Plane Manifest & Validator Extension
-  - [x] 2.1 Update `dreamtoosa/repos.yml` with hub circuit breaker, PR strategy, and clone root
-  - [x] 2.2 Extend `dreamtoosa/validate.py` with invariant checks for new hub keys
-  - [x] 2.3 Create `tests/test_validate.py` testing valid and invalid control plane configs
-- [x] **3.** Routine Prompt Source of Truth Hardening
-  - [x] 3.1 Refactor Phase 0 in `dreamtoosa/ROUTINE_PROMPT.md` for dynamic root discovery
-  - [x] 3.2 Implement Phase 0.5 pre-flight auth probing and push prohibition in READ_ONLY mode
-  - [x] 3.3 Implement hub circuit breaker check in Phase 2
-  - [x] 3.4 Implement worktree / non-destructive workspace isolation in Phase 5
-  - [x] 3.5 Implement PR chaining logic and lineage tracking in Phase 6
-  - [x] 3.6 Implement verification execution and baseline delta tracking
-- [x] **4.** Verification & Validation Audit
-  - [x] 4.1 Run `python3 -m unittest discover -s tests` across full test suite
-  - [x] 4.2 Run `python3 dreamtoosa/validate.py` confirming checks pass
-  - [x] 4.3 Verify `python3 -m py_compile *.py dreamtoosa/*.py tests/*.py` passes cleanly
+- [x] **1.** Control plane baseline (DEV-001 AC-1..AC-4)
+  - [x] 1.1 `dreamtoosa/repos.yml`, `profiles/`, `state.json`, and `ROUTINE_PROMPT.md` on `main`
+  - [x] 1.2 Validator + unit tests green (`validate.py` 19/19; `tests/` 13/13 as of 2026-10-03 report)
+- [x] **2.** Resilience layer shipped (DEV-004 dependency)
+  - [x] 2.1 Hub circuit breaker, PR chaining, read-only degradation — see Completed This Cycle / `CHANGELOG.md`
+- [x] **3.** Five-repo routine coverage
+  - [x] 3.1 Onboard `sky2464/Agtoosa2` with `python-spec-driven` profile (merged PR #16)
+  - [x] 3.2 Dream reports 2026-09-20 and 2026-10-03 committed under `reports/` (merged PR #16)
+- [x] **4.** Dreams implementation boundary documentation (issue #8)
+  - [x] 4.1 Local vs remote curation docs merged (PR #17)
+- [ ] **5.** Routine proof artifact
+  - [ ] 5.1 Capture `RemoteTrigger list_runs` + `get_run_log` showing `git -C` across all enabled clones
+- [ ] **6.** Close DEV-001
+  - [ ] 6.1 Run `/agtoosa-ship` for DEV-001 (archive spec, move row to Completed This Cycle, trim `CHANGELOG.md` if needed)
 
 > **Decision recorded (DEV-004 - PR Chaining):** When daily report PRs are not merged immediately by humans, the routine branches from the newest unmerged report branch on origin (chaining) rather than forking from stale `origin/main`. This ensures continuous `state.json` lineage and eliminates cascading merge conflicts.
 
@@ -80,9 +76,9 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 
 | Story | Task # | Deferred Since | Description |
 |-------|--------|----------------|-------------|
-| [DEV-XX] | 2.3 | [YYYY-MM-DD] | [task title] |
+| DEV-001 | — | 2026-10-03 | [manual] Re-authenticate GitHub MCP (401) so maintainer runs can file issues and open PRs again |
 
-*(Empty — no manual tasks deferred.)*
+*(One manual task deferred on DEV-001.)*
 
 ## Blocked
 
@@ -102,9 +98,9 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 
 | ID | Title | Type | Estimate | Epic | Priority | Clarity | Status |
 |----|-------|------|----------|------|----------|---------|--------|
-| [DEV-XX] | Feature: [name] | Feature | S | [DEV-YY] | High | needs-interview | ⬜ Backlog |
+| DEV-005 | Chore: Unify duplicate DreamsClient / DreamConfig modules | Chore | M | DEV-101 | Medium | needs-interview | ⬜ Backlog |
 
-*(Empty until stories are created via `/agtoosa-spec` or `/agtoosa-task`.)*
+*(Carry-forward from dream reports — documentation landed in PR #17; code consolidation not started.)*
 
 ## Epics
 
@@ -112,7 +108,7 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 
 | ID | Title | Stories | Status |
 |----|-------|---------|--------|
-| DEV-100 | Epic: Multi-repo maintainer routine | 1 open / 2 total | 🟨 In Progress |
+| DEV-100 | Epic: Multi-repo maintainer routine | 1 open / 3 shipped | 🟨 In Progress |
 | DEV-101 | Epic: Claude Dreams memory curation | 1 shipped / 1 total | 🏁 Shipped |
 
 ## Active Diagnosis
@@ -157,4 +153,9 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 | 2026-09-16 | build DEV-004 started | DreamToosa |
 | 2026-09-16 | build DEV-004 completed | DreamToosa |
 | 2026-09-18 | ship DEV-004 shipped | DreamToosa |
+| 2026-09-20 | build DEV-001 dream reports (read-only run) | DreamToosa |
+| 2026-10-03 | build DEV-001 Agtoosa2 + consolidated reports | DreamToosa |
+| 2026-10-13 | build DEV-001 issue #8 docs merged (PR #17) | DreamToosa |
+| 2026-10-13 | build hub report PRs #16–#17 merged; agent skills on main | DreamToosa |
+| 2026-10-13 | status Master-Plan refresh (DEV-001 tasks realigned) | AgToosa |
 
