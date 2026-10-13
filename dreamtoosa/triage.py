@@ -38,10 +38,10 @@ _ALLOWED = frozenset("""schema run_date execution_mode timebox started_epoch box
 liveness_refs ref last_run_date open_report_prs repos repo name enabled visibility visibility_check dependabot_scope tip sha committer_date
 prev_committer_date subject fix_links issue hygiene merged_undeleted shallow prs issues workflows status reason open closed_recent deep_reads
 number draft author updated_at created_at labels head_sha docs_only checks conclusion reviews login state mergeable_state merged_at
-changed_non_docs title closed_by_pr runs workflow kind event run_id dynamic_ids""".split())
+changed_non_docs title closed_by_pr runs workflow kind event run_id dynamic_ids backlog_blob""".split())
 _VALID = {**dict.fromkeys(("number", "issue", "run_id", "deep_reads", "merged_undeleted", "started_epoch", "box_minutes", "validate_exit",
                            "open_report_prs"), lambda v: type(v) is int),
-          **dict.fromkeys(("sha", "head_sha"), lambda v: isinstance(v, str) and bool(SHA_RE.fullmatch(v))),
+          **dict.fromkeys(("sha", "head_sha", "backlog_blob"), lambda v: isinstance(v, str) and bool(SHA_RE.fullmatch(v))),
           **dict.fromkeys(("committer_date", "prev_committer_date", "created_at", "updated_at", "merged_at", "run_date"), lambda v: _date(v) is not None),
           "workflow": lambda v: isinstance(v, str) and bool(WF_RE.fullmatch(v)),
           "repo": lambda v: isinstance(v, str) and bool(re.fullmatch(r"[\w.-]+/[\w.-]+", v, re.A)),
