@@ -2,7 +2,7 @@
 
 > **Story ID:** DEV-005a
 > **Epic:** DEV-100 (Multi-repo maintainer routine)
-> **Status:** Backlog — spec drafted, approval pending (no approval marker)
+> **Status:** In Progress — spec approved 2026-10-13 (see Spec Approved block); build started
 > **Estimate:** L
 > **Clarity:** `ready`
 > **Spec created:** 2026-10-13
@@ -43,7 +43,7 @@ Binding answers from the user interview. Q1 to Q8 apply to the DEV-005 set; the 
 
 #### Documented assumptions
 
-- A1 — Visibility values are written to repos.yml only after task 0.1. The critic's lookups (AgToosa public, Crapsino private, DreamToosa public, miToosa public) are unverified and are not inputs. Absent, unknown or mismatched visibility fails closed (renders as private).
+- A1 — Visibility values are written to repos.yml from task 0.1, done 2026-10-13 by repo-qualified `search_repositories` (AgToosa public, Crapsino private, DreamToosa public, miToosa public). Absent, unknown or mismatched visibility fails closed (renders as private).
 - A2 — The blocker set is the plan's six reasons plus MERGEABILITY-UNKNOWN, so an `unknown` mergeable state is never clean and still has exactly one blocker.
 - A3 — No log reads in 005a. `get_job_logs` is not loaded. Evidence is run id, conclusion and head SHA, which satisfies the evidence gate.
 - A4 — H6 scope comes from a per-repo manifest key `dependabot_scope` (default `unknown`, treated as runtime). Profile stanzas are not changed in 005a.
@@ -55,7 +55,7 @@ Binding answers from the user interview. Q1 to Q8 apply to the DEV-005 set; the 
 - A10 — Default `triage.trusted_logins` is `[sky2464, dependabot[bot]]`. The owner reviews this in the Wave 2 PR.
 - A11 — The routine sandbox has Python 3.12 and PyYAML (validate.py already needs both). To be confirmed by task 0.2.
 - A12 — Effort L for 005a. The critic sized the combined DEV-005 as L. 005a carries both engine modules, 14 rules, verify-git and the validator. 005b is M.
-- A13 — The snapshot is written to a `mktemp -d` directory outside every clone and is never committed. Committed fixtures under `tests/fixtures/triage/` are synthetic copies in the same schema, with no real titles, subjects, bodies or SHAs and with test-only visibility values.
+- A13 — The snapshot is written to a `mktemp -d` directory outside every clone and is never committed. Committed fixtures under `tests/fixtures/triage/` are synthetic copies in the same schema, with no real titles, subjects, bodies or SHAs and with test-only visibility values. No real text from a private, absent or unrecognised-visibility repo (Crapsino is private per 0.1) is committed at any stage. The tree is `tests/fixtures/triage/backlogs/`, shared with DEV-005b, which alone may add frozen public-repo backlog copies there (single AgToosa pin `9784e2d`); 005a commits none.
 - A14 — Soft time box `budget.soft_time_box_minutes_fleet_triage` is 10 minutes. The value is a starting point, tuned after task 4.5.
 - A15 — `neutral` and `skipped` check conclusions count as green for READY, because GitHub does not block on them. Q7 says all checks green, so the owner signs off in the Wave 2 PR. If refused, READY narrows to `success` only and this spec is amended.
 
@@ -74,7 +74,7 @@ Binding answers from the user interview. Q1 to Q8 apply to the DEV-005 set; the 
 | Non-goals | Approving, merging, reviewing, commenting on, closing, reopening, labelling, editing, enabling auto-merge for, updating, dispatching or re-running anything; filing issues; golden pick; ledger and deltas; heartbeat job; PushNotification; chaining fix; log tails; account-wide discovery; changing target repos. |
 | Assumptions | A1 to A15 (findings). |
 | Risks | Section 2.4. |
-| Unresolved questions | Open items OI-1 to OI-5. |
+| Unresolved questions | OI-1, OI-3 and OI-4 remain open. OI-2, OI-5 and OI-6 are RESOLVED (implementer defaults 2026-10-13; owner may override; Spec Revision Log R1). |
 
 ### 1.1 User Stories
 
@@ -87,7 +87,7 @@ Binding answers from the user interview. Q1 to Q8 apply to the DEV-005 set; the 
 
 | ID | EARS | Priority |
 |----|------|----------|
-| TRI-A-001 | WHEN a repo's visibility is private, absent or unrecognised, THE SYSTEM SHALL omit its titles, bodies, file paths, log text, commit messages, SHAs and dates from every committed or published Fleet Triage output, showing only its name, age, tier and a count of withheld CRITICAL, URGENT and HIGH items. | Must |
+| TRI-A-001 | WHEN a repo's visibility is private, absent or unrecognised, THE SYSTEM SHALL omit its titles, bodies, file paths, log text, commit messages, SHAs and dates from every committed or published Fleet Triage output, showing only its name, age, tier and a count of withheld CRITICAL, URGENT and HIGH items. From this story on, the same withheld form SHALL apply to the per-repo report that Phase 3 writes under `reports/<repo>/` for such a repo; reports already committed are untouched (OI-5, OI-6). (modified R1) | Must |
 | TRI-A-002 | THE SYSTEM SHALL render security-class C1 findings as category, repo and finding ID only, with no file:line, title or excerpt, for every repo. | Must |
 | TRI-A-003 | WHEN an issue or PR author is not in `triage.trusted_logins`, or an issue carries `status-needs-triage`, THE SYSTEM SHALL exclude it from C1, U4, H5 and all dedupe joins, and count it only as "external/untriaged: N". | Must |
 | TRI-A-004 | THE SYSTEM SHALL assign severity only through `triage.py` rules. `triage_report check` SHALL exit 1 with E_SEVERITY_KEY on any key named `severity`, and E_SCHEMA on any key outside the allowlist, at any depth. | Must |
@@ -109,12 +109,12 @@ Binding answers from the user interview. Q1 to Q8 apply to the DEV-005 set; the 
 | TRI-A-020 | THE SYSTEM SHALL order findings by tier, impact, confidence, age (oldest first), manifest order and finding ID. CRITICAL SHALL never be capped. URGENT and HIGH SHALL be capped at `triage.max_items_total` (8) and `triage.max_items_per_repo` (3), with overflow shown as "+N more". MEDIUM and LOW SHALL be counted only. | Must |
 | TRI-A-021 | WHEN a section's API calls are skipped (READ_ONLY, including `hub.force_read_only: true`), fail, or run past the time box, THE SYSTEM SHALL render it as "not evaluable (reason)". It SHALL NOT render 0, none, PASS or green, SHALL NOT count it as a miss, and SHALL keep freshness populated. | Must |
 | TRI-A-022 | THE SYSTEM SHALL read `budget.soft_time_box_minutes_fleet_triage` and SHALL reject snapshots that exceed the per-repo deep-read caps (5 PR deep reads, 3 merged-PR check reads, 3 `issue_read` calls). Sections not completed inside the box SHALL be NOT_EVALUABLE (time box), and the caps used SHALL be disclosed in section 6. | Must |
-| TRI-A-023 | THE SYSTEM SHALL compute hub liveness as the newest valid `last_run.date` (ISO date, not later than RUN_DATE + 1) across origin/main and every origin/dreamtoosa/report-* ref, compared in whole days. C2 (CRITICAL) SHALL fire above 7 days. U2 (URGENT) SHALL fire above `triage.routine_gap_days` up to 7 days. `triage_report heartbeat` SHALL use the same function and exit 1 when the age exceeds `triage.heartbeat_max_age_days` or is not evaluable. | Must |
+| TRI-A-023 | THE SYSTEM SHALL compute hub liveness as the newest valid `last_run.date` (ISO date, not later than RUN_DATE + 1) across origin/main and every origin/dreamtoosa/report-* ref, compared in whole days. C2 (CRITICAL) SHALL fire above 7 days. U2 (URGENT) SHALL fire above `triage.routine_gap_days` up to 7 days. `hub_liveness` SHALL ignore invalid or future-dated values. `triage_report heartbeat` SHALL use the same function and exit 1 when the age exceeds `triage.heartbeat_max_age_days` or is not evaluable, and SHALL additionally exit 1 with E_FUTURE_DATED when any candidate ref's `last_run.date` is later than RUN_DATE + 1. (modified R1) | Must |
 | TRI-A-024 | WHEN a READY PR, including a `dreamtoosa/report-*` PR, has been idle (by `updated_at`) longer than `triage.pr_idle_days`, THE SYSTEM SHALL raise it as URGENT (U3). | Must |
 | TRI-A-025 | WHEN a PR merged into the default branch in the last 14 days had zero check runs or a failing check on its head SHA and changed a non-docs path, THE SYSTEM SHALL list it under H2, once per repo and workflow. | Should |
 | TRI-A-026 | THE SYSTEM SHALL cross-check each repo's visibility with a repo-qualified `search_repositories` call in Phase 1.5. A mismatch or failed lookup SHALL fail closed (treated as private) and SHALL be listed in section 6. | Should |
 | TRI-A-027 | THE SYSTEM SHALL render the block between `fleet-triage` markers in this order: header (Mode; Coverage line stating the report covers the manifest repos and is not account-wide; Security "not evaluable (alert APIs not exposed via MCP)"; hub heartbeat; most important human action = rank-1 action or "none ranked"); sections 1 to 3; section 4 (Next tasks); section 5 (golden placeholder "not in DEV-005a (DEV-005b)"); section 6. No emoji. A private repo contributes only its withheld line. | Must |
-| TRI-A-028 | THE SYSTEM SHALL produce byte-identical output for the same snapshot under any input order, equal to `tests/fixtures/triage/expected-2026-10-13.md`. Every Python module under `dreamtoosa/` and `tests/` SHALL stay under 500 lines. | Must |
+| TRI-A-028 | THE SYSTEM SHALL produce byte-identical output for the same snapshot under any input order, equal to `tests/fixtures/triage/expected-2026-10-13.md`. Every Python module under `dreamtoosa/` and `tests/` SHALL stay under 500 lines. DEV-005b changes only the section 5 line of that file (its golden line), and this AC covers the file as changed. (modified R1) | Must |
 | TRI-A-029 | IF `check` or `render` still fails after one bounded repair attempt, THEN THE SYSTEM SHALL inject "Fleet Triage unavailable: <CODE>" with a fixed code, and Phase 6 SHALL continue without blocking the report commit. | Must |
 | TRI-A-030 | THE SYSTEM SHALL replace only the text between the markers on inject. IF a fleet-triage marker string appears outside the block, THEN it SHALL refuse with E_INJECT_MARKERS and write nothing. | Must |
 | TRI-A-031 | THE SYSTEM SHALL report merged-but-undeleted remote branch counts as a hygiene line labelled "ancestry-merged only", shown as not evaluable on a shallow clone. It SHALL never become a Next task. | Could |
@@ -126,7 +126,7 @@ Binding answers from the user interview. Q1 to Q8 apply to the DEV-005 set; the 
 - Golden pick, carry-forward ledger and deltas, heartbeat workflow job, PushNotification, chaining fix, READ_ONLY `fix_rotation`, Phase 0 reading state from main — all DEV-005b or later.
 - Log tail reads (`get_job_logs`), security-alert APIs (not exposed by MCP), account-wide discovery, profile stanzas, stale profile baselines.
 - Filing issues or PRs from triage findings. Phase 4 is unchanged.
-- Changing any target repository, `dreamtoosa/state.json`, or existing committed history (see OI-5).
+- Changing any target repository, `dreamtoosa/state.json`, or existing committed history (see OI-5, resolved: no history change, flagged in the PR).
 
 ---
 
@@ -138,12 +138,12 @@ Files to create:
 - `dreamtoosa/triage.py` — pure rules, no I/O: snapshot allowlist and scans; freshness; CI state; PR classes; issue and fix-link classification; backlog row parser (text in, rows out); hub liveness; rules C1 to H7; dedupe; rank; caps; evidence gate. Target under 450 lines.
 - `dreamtoosa/triage_report.py` — CLI (`check`, `render`, `heartbeat`); `--verify-git`; backlog and cron text via `git -C <clone> show <tip>:<path>`, fix-link checks via `git -C <clone> log` (`--clone-root` is passed by production `check` and `render`; `--backlog-dir` is for tests only); hub-tree integrity check; markdown render; marker inject; fixed error codes. Runs as a script by absolute path and imports `triage` from its own directory. Target under 450 lines.
 - `tests/test_triage_rules.py`, `tests/test_triage_render.py`, `tests/test_triage_cli.py` — split per critic (the ledger test file lands in 005b).
-- `tests/fixtures/triage/`: `snapshot-2026-10-13.json`, `snapshot-read-only.json`, `repos-2026-10-13.yml` (test manifest; visibility values are test inputs, not 0.1 results), `backlog/{agtoosa,crapsino,dreamtoosa,mitoosa}.md` (synthetic rows in each repo's header shape), `expected-2026-10-13.md`. All fixtures are synthetic (A13).
+- `tests/fixtures/triage/`: `snapshot-2026-10-13.json`, `snapshot-read-only.json`, `repos-2026-10-13.yml` (test manifest; visibility values are test inputs, not 0.1 results), `backlogs/{agtoosa,crapsino,dreamtoosa,mitoosa}.md` (synthetic rows in each repo's header shape), `expected-2026-10-13.md`. All fixtures are synthetic (A13).
 - `tests/test_routine_prompt.py` — contract tests on the deployable text below the `---` line of ROUTINE_PROMPT.md.
 
 Files to modify:
 - `dreamtoosa/repos.yml` — `defaults.stale_after_days: 14`, `defaults.dormant_after_days: 45`; `hub.force_read_only: false`; per repo: `visibility` (from 0.1), `backlog` mapping, `product_workflows`, `watch_workflows` (`{file, kind}` with kind in security, sync, audit), `dependabot_scope`. Product: AgToosa [ci.yml], Crapsino [ci.yml], DreamToosa [control-plane.yml], miToosa [weekly-health.yml]. Watch: AgToosa [agtoosa-issues-sync.yml sync, security-scan.yml security, github-surface-audit.yml audit]. Backlog mapping per repo: `backlog: {path, header_all, columns: {id, title, priority, status (or null)}, p0_values, done_values, done_sections}`. Paths: AgToosa `docs/Master-Plan.md`, Crapsino `docs/PLAN.md` (Sev column, status null), DreamToosa `Docs/Master-Plan.md`, miToosa `docs/Master-Plan.md`. A table is parsed only when it contains every `header_all` name. A row is P0 when its priority is in `p0_values` (Critical for Crapsino). A row is done when its status is in `done_values` or it sits under a `done_sections` heading (Completed This Cycle, or Crapsino's equivalent). Values are set in 3.1 from the real headings. Top-level `triage` block: `max_items_total: 8`, `max_items_per_repo: 3`, `pr_idle_days: 7`, `routine_gap_days: 2`, `heartbeat_max_age_days: 3`, `trusted_logins: [sky2464, dependabot[bot]]`. `budget.soft_time_box_minutes_fleet_triage: 10`.
-- `dreamtoosa/validate.py` (221 to about 300 lines) — guarded checks, run only when the triage block exists: caps are positive ints with total >= per-repo; `pr_idle_days`, `routine_gap_days`, `heartbeat_max_age_days` positive ints; `trusted_logins` non-empty login strings; `stale_after_days < dormant_after_days`, both positive; soft time box positive int; `hub.force_read_only` boolean when present; per repo: `visibility` in {public, private}; `backlog` path relative with no `..`, `header_all` non-empty list, `columns.id`, `columns.title` and `columns.priority` strings, `columns.status` string or null, `p0_values` and `done_sections` lists; workflow filenames match `^[\w.-]+\.ya?ml$`; watch kinds valid; `dependabot_scope` in {runtime, dev, unknown} when present. Exit 1 for check failures only; exit 2 for a missing PyYAML or an uncaught exception. No triage import.
+- `dreamtoosa/validate.py` (221 to about 300 lines) — guarded checks, run only when the triage block exists: caps are positive ints with total >= per-repo; `pr_idle_days` and `routine_gap_days` positive ints; `heartbeat_max_age_days` an integer 1 to 14; `trusted_logins` non-empty login strings; `stale_after_days < dormant_after_days`, both positive; soft time box positive int; `hub.force_read_only` boolean when present; per repo: `visibility` in {public, private}; `backlog` path relative with no `..`, `header_all` non-empty list, `columns.id`, `columns.title` and `columns.priority` strings, `columns.status` string or null, `p0_values` and `done_sections` lists; workflow filenames match `^[\w.-]+\.ya?ml$`; watch kinds valid; `dependabot_scope` in {runtime, dev, unknown} when present. Exit 1 for check failures only; exit 2 for a missing PyYAML or an uncaught exception. No triage import.
 - `dreamtoosa/ROUTINE_PROMPT.md` — ground rules (line 29 replaced by the ten-tool line; new write-boundary rule); Phase 0 and 0.5 (force switch, key defaults); new Phase 1.5; Phase 2 (reuse PR list); Phase 3 (render and inject; private rule); Phase 4 (no triage input); final summary (rank-1 action).
 - `dreamtoosa/README.md` — write-boundary and visibility notes. `DreamToosa/.claude/settings.json` is touched only if task 0.3 shows the routine honours deny rules.
 - `tests/test_validate.py` — negatives per new check, backward compatibility, subprocess script-mode run, floor raised to the measured count.
@@ -230,7 +230,7 @@ Dedupe, rank and caps follow TRI-A-019 and TRI-A-020. Secret patterns for TRI-A-
    - f. Write `$SNAP_DIR/snapshot.json`.
    - g. `python3 "$CLONE_ROOT/DreamToosa/dreamtoosa/triage_report.py" check --snapshot "$SNAP_DIR/snapshot.json" --clone-root "$CLONE_ROOT" --manifest "$CLONE_ROOT/DreamToosa/dreamtoosa/repos.yml"`. Exit 0 continues. Exit 1 gets one repair attempt, then "Fleet Triage unavailable: <CODE>". Exit 2 renders E_RUN.
 5. **Phase 2:** the target breaker reuses the Phase 1.5 PR list. The hub breaker is unchanged.
-6. **Phase 3:** write the index as today. Then `python3 "$CLONE_ROOT/DreamToosa/dreamtoosa/triage_report.py" render --snapshot "$SNAP_DIR/snapshot.json" --manifest "$CLONE_ROOT/DreamToosa/dreamtoosa/repos.yml" --clone-root "$CLONE_ROOT" --inject "$CLONE_ROOT/DreamToosa/reports/dream-report-$RUN_DATE.md"`. On failure, rerun with the same flags plus `--unavailable <CODE>`. Per-repo action items draw from triage only for public repos.
+6. **Phase 3:** write the index as today. Then `python3 "$CLONE_ROOT/DreamToosa/dreamtoosa/triage_report.py" render --snapshot "$SNAP_DIR/snapshot.json" --manifest "$CLONE_ROOT/DreamToosa/dreamtoosa/repos.yml" --clone-root "$CLONE_ROOT" --inject "$CLONE_ROOT/DreamToosa/reports/dream-report-$RUN_DATE.md"`. On failure, rerun with the same flags plus `--unavailable <CODE>`. Per-repo action items draw from triage only for public repos. The per-repo report of a private, absent or unrecognised-visibility repo is written in the withheld form only (repo name, age, tier, count of withheld CRITICAL, URGENT and HIGH items), as in Fleet Triage (OI-6).
 7. **Phase 4 (unchanged):** does not read Fleet Triage (TRI-A-012).
 8. **Phase 5 and Phase 6 (unchanged):** no new writes, no `execution_mode` field, no chaining change.
 9. **Final summary:** "single most important human action" = the rank-1 action template, or "none ranked". No notification in 005a.
@@ -274,13 +274,13 @@ Out of scope        : .github/ (005b heartbeat job), dreamtoosa/state.json (unch
 ### 3.1 Task Tree
 
 - [ ] **0.** Wave 0 human prerequisites
-  - [ ] 0.1 Confirm each repo's visibility (AgToosa, Crapsino, DreamToosa, miToosa) and record it for repos.yml — _Requirements: TRI-A-001, TRI-A-026_ `[manual]`
+  - [x] 0.1 Confirm each repo's visibility (AgToosa, Crapsino, DreamToosa, miToosa) and record it for repos.yml. Done 2026-10-13 by repo-qualified `search_repositories`: AgToosa public, Crapsino private, DreamToosa public, miToosa public — _Requirements: TRI-A-001, TRI-A-026_ `[manual-done]`
   - [ ] 0.2 Restore routine `trig_01PvQiwSRhJktFxMXwxf14Qi`: record why there has been no run since 2026-09-18 (run-log text is data), re-authorize GitHub, run once by hand, confirm Python 3.12 and PyYAML — _Requirements: TRI-A-023, TRI-A-027_ `[manual]`
   - [ ] 0.3 Check with `get_run_log` whether the routine session honours DreamToosa/.claude/settings.json deny rules — _Requirements: TRI-A-009_ `[manual]`
-- [ ] **1.** Lifecycle: register the story
-  - [ ] 1.1 Register DEV-005a (Active Cycle, DEV-100, estimate L) and DEV-005b (Backlog, estimate M) in Master-Plan: set the Backlog estimates to match this spec (currently M and S), remove the DEV-005a Backlog row when it moves to Active Cycle, and add an Update Log row; add CHANGELOG [Unreleased] Added and correct the validate.yml reference to control-plane.yml — _Requirements: TRI-A-032_
+- [x] **1.** Lifecycle: register the story
+  - [x] 1.1 Register DEV-005a (Active Cycle, DEV-100, estimate L) and DEV-005b (Backlog, estimate M) in Master-Plan: set the Backlog estimates to match this spec (currently M and S), remove the DEV-005a Backlog row when it moves to Active Cycle, and add an Update Log row; add CHANGELOG [Unreleased] Added and correct the validate.yml reference to control-plane.yml — _Requirements: TRI-A-032_
 - [ ] **2.** Deterministic engine (no routine change)
-  - [ ] 2.1 Author synthetic fixtures (no probe record exists in the repo, and none is an input): both snapshots, repos-2026-10-13.yml (force_read_only true in the read-only copy), and backlog/*.md in each repo's header shape. Every title and subject starts with `synthetic`. Fields a scenario does not model are `not_evaluable, reason: not captured`, never invented — _Requirements: TRI-A-001, TRI-A-021, TRI-A-028_
+  - [ ] 2.1 Author synthetic fixtures (no probe record exists in the repo, and none is an input): both snapshots, repos-2026-10-13.yml (force_read_only true in the read-only copy), and backlogs/*.md in each repo's header shape. Every title and subject starts with `synthetic`. Fields a scenario does not model are `not_evaluable, reason: not captured`, never invented — _Requirements: TRI-A-001, TRI-A-021, TRI-A-028_
   - [ ] 2.2 Write failing tests first in the three triage test files — _Requirements: TRI-A-004, TRI-A-013 to TRI-A-030_
   - [ ] 2.3 Implement `dreamtoosa/triage.py` (pure, under 450 lines) — _Requirements: TRI-A-004, TRI-A-005, TRI-A-006, TRI-A-013 to TRI-A-022, TRI-A-024, TRI-A-025, TRI-A-031_
   - [ ] 2.4 Implement `dreamtoosa/triage_report.py` (check, render, heartbeat, `--unavailable`; verify-git (including fix links); git-based backlog and cron loading; integrity check; inject; under 450 lines) — _Requirements: TRI-A-007, TRI-A-008, TRI-A-010, TRI-A-023, TRI-A-027, TRI-A-029, TRI-A-030_
@@ -296,7 +296,7 @@ Out of scope        : .github/ (005b heartbeat job), dreamtoosa/state.json (unch
   - [ ] 4.1 Local READ_ONLY simulation: render `snapshot-read-only.json` with the force-switch manifest in a scratch worktree; confirm "not evaluable" cells, populated freshness, no push — _Requirements: TRI-A-021, TRI-A-027_
   - [ ] 4.2 Run the gates in 3.3 (both unittest forms, validate.py, py_compile) — _Requirements: TRI-A-009, TRI-A-011, TRI-A-028_
   - [ ] 4.3 CI green on the PR (control-plane validate job, Python 3.12, PyYAML only) — _Requirements: TRI-A-011, TRI-A-028_
-  - [ ] 4.4 RemoteTrigger get, then update with the full session_context (model, sources, outcomes, allowed_tools unchanged, no `mcp__github__*` added, no PushNotification), then get again and diff — _Requirements: TRI-A-009, TRI-A-023, TRI-A-027_
+  - [ ] 4.4 RemoteTrigger get, then update with the full session_context (model, sources, outcomes, allowed_tools unchanged, no `mcp__github__*` added, no PushNotification), then get again and diff — _Requirements: TRI-A-009, TRI-A-023, TRI-A-027_ `[manual]`
   - [ ] 4.5 Owner observes one READ_WRITE run: index starts with Fleet Triage; freshness ages match `git log -1`; caps honoured; no golden section — _Requirements: TRI-A-013, TRI-A-020, TRI-A-027_ `[manual]`
 
 ### 3.2 Wave Plan
@@ -321,7 +321,7 @@ python3 -m unittest discover -s tests                 # DEV-004 form
 python3 -m unittest discover tests -v                 # CI form
 python3 dreamtoosa/validate.py                        # control plane
 python3 -m py_compile dreamtoosa/*.py tests/*.py      # syntax
-python3 dreamtoosa/triage_report.py render --snapshot tests/fixtures/triage/snapshot-2026-10-13.json --manifest tests/fixtures/triage/repos-2026-10-13.yml --backlog-dir tests/fixtures/triage/backlog | diff - tests/fixtures/triage/expected-2026-10-13.md && echo GOLDEN_OK
+python3 dreamtoosa/triage_report.py render --snapshot tests/fixtures/triage/snapshot-2026-10-13.json --manifest tests/fixtures/triage/repos-2026-10-13.yml --backlog-dir tests/fixtures/triage/backlogs | diff - tests/fixtures/triage/expected-2026-10-13.md && echo GOLDEN_OK
 python3 dreamtoosa/triage_report.py check --snapshot tests/fixtures/triage/snapshot-read-only.json --manifest tests/fixtures/triage/repos-2026-10-13.yml; echo "exit $?"   # expect 0
 ```
 
@@ -342,7 +342,7 @@ python3 dreamtoosa/triage_report.py check --snapshot tests/fixtures/triage/snaps
 | TR-13 | rules: NOT_EVALUABLE per section with reasons; READ_ONLY and force switch; security line exact | 021 |
 | TR-14 | rules: time box; deep-read caps rejected by check | 022 |
 | TR-15 | rules: hygiene count labelled "ancestry-merged only"; shallow clone NOT_EVALUABLE | 031 |
-| TR-16 | rules: hub liveness newest valid date; future date rejected; C2 and U2 thresholds in whole days | 023 |
+| TR-16 | rules: hub liveness newest valid date; future date ignored; C2 and U2 thresholds in whole days | 023 |
 | RN-1 | render: golden output byte-identical; 50 shuffled inputs identical; module size guard under 500 lines | 027, 028 |
 | RN-2 | render: READ_ONLY output has no "0 PRs", PASS or green; freshness populated; security line is exactly "not evaluable (alert APIs not exposed via MCP)" and never contains "none" | 021, 027 |
 | RN-3 | render: private repo leaks no SHA, path, title, subject or date; a mismatch or unavailable visibility_check renders as private (withheld line only) | 001, 026 |
@@ -355,29 +355,29 @@ python3 dreamtoosa/triage_report.py check --snapshot tests/fixtures/triage/snaps
 | CL-2 | cli: secret patterns and absolute or in-clone paths rejected | 007 |
 | CL-3 | cli: verify-git mismatch on tip SHA, committer date, blob SHA and liveness date in a temp git repo | 007 |
 | CL-4 | cli: integrity check fails on a modified dreamtoosa/ file before the engine runs | 008 |
-| CL-5 | cli: heartbeat passes at 3 days, fails at 4 days and on a future date | 023 |
+| CL-5 | cli: heartbeat passes at 3 days, fails at 4 days, and exits 1 with E_FUTURE_DATED on a future date; `heartbeat_max_age_days` bound 1 to 14 is a validator check | 023 |
 | CL-6 | cli: script-mode run by absolute path | 010 |
 | CL-7 | cli: render with `--clone-root` reproduces check's backlog rows, cron text and fix links from git | 007 |
 | VA-1 | validate: one negative per new check | 011 |
 | VA-2 | validate: no triage block gives no new failures | 011 |
 | VA-3 | validate: subprocess script-mode exit 0; source has no triage import | 011 |
 | VA-4 | validate: missing PyYAML and a forced uncaught exception exit 2 (subprocess); a check failure exits 1 | 010, 011 |
-| FX-1 | fixtures: every title and subject in tests/fixtures/triage/ begins with `synthetic`; fixture visibility values are test-only | 001 |
+| FX-1 | fixtures: every title and subject in the 005a fixtures under tests/fixtures/triage/ (not the frozen public-repo backlog copies that only DEV-005b adds and pins) begins with `synthetic`; fixture visibility values are test-only | 001 |
 | PR-1 | prompt: ToolSearch line equals the ten-tool set; banned names absent (update_pull_request, merge_pull_request, pull_request_review_write, enable_pr_auto_merge, disable_pr_auto_merge, update_pull_request_branch, actions_run_trigger, run_secret_scanning, create_branch, push_files, create_or_update_file, delete_file, get_job_logs, sub_issue_write, update_issue_comment, add_comment_to_pending_review, resolve_review_thread, request_copilot_review, fork_repository, create_repository); every `mcp__github__` token in the deployable prompt is in the ten-tool set; Phase 1.5 to Phase 4 text names only read tools | 009 |
 | PR-2 | prompt: ground rule forbids approve, merge, review, comment, close, reopen, label, auto-merge, update-branch, dispatch and re-run for Fleet Triage, and states that `add_issue_comment`, `issue_write` and `create_pull_request` serve only Phases 4 and 5 | 009 |
 | PR-3 | prompt: every `python3` call uses `"$CLONE_ROOT/DreamToosa/..."` | 010 |
-| PR-4 | prompt: Phase 4 text never reads triage; coverage line says not account-wide; no unqualified search; visibility cross-check text present | 012, 026, 027 |
+| PR-4 | prompt: Phase 4 text never reads triage; coverage line says not account-wide; no unqualified search; visibility cross-check text present; per-repo report withheld-form rule for non-public repos present (OI-6) | 001, 012, 026, 027 |
 
 AC coverage: 31 of 32 ACs have at least one test. TRI-A-032 is checked by review of task 1.1.
 
 ### 3.4 Work Package DAG
 
-Manual tasks (0.1, 0.2, 0.3, 4.5) have no package rows.
+Manual tasks (0.1, 0.2, 0.3, 4.5) have no package rows. PKG-4.4 is a manual RemoteTrigger step, listed for ordering only.
 
 | package_id | wave | depends_on | owned_files | inputs | outputs | merge_order | verification |
 |------------|------|------------|-------------|--------|---------|-------------|--------------|
 | PKG-1.1 | 1 | — | `Docs/Master-Plan.md`, `CHANGELOG.md` | — | same | 1 | `grep -q 'DEV-005a' Docs/Master-Plan.md` |
-| PKG-2.1 | 1 | — | `tests/fixtures/triage/snapshot-2026-10-13.json`, `snapshot-read-only.json`, `repos-2026-10-13.yml`, `backlog/*.md` | none (synthetic, A13) | same | 1 | `python3 -m json.tool tests/fixtures/triage/snapshot-2026-10-13.json > /dev/null` |
+| PKG-2.1 | 1 | — | `tests/fixtures/triage/snapshot-2026-10-13.json`, `snapshot-read-only.json`, `repos-2026-10-13.yml`, `backlogs/*.md` | none (synthetic, A13) | same | 1 | `python3 -m json.tool tests/fixtures/triage/snapshot-2026-10-13.json > /dev/null` |
 | PKG-2.2 | 1 | — | `tests/test_triage_rules.py`, `tests/test_triage_render.py`, `tests/test_triage_cli.py` | this spec | same | 1 | `python3 -m py_compile tests/test_triage_rules.py tests/test_triage_render.py tests/test_triage_cli.py` |
 | PKG-2.3 | 2 | PKG-2.2 | `dreamtoosa/triage.py` | PKG-2.1, PKG-2.2 | same | 2 | `python3 -m unittest tests.test_triage_rules -v` |
 | PKG-3.1 | 2 | — | `dreamtoosa/repos.yml` | task 0.1 values | same | 2 | `python3 -c "import yaml; yaml.safe_load(open('dreamtoosa/repos.yml'))"` |
@@ -385,10 +385,10 @@ Manual tasks (0.1, 0.2, 0.3, 4.5) have no package rows.
 | PKG-2.4 | 3 | PKG-2.3 | `dreamtoosa/triage_report.py` | PKG-2.3 | same | 3 | `python3 -m unittest tests.test_triage_cli tests.test_triage_render -v` |
 | PKG-3.3 | 3 | PKG-3.1, PKG-3.2 | `tests/test_validate.py` | PKG-3.1, PKG-3.2 | same | 3 | `python3 -m unittest tests.test_validate -v` |
 | PKG-3.6 | 3 | — (gated by 0.1, 0.3) | `dreamtoosa/README.md` | task 0.3 result | same | 3 | `grep -q 'write boundary' dreamtoosa/README.md` |
-| PKG-2.5 | 4 | PKG-2.4 | `tests/fixtures/triage/expected-2026-10-13.md` | PKG-2.4, PKG-2.1 | same | 4 | `python3 dreamtoosa/triage_report.py render --snapshot tests/fixtures/triage/snapshot-2026-10-13.json --manifest tests/fixtures/triage/repos-2026-10-13.yml --backlog-dir tests/fixtures/triage/backlog \| diff - tests/fixtures/triage/expected-2026-10-13.md` |
+| PKG-2.5 | 4 | PKG-2.4 | `tests/fixtures/triage/expected-2026-10-13.md` | PKG-2.4, PKG-2.1 | same | 4 | `python3 dreamtoosa/triage_report.py render --snapshot tests/fixtures/triage/snapshot-2026-10-13.json --manifest tests/fixtures/triage/repos-2026-10-13.yml --backlog-dir tests/fixtures/triage/backlogs \| diff - tests/fixtures/triage/expected-2026-10-13.md` |
 | PKG-3.4 | 4 | PKG-2.4, PKG-3.1 | `dreamtoosa/ROUTINE_PROMPT.md` | CLI names; new keys | same | 4 | `grep -q 'Phase 1.5' dreamtoosa/ROUTINE_PROMPT.md` |
 | PKG-3.5 | 5 | PKG-3.4 | `tests/test_routine_prompt.py` | PKG-3.4 | same | 5 | `python3 -m unittest tests.test_routine_prompt -v` |
-| PKG-4.1 | 5 | PKG-2.4, PKG-3.1 | none in repo (scratch worktree) | `snapshot-read-only.json` | scratch render | 5 | `python3 dreamtoosa/triage_report.py render --snapshot tests/fixtures/triage/snapshot-read-only.json --manifest tests/fixtures/triage/repos-2026-10-13.yml --backlog-dir tests/fixtures/triage/backlog \| grep -c 'not evaluable'` (at least 1) |
+| PKG-4.1 | 5 | PKG-2.4, PKG-3.1 | none in repo (scratch worktree) | `snapshot-read-only.json` | scratch render | 5 | `python3 dreamtoosa/triage_report.py render --snapshot tests/fixtures/triage/snapshot-read-only.json --manifest tests/fixtures/triage/repos-2026-10-13.yml --backlog-dir tests/fixtures/triage/backlogs \| grep -c 'not evaluable'` (at least 1) |
 | PKG-4.2 | 6 | PKG-2.5, PKG-3.3, PKG-3.5, PKG-4.1 | none (read-only gate) | all | — | 6 | `python3 -m unittest discover -s tests && python3 -m unittest discover tests -v && python3 dreamtoosa/validate.py && python3 -m py_compile dreamtoosa/*.py tests/*.py` |
 | PKG-4.3 | 7 | PKG-4.2 | none (PR CI) | PR | CI result | 7 | `gh pr checks <PR-number>` all green |
 | PKG-4.4 | 8 | PKG-4.3 | none (RemoteTrigger, outside repo) | merged main | live config | 8 | RemoteTrigger get, update, get, diff: model, sources and allowed_tools unchanged |
@@ -399,15 +399,28 @@ Manual tasks (0.1, 0.2, 0.3, 4.5) have no package rows.
 
 | ID | Item | Owner and gate |
 |----|------|----------------|
-| OI-1 | Golden formula validation outcome. The plan formula does not select DEV-153 on the real backlogs (runner-up BL-42 scores differently; DEV-150 is ambiguous). Not in 005a. 005b must validate over the full real backlogs before writing its golden fixture. | DEV-005b |
-| OI-2 | Visibility of AgToosa, Crapsino, DreamToosa and miToosa. Critic lookups (Crapsino private; DreamToosa, AgToosa, miToosa public) are unverified. | Wave 0 human (task 0.1). Gates 3.1 values. |
-| OI-3 | PushNotification works inside RemoteTrigger routines. Not used by 005a. | Wave 0 human. Gates DEV-005b only. |
-| OI-4 | Restore the dark routine (25 days; cause unknown). | Wave 0 human (task 0.2). Gates live acceptance 4.5. |
-| OI-5 | Existing committed history: `reports/Crapsino/*` and earlier public index files already contain private-repo details (SHAs, findings), and the 2026-09-17 report contains a local CLONE_ROOT path. Found in critic review, not in the interview. 005a does not rewrite or remove history. Keep, redact or remove is an owner decision this spec does not make. | Owner, before task 4.4 |
-| OI-6 | Phase 3 per-repo reports for private repos (`reports/Crapsino/`, 8 dated reports) keep publishing their findings to the public hub after 005a. Q1 covers Fleet Triage output only. | Owner decision: keep, redact or stop per-repo publication for private repos. Gate before the Wave 2 merge. |
+| OI-1 | Golden formula validation outcome. The plan formula does not select DEV-153 on the real backlogs (runner-up BL-42 scores differently; DEV-150 is ambiguous). Not in 005a. 005b must validate over the full real backlogs before writing its golden fixture. Status: OPEN. | DEV-005b |
+| OI-2 | RESOLVED (implementer default 2026-10-13, owner may override). Visibility of AgToosa, Crapsino, DreamToosa and miToosa, verified 2026-10-13 by repo-qualified `search_repositories`: sky2464/AgToosa public, sky2464/Crapsino private, sky2464/DreamToosa public, sky2464/miToosa public. These values go into the real repos.yml. Fixture manifests use their own test-only values. | Task 0.1 done. 3.1 may write the values. |
+| OI-3 | PushNotification works inside RemoteTrigger routines. Not used by 005a. Status: OPEN (manual). | Wave 0 human. Gates DEV-005b only. |
+| OI-4 | Restore the dark routine (25 days; cause unknown). Status: OPEN (manual). | Wave 0 human (task 0.2). Gates live acceptance 4.5. |
+| OI-5 | Existing committed history: `reports/Crapsino/*` and earlier public index files already contain private-repo details (SHAs, findings), and the 2026-09-17 report contains a local CLONE_ROOT path. Found in critic review, not in the interview. 005a does not rewrite or remove history. RESOLVED (implementer default 2026-10-13, owner may override): no history change. Nothing under `reports/` is rewritten, redacted or deleted. The finding is flagged in the PR for an owner decision to keep, redact or remove. | Owner, in PR review. Not a gate for 4.4. |
+| OI-6 | Phase 3 per-repo reports for private repos (`reports/Crapsino/`, 8 dated reports) keep publishing their findings to the public hub after 005a. Q1 covers Fleet Triage output only. RESOLVED (implementer default 2026-10-13, owner may override): from this story on, the routine prompt publishes a per-repo report for a private, absent or unrecognised-visibility repo only in the withheld form (repo name, age, tier, count of withheld CRITICAL, URGENT and HIGH items), identical to the Fleet Triage rule (TRI-A-001, 2.3 step 6). Existing files are untouched. | Applied in task 3.4 and tested in PR-4. Owner may override in PR review. |
+
+Resolution note: rows marked RESOLVED are implementer defaults made 2026-10-13 under the owner instruction "fix all issues and build all tasks". The owner may override any of them in PR review. They are recorded in the Spec Revision Log (R1).
 
 ## Spec quality self-check (pre-approval; the full analyzer runs at approval)
 
 - Every Must AC is observable and has at least one test in 3.3. No open placeholder text remains.
 - Goal Contract, non-goals, build scope, ACs, tasks and tests agree. Golden output and pick are deliberately absent from 005a.
 - Enforcement claims carry a claim boundary (2.4). Every task traces to at least one AC (3.1).
+
+## Spec Revision Log
+
+| Rev | Date | Change | Reason | Approval |
+|-----|------|--------|--------|----------|
+| R1 | 2026-10-13 | Open items: OI-2, OI-5 and OI-6 marked RESOLVED with decision text; OI-1, OI-3 and OI-4 left open. Task 0.1 ticked (`[manual-done]`) with the verified visibility result, and A1 updated to match. Task 4.4 tagged `[manual]`. Task 1.1 and group 1 ticked after the Master-Plan and CHANGELOG registration. Decisions written into the text: OI-6 withheld per-repo report form (TRI-A-001 modified R1, 2.3 step 6, PR-4); DEV-005b OI-8 amendments applied: one fixture tree `backlogs/` and a note that the single AgToosa pin `9784e2d` belongs to DEV-005b (A13, 2.1, task 2.1, 3.3, 3.4), Crapsino no-real-text rule explicit in A13, `heartbeat_max_age_days` an integer 1 to 14 (2.1 validator list, CL-5), future-dated handling (TRI-A-023 modified R1, TR-16, CL-5), golden line covered by TRI-A-028 (modified R1), FX-1 scope. Header Status aligned with the approval marker; Goal Contract unresolved-questions line updated. | Owner instruction 2026-10-13 (fix all issues, build all tasks): visibility verified, and OI-5, OI-6 and the 005b OI-8 amendments resolved by implementer default so the build can proceed. The edited Must ACs (TRI-A-001, TRI-A-023, TRI-A-028) are covered by the approval block below. | Implementer defaults; owner override open |
+
+## ✅ Spec Approved
+- **Approved by:** sky2464 (chat instructions "approved", "both", "fix all issues and build all tasks", 2026-10-13)
+- **Timestamp:** 2026-10-13T07:16:58Z
+- Open items OI-1, OI-3 and OI-4 remain open. Implementer-default resolutions (OI-2, OI-5, OI-6) are recorded in the Spec Revision Log (R1).

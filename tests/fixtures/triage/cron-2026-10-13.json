@@ -1,0 +1,9 @@
+{
+  "fixture-owner/AgToosa": {
+    "security-scan.yml": "23 4 * * 1",
+    "issues-sync.yml": "7 5 * * *"
+  },
+  "fixture-owner/Crapsino": {
+    "nightly-audit.yml": "10 3 * * *"
+  }
+}

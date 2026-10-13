@@ -1,7 +1,7 @@
 # Master-Plan
 
 > **Source of truth for active work.** Completed work lives in `Docs/archived/` — see Completed This Cycle for links.
-> **Last updated:** 2026-10-13 00:00
+> **Last updated:** 2026-10-13 07:17
 
 ## Project Charter
 
@@ -19,7 +19,7 @@
 | GitHub repo | https://github.com/sky2464/DreamToosa |
 | Milestone | Unreleased |
 | Active cycle | Multi-repo routine enablement |
-| Cycle state | Active — DEV-001 in progress |
+| Cycle state | Active — DEV-005a in progress |
 | Cycle capacity | 5 story points |
 | Current phase | ✏️ Spec · **🏗️ Build** · 🔍 Review · 🚢 Ship |
 
@@ -28,40 +28,50 @@
 ## Active Cycle
 
 > Stories committed to the current sprint/cycle.
-> **Progress:** `▰▰▰▰▱▱▱▱ 0/0 tasks` ← updated by `/agtoosa-build` after each task completes
+> **Progress:** `▰▱▱▱▱▱▱▱ 2/20 tasks` ← DEV-005a; updated by `/agtoosa-build` after each task completes
 
 | ID | Title | Type | Estimate | Status | Tasks Done |
 |----|-------|------|----------|--------|-----------|
-| DEV-001 | Feature: Multi-repo control plane for the Dream Report routine | Feature | M | 🟨 In Progress | 4/6 |
+| DEV-001 | Feature: Multi-repo control plane for the Dream Report routine | Feature | M | ✅ Done | 4/6 |
 | DEV-002 | Chore: Root README and control-plane CI | Chore | S | 🏁 Shipped | 5/5 |
 | DEV-003 | Feature: Local agent memory curation engine and CLI | Feature | S | 🏁 Shipped | 4/4 |
 | DEV-004 | Feature: Resilient Multi-Repo Control Plane & PR Lifecycle | Feature | M | 🏁 Shipped | 4/4 |
+| DEV-005a | Feature: Fleet Triage report core (sections, severity engine, visibility key) | Feature | L | 🟨 In Progress | 2/20 |
 
 Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blocked · 🔧 Awaiting Manual · 🏁 Shipped
 
 ## Active Tasks
 
-> Task breakdown for the current In Progress story. Created by `/agtoosa-spec` (Part 4).
+> Task breakdown for the current In Progress story, DEV-005a (`Docs/archived/spec-DEV-005a.md`). Created by `/agtoosa-spec` (Part 4).
 > Updated by `/agtoosa-build` — each completed sub-task gets `- [x]`.
 
-- [x] **1.** Specifications & Planning: Establish authoritative AgToosa spec and cycle tracking
-  - [x] 1.1 Author `Docs/archived/spec-DEV-004.md` adhering to `Docs/SPEC-FORMAT.md`
-  - [x] 1.2 Update `Docs/Master-Plan.md` with DEV-004 active story and architecture decisions
-- [x] **2.** Control Plane Manifest & Validator Extension
-  - [x] 2.1 Update `dreamtoosa/repos.yml` with hub circuit breaker, PR strategy, and clone root
-  - [x] 2.2 Extend `dreamtoosa/validate.py` with invariant checks for new hub keys
-  - [x] 2.3 Create `tests/test_validate.py` testing valid and invalid control plane configs
-- [x] **3.** Routine Prompt Source of Truth Hardening
-  - [x] 3.1 Refactor Phase 0 in `dreamtoosa/ROUTINE_PROMPT.md` for dynamic root discovery
-  - [x] 3.2 Implement Phase 0.5 pre-flight auth probing and push prohibition in READ_ONLY mode
-  - [x] 3.3 Implement hub circuit breaker check in Phase 2
-  - [x] 3.4 Implement worktree / non-destructive workspace isolation in Phase 5
-  - [x] 3.5 Implement PR chaining logic and lineage tracking in Phase 6
-  - [x] 3.6 Implement verification execution and baseline delta tracking
-- [x] **4.** Verification & Validation Audit
-  - [x] 4.1 Run `python3 -m unittest discover -s tests` across full test suite
-  - [x] 4.2 Run `python3 dreamtoosa/validate.py` confirming checks pass
-  - [x] 4.3 Verify `python3 -m py_compile *.py dreamtoosa/*.py tests/*.py` passes cleanly
+- [ ] **0.** Wave 0 human prerequisites
+  - [x] 0.1 Confirm each repo's visibility; verified 2026-10-13 by repo-qualified `search_repositories`: AgToosa public, Crapsino private, DreamToosa public, miToosa public `[manual-done]`
+  - [ ] 0.2 Restore routine `trig_01PvQiwSRhJktFxMXwxf14Qi` (dark since 2026-09-18), re-authorize GitHub, run once by hand, confirm Python 3.12 and PyYAML `[manual]`
+  - [ ] 0.3 Check with `get_run_log` whether the routine session honours `.claude/settings.json` deny rules `[manual]`
+- [x] **1.** Lifecycle: register the story
+  - [x] 1.1 Register DEV-005a (Active Cycle, estimate L) and DEV-005b (Backlog, estimate M), add the Update Log rows, add the CHANGELOG [Unreleased] entry citing `control-plane.yml`
+- [ ] **2.** Deterministic engine (no routine change)
+  - [ ] 2.1 Author synthetic fixtures under `tests/fixtures/triage/` (both snapshots, test manifest, `backlogs/*.md`)
+  - [ ] 2.2 Write failing tests first in `tests/test_triage_rules.py`, `tests/test_triage_render.py`, `tests/test_triage_cli.py`
+  - [ ] 2.3 Implement `dreamtoosa/triage.py` (pure rules, under 450 lines)
+  - [ ] 2.4 Implement `dreamtoosa/triage_report.py` (check, render, heartbeat, verify-git, inject, under 450 lines)
+  - [ ] 2.5 Generate `tests/fixtures/triage/expected-2026-10-13.md` from the frozen snapshot; owner reviews it against the rule text
+- [ ] **3.** Manifest, validator and prompt
+  - [ ] 3.1 Add the additive `dreamtoosa/repos.yml` keys (visibility from 0.1, backlog mapping, workflow lists, `dependabot_scope`, triage block, `force_read_only: false`, soft time box)
+  - [ ] 3.2 Add guarded checks to `dreamtoosa/validate.py` (no triage import; exit 2 on missing PyYAML or uncaught exception)
+  - [ ] 3.3 Extend `tests/test_validate.py` (negatives, backward compatibility, subprocess runs, raised floor)
+  - [ ] 3.4 Update `dreamtoosa/ROUTINE_PROMPT.md` (ten-tool line, Phase 0, 0.5, 1.5, 2, 3, 4, final summary, absolute paths)
+  - [ ] 3.5 Add `tests/test_routine_prompt.py` contract tests
+  - [ ] 3.6 Update `dreamtoosa/README.md` with write-boundary and visibility notes
+- [ ] **4.** Verification, live deploy and acceptance
+  - [ ] 4.1 Local READ_ONLY simulation of `snapshot-read-only.json` in a scratch worktree (no push)
+  - [ ] 4.2 Run the gates (both unittest forms, validate.py, py_compile)
+  - [ ] 4.3 CI green on the PR (`control-plane.yml` validate job, Python 3.12, PyYAML only)
+  - [ ] 4.4 RemoteTrigger get, update with the full session_context, get again and diff `[manual]`
+  - [ ] 4.5 Owner observes one READ_WRITE run with Fleet Triage at the top of the index `[manual]`
+
+> **Decision recorded (DEV-005 - implementer defaults):** Both specs (`Docs/archived/spec-DEV-005a.md`, `spec-DEV-005b.md`) were approved on 2026-10-13 on the owner instruction to fix all issues and build all tasks. The resolutions below are implementer defaults; the owner may override them in PR review (Spec Revision Log R1 in each spec). Visibility was verified by repo-qualified search: AgToosa public, Crapsino private, DreamToosa public, miToosa public. Committed history under `reports/` is not changed; the private-repo details already published there are flagged in the PR for an owner decision. From DEV-005a on, per-repo reports for a private, absent or unrecognised-visibility repo are published only in the withheld form. A15 stands (neutral and skipped checks count as green for READY). For DEV-005b: a single extra pure module `dreamtoosa/triage_ledger.py` is allowed only if `triage.py` would exceed 480 lines at the start of its build (amends Q2; owner confirmation requested); the heartbeat cron is `30 16 * * *`; liveness uses the DEV-005a definition; the four DEV-005a amendments are applied; CHAIN_BASE uses the open-PR plus not-ancestor refinement. OI-1 (golden formula), OI-3 (PushNotification) and OI-4 (dark routine) stay open, and gates 0.2, 0.3, 4.4 and 4.5 stay manual.
 
 > **Decision recorded (DEV-004 - PR Chaining):** When daily report PRs are not merged immediately by humans, the routine branches from the newest unmerged report branch on origin (chaining) rather than forking from stale `origin/main`. This ensures continuous `state.json` lineage and eliminates cascading merge conflicts.
 
@@ -102,8 +112,7 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 
 | ID | Title | Type | Estimate | Epic | Priority | Clarity | Status |
 |----|-------|------|----------|------|----------|---------|--------|
-| DEV-005a | Feature: Fleet Triage report core (sections, severity engine, visibility key) | Feature | M | DEV-100 | P1 | ready | 🟦 Todo — spec pending approval |
-| DEV-005b | Feature: Fleet Triage ledger, dark-routine heartbeat and urgent push | Feature | S | DEV-100 | P1 | ready | 🟦 Todo — spec pending approval |
+| DEV-005b | Feature: Fleet Triage ledger, dark-routine heartbeat and urgent push | Feature | M | DEV-100 | P1 | ready | 🟦 Todo — spec approved; depends on DEV-005a |
 
 ## Epics
 
@@ -111,7 +120,7 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 
 | ID | Title | Stories | Status |
 |----|-------|---------|--------|
-| DEV-100 | Epic: Multi-repo maintainer routine | 1 open / 2 total | 🟨 In Progress |
+| DEV-100 | Epic: Multi-repo maintainer routine | 3 open / 5 total | 🟨 In Progress |
 | DEV-101 | Epic: Claude Dreams memory curation | 1 shipped / 1 total | 🏁 Shipped |
 
 ## Active Diagnosis
@@ -158,4 +167,7 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 | 2026-09-18 | ship DEV-004 shipped | DreamToosa |
 | 2026-10-13 | spec DEV-005a drafted | DreamToosa |
 | 2026-10-13 | spec DEV-005b drafted | DreamToosa |
+| 2026-10-13 | spec DEV-005a and DEV-005b approved (OI-1, OI-3, OI-4 open; implementer-default resolutions in each Spec Revision Log R1) | DreamToosa |
+| 2026-10-13 | build DEV-001 completed: AC-1 to AC-4 verified against repos.yml, profiles, state.json and ROUTINE_PROMPT.md; set Done, not shipped; Tasks Done 4/6 left as is because the spec has no task list | DreamToosa |
+| 2026-10-13 | build DEV-005a started | DreamToosa |
 

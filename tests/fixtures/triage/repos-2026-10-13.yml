@@ -1,0 +1,101 @@
+# Synthetic test manifest for tests/fixtures/triage (real repos.yml schema, test-only values).
+# Visibility values below are test inputs, not the task 0.1 results.
+schema_version: 1
+
+defaults:
+  review_window: "2 days ago"
+  max_open_prs: 5
+  fix_eligible: true
+  clone_root_env: "DREAMTOOSA_CLONE_ROOT"
+  stale_after_days: 14
+  dormant_after_days: 45
+
+repos:
+  - repo: fixture-owner/AgToosa
+    profile: shell-spec-driven
+    enabled: true
+    visibility: public
+    dependabot_scope: dev
+    product_workflows: [ci.yml]
+    watch_workflows:
+      - {file: security-scan.yml, kind: security}
+      - {file: issues-sync.yml, kind: sync}
+    backlog:
+      path: docs/Master-Plan.md
+      header_all: [ID, Title]
+      columns: {id: ID, title: Title, priority: Priority, status: Status}
+      p0_values: [P0]
+      done_values: [Done, Shipped]
+      done_sections: [Completed This Cycle]
+
+  - repo: fixture-owner/Crapsino
+    profile: web-playwright
+    enabled: true
+    visibility: private
+    dependabot_scope: runtime
+    product_workflows: [ci.yml]
+    watch_workflows:
+      - {file: nightly-audit.yml, kind: audit}
+    backlog:
+      path: docs/PLAN.md
+      header_all: [ID, Sev, Finding]
+      columns: {id: ID, title: Finding, priority: Sev, status: null}
+      p0_values: [Critical]
+      done_values: []
+      done_sections: [Resolved Items]
+
+  - repo: fixture-owner/DreamToosa
+    profile: python-lib
+    enabled: true
+    visibility: public
+    dependabot_scope: runtime
+    product_workflows: [control-plane.yml]
+    watch_workflows: []
+    backlog:
+      path: Docs/Master-Plan.md
+      header_all: [ID, Title, Priority, Status]
+      columns: {id: ID, title: Title, priority: Priority, status: Status}
+      p0_values: [P0]
+      done_values: [Done, Shipped]
+      done_sections: [Completed This Cycle]
+
+  - repo: fixture-owner/miToosa
+    profile: dart-flutter
+    enabled: true
+    visibility: public
+    dependabot_scope: unknown
+    product_workflows: [weekly-health.yml]
+    watch_workflows: []
+    backlog:
+      path: docs/Master-Plan.md
+      header_all: [ID, Title, Priority, Status]
+      columns: {id: ID, title: Title, priority: Priority, status: Status}
+      p0_values: [P0]
+      done_values: [Done, Shipped]
+      done_sections: [Completed This Cycle]
+
+hub:
+  repo: fixture-owner/DreamToosa
+  reports_dir: reports
+  state_file: dreamtoosa/state.json
+  manifest: dreamtoosa/repos.yml
+  profiles_dir: dreamtoosa/profiles
+  max_unmerged_report_prs: 3
+  pr_strategy: "chain"
+  force_read_only: false
+
+budget:
+  max_repos_reviewed_per_run: 6
+  max_fix_repos_per_run: 1
+  max_issues_per_repo_per_run: 3
+  max_prs_per_run: 2
+  soft_time_box_minutes_per_repo: 6
+  soft_time_box_minutes_fleet_triage: 10
+
+triage:
+  max_items_total: 8
+  max_items_per_repo: 3
+  pr_idle_days: 7
+  routine_gap_days: 2
+  heartbeat_max_age_days: 3
+  trusted_logins: [fixture-owner, fixture-helper, "dependabot[bot]"]
