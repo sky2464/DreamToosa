@@ -30,10 +30,16 @@ Guidance for AI coding agents working in this repository.
 
 ## Environment And Commands
 
-- Python: use Python 3.8+.
-- Dependency: `anthropic` (install with `pip install anthropic`).
-- Required env var: `ANTHROPIC_API_KEY`.
-- Primary smoke run: `python3 dream_example.py`.
+- Python: use Python 3.8+ (CI uses 3.12).
+- Dependencies: `python3 -m pip install --user -r requirements.txt` (PyYAML and `anthropic`).
+- Local checks, no API key: `python3 dreamtoosa/validate.py`, `python3 -m unittest discover tests -v`, and `python3 -m dreamtoosa --demo`.
+- Remote API examples such as `python3 dream_example.py` need `ANTHROPIC_API_KEY` and Dreams access.
+
+## Cursor Cloud specific instructions
+
+- Cloud Agent install is `python3 -m pip install --user -r requirements.txt`. There is no boot-time service.
+- Prove the environment with the local checks above. `python3 -m dreamtoosa --demo` writes a raw JSON store, curates it, and prints volume reduction under `reports/memory_stores/`.
+- Do not run remote dream scripts against the live API unless `ANTHROPIC_API_KEY` is set and the task is specifically about that API.
 
 ## Editing Conventions In This Repo
 
