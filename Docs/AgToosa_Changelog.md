@@ -9,6 +9,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), version
 
 ### Changed
 
+- **DEV-005 shipped** — Canonical remote `DreamsClient` in `dreams_implementation.py`; duplicate module removed; integration refactored; tests 17/17; `CHANGELOG.md` v0.1.1 (2026-10-14).
 - **DEV-001 shipped** — Multi-repo Dream Report control plane documented and archived (`Docs/archived/spec-DEV-001.md`, `review-DEV-001.md`); `Docs/Master-Plan.md` cycle closed 2026-10-13.
 
 ---

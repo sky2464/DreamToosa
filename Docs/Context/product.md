@@ -23,7 +23,7 @@ non_goals:
   - "Full consolidation of all legacy Dreams client variants in one release (document boundaries first)"
 
 ## Current Milestone
-current_milestone: "v0.1.0 shipped — DEV-005 client unification in progress"
+current_milestone: "v0.1.1 shipped — DEV-005 client unification complete"
 
 ## Success Metrics
 success_metrics:
