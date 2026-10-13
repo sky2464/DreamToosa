@@ -16,6 +16,18 @@
 #                 Set to 0 to make a repo permanently review-only.
 #   review_window argument passed to `git log --since=`.
 #   fix_eligible  false means review + report only; never open a fix PR here.
+#
+# Fleet Triage fields (DEV-005a; all checked by validate.py once the `triage` block exists)
+#   visibility         public or private. Anything else, or a failed lookup, is treated as private.
+#   dependabot_scope   runtime, dev or unknown (unknown is treated as runtime) for rule H6 and C1(b).
+#   product_workflows  workflow files whose latest default-branch run is the repo's CI signal.
+#   watch_workflows    {file, kind} workflows watched for silence or repeated failure; kind is security, sync or audit.
+#   backlog.path       plan file, relative to the repo root, read from the default-branch tip via git.
+#   backlog.header_all a table is parsed only when its header row has every one of these names.
+#   backlog.columns    header names holding the row id, title, priority and status (null: no status column).
+#   backlog.p0_values  priority cell values that count as P0.
+#   backlog.done_values status cells that START with one of these words count as done (suffixes like "- v1" are ignored).
+#   backlog.done_sections rows under a heading with one of these names count as done.
 
 schema_version: 1
 
@@ -24,6 +36,8 @@ defaults:
   max_open_prs: 5
   fix_eligible: true
   clone_root_env: "DREAMTOOSA_CLONE_ROOT"
+  stale_after_days: 14              # Fleet Triage: a default-branch tip older than this is STALE (ACTIVE <= 7, QUIET up to here)
+  dormant_after_days: 45            # Fleet Triage: a tip this old or older is DORMANT; must be greater than stale_after_days
 
 repos:
   - repo: sky2464/AgToosa
@@ -32,24 +46,71 @@ repos:
     max_open_prs: 5
     review_window: "2 days ago"
     fix_eligible: false # Review-only: 15-PR backlog on main pending drain
+    visibility: public
+    dependabot_scope: dev           # dependabot.yml covers github-actions, pip under /tests and an npm docs asset only
+    product_workflows: [ci.yml]
+    watch_workflows:
+      - {file: agtoosa-issues-sync.yml, kind: sync}
+      - {file: security-scan.yml, kind: security}
+      - {file: github-surface-audit.yml, kind: audit}
+    backlog:
+      path: docs/Master-Plan.md
+      header_all: [ID, Title, Priority, Status]
+      columns: {id: ID, title: Title, priority: Priority, status: Status}
+      p0_values: [P0]
+      done_values: [Shipped, Done]
+      done_sections: [Completed This Cycle]
 
   - repo: sky2464/Crapsino
     profile: web-playwright
     enabled: true
     max_open_prs: 3
     fix_eligible: true
+    visibility: private             # Private: Fleet Triage publishes only its name, age, tier and withheld counts
+    dependabot_scope: unknown       # Not established; unknown is treated as runtime
+    product_workflows: [ci.yml]
+    watch_workflows: []
+    backlog:
+      path: docs/PLAN.md            # Open findings only, so no row or section here counts as done
+      header_all: [ID, Sev, Finding]
+      columns: {id: ID, title: Finding, priority: Sev, status: null}
+      p0_values: [Critical]
+      done_values: []
+      done_sections: []
 
   - repo: sky2464/DreamToosa
     profile: python-lib
     enabled: true
     max_open_prs: 3
     fix_eligible: true
+    visibility: public
+    dependabot_scope: unknown       # Not established; unknown is treated as runtime
+    product_workflows: [control-plane.yml]
+    watch_workflows: []
+    backlog:
+      path: Docs/Master-Plan.md
+      header_all: [ID, Title, Priority, Status]
+      columns: {id: ID, title: Title, priority: Priority, status: Status}
+      p0_values: [P0]
+      done_values: [Shipped]
+      done_sections: [Completed This Cycle]
 
   - repo: sky2464/miToosa
     profile: dart-flutter
     enabled: true
     max_open_prs: 3
     fix_eligible: true
+    visibility: public
+    dependabot_scope: unknown       # Not established; unknown is treated as runtime
+    product_workflows: [weekly-health.yml]
+    watch_workflows: []
+    backlog:
+      path: docs/Master-Plan.md
+      header_all: [ID, Title, Priority, Status]
+      columns: {id: ID, title: Title, priority: Priority, status: Status}
+      p0_values: [P0]
+      done_values: [Shipped]
+      done_sections: [Completed This Cycle]
 
 # Where the consolidated report lands. This repo is the control plane: reports
 # for ALL targets are committed here, so there is one merge point instead of N.
@@ -61,6 +122,7 @@ hub:
   profiles_dir: dreamtoosa/profiles
   max_unmerged_report_prs: 3        # Hub circuit breaker: stops branch pushing when unmerged report PRs reach cap
   pr_strategy: "chain"              # "chain" (base new reports on latest unmerged report branch) or "independent"
+  force_read_only: false            # Fleet Triage: true forces READ_ONLY (no API facts) whatever the auth probe says
 
 # Per-run limits. Runs that exceed these should stop cleanly and record what
 # they completed, rather than being cut off mid-write.
@@ -70,3 +132,15 @@ budget:
   max_issues_per_repo_per_run: 3
   max_prs_per_run: 2              # 1 hub report PR + at most 1 fix PR
   soft_time_box_minutes_per_repo: 6
+  soft_time_box_minutes_fleet_triage: 10   # Fleet Triage: sections not finished inside this many minutes become "not evaluable"
+
+# Fleet Triage report (DEV-005a): thresholds read by triage.py and checked by validate.py.
+triage:
+  max_items_total: 8                # Cap on URGENT and HIGH rows across the fleet; CRITICAL is never capped
+  max_items_per_repo: 3             # Cap on URGENT and HIGH rows per repo; must not exceed max_items_total
+  pr_idle_days: 7                   # A READY PR idle longer than this raises U3
+  routine_gap_days: 2               # Hub heartbeat older than this (up to 7 days) raises U2; over 7 days raises C2
+  heartbeat_max_age_days: 3         # `triage_report heartbeat` fails when the newest last_run.date is older than this
+  trusted_logins:                   # Issue and PR authors outside this list are counted as external and never ranked
+    - sky2464
+    - "dependabot[bot]"

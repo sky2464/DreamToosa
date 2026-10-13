@@ -1,0 +1,156 @@
+{
+  "schema": "fleet-triage/1",
+  "run_date": "2026-10-13",
+  "execution_mode": "READ_ONLY",
+  "timebox": {
+    "started_epoch": 1791874800,
+    "box_minutes": 10,
+    "exceeded_section": null
+  },
+  "hub": {
+    "validate_exit": 0,
+    "engine_clean": true,
+    "open_report_prs": null,
+    "liveness_refs": [
+      {
+        "ref": "origin/main",
+        "last_run_date": "2026-09-18"
+      },
+      {
+        "ref": "origin/dreamtoosa/report-2026-09-17",
+        "last_run_date": "2026-09-17"
+      }
+    ]
+  },
+  "repos": [
+    {
+      "repo": "fixture-owner/AgToosa",
+      "name": "AgToosa",
+      "enabled": true,
+      "visibility": "public",
+      "visibility_check": "unavailable",
+      "dependabot_scope": "dev",
+      "tip": {
+        "sha": "fa00101000000000000000000000000000000000",
+        "committer_date": "2026-09-23T14:05:00+00:00",
+        "prev_committer_date": "2026-09-19T09:00:00+00:00",
+        "subject": "synthetic tip subject for the AgToosa fixture"
+      },
+      "fix_links": [
+        {
+          "issue": 11,
+          "sha": "fa000b1000000000000000000000000000000000"
+        }
+      ],
+      "hygiene": {
+        "merged_undeleted": 4,
+        "shallow": false
+      },
+      "prs": {
+        "status": "not_evaluable",
+        "reason": "READ_ONLY"
+      },
+      "issues": {
+        "status": "not_evaluable",
+        "reason": "READ_ONLY"
+      },
+      "workflows": {
+        "status": "not_evaluable",
+        "reason": "READ_ONLY"
+      }
+    },
+    {
+      "repo": "fixture-owner/Crapsino",
+      "name": "Crapsino",
+      "enabled": true,
+      "visibility": "private",
+      "visibility_check": "unavailable",
+      "dependabot_scope": "runtime",
+      "tip": {
+        "sha": "fa00201000000000000000000000000000000000",
+        "committer_date": "2026-10-10T08:30:00+00:00",
+        "prev_committer_date": "2026-10-08T11:00:00+00:00",
+        "subject": "synthetic tip subject for the Crapsino fixture"
+      },
+      "fix_links": [],
+      "hygiene": {
+        "merged_undeleted": 0,
+        "shallow": true
+      },
+      "prs": {
+        "status": "not_evaluable",
+        "reason": "READ_ONLY"
+      },
+      "issues": {
+        "status": "not_evaluable",
+        "reason": "READ_ONLY"
+      },
+      "workflows": {
+        "status": "not_evaluable",
+        "reason": "READ_ONLY"
+      }
+    },
+    {
+      "repo": "fixture-owner/DreamToosa",
+      "name": "DreamToosa",
+      "enabled": true,
+      "visibility": "public",
+      "visibility_check": "unavailable",
+      "dependabot_scope": "runtime",
+      "tip": {
+        "sha": "fa00301000000000000000000000000000000000",
+        "committer_date": "2026-10-12T21:10:00+00:00",
+        "prev_committer_date": "2026-10-12T20:00:00+00:00",
+        "subject": "synthetic tip subject for the DreamToosa fixture"
+      },
+      "fix_links": [],
+      "hygiene": {
+        "merged_undeleted": 7,
+        "shallow": false
+      },
+      "prs": {
+        "status": "not_evaluable",
+        "reason": "READ_ONLY"
+      },
+      "issues": {
+        "status": "not_evaluable",
+        "reason": "READ_ONLY"
+      },
+      "workflows": {
+        "status": "not_evaluable",
+        "reason": "READ_ONLY"
+      }
+    },
+    {
+      "repo": "fixture-owner/miToosa",
+      "name": "miToosa",
+      "enabled": true,
+      "visibility": "public",
+      "visibility_check": "unavailable",
+      "dependabot_scope": "unknown",
+      "tip": {
+        "sha": "fa00401000000000000000000000000000000000",
+        "committer_date": "2026-10-12T05:30:00+00:00",
+        "prev_committer_date": "2026-10-10T08:50:00+00:00",
+        "subject": "synthetic tip subject for the miToosa fixture"
+      },
+      "fix_links": [],
+      "hygiene": {
+        "merged_undeleted": 2,
+        "shallow": false
+      },
+      "prs": {
+        "status": "not_evaluable",
+        "reason": "READ_ONLY"
+      },
+      "issues": {
+        "status": "not_evaluable",
+        "reason": "READ_ONLY"
+      },
+      "workflows": {
+        "status": "not_evaluable",
+        "reason": "READ_ONLY"
+      }
+    }
+  ]
+}

@@ -2,9 +2,9 @@
 
 > **Story ID:** DEV-005b
 > **Epic:** DEV-100 (Multi-repo maintainer routine)
-> **Status:** Backlog — spec draft, approval pending (no Spec Approved marker appended)
+> **Status:** Todo — spec approved 2026-10-13 (see Spec Approved block); depends on DEV-005a
 > **Estimate:** M (build). Effort note in 2.5.
-> **Clarity:** `ready` — interview complete. Wave 0 gates and open items OI-1 to OI-9 still gate build and live steps.
+> **Clarity:** `ready` — interview complete. Open items OI-1, OI-3 and OI-4 and the Wave 0 gates 0.2 and 0.3 still gate build and live steps. OI-2 and OI-5 to OI-9 are RESOLVED (implementer defaults 2026-10-13).
 > **Spec created:** 2026-10-13
 > **Depends on:** **DEV-005a** (`Docs/archived/spec-DEV-005a.md`, IDs `TRI-A-###`). Wave B1 starts only after DEV-005a is merged to DreamToosa `main`. Live steps start only after DEV-005a is live.
 
@@ -25,7 +25,7 @@
 | Golden pool | AgToosa keeps DEV-153 in the Active Cycle table (`docs/Master-Plan.md:27`), not in Backlog. DEV-150 is `Todo` in Backlog (`:239`) and shipped in Completed This Cycle (`:411`). The pool must read both tables and exclude completed IDs. |
 | Backlog paths | AgToosa and miToosa use lowercase `docs/Master-Plan.md`. Crapsino uses `docs/PLAN.md` with findings tables that have a Sev column and no Type column (verified), so it yields no Feature rows. DreamToosa's backlog yields no candidates. |
 | Shallow clones | The AgToosa sandbox clone is shallow (verified). The critic reports the same for Crapsino and miToosa. Commit-history evidence can be truncated there. |
-| Engine layout | The two-file engine is binding (Q2). Ledger, golden and notify logic must fit `triage.py` under the 500-line rule. See OI-5. |
+| Engine layout | The two-file engine is binding (Q2). Ledger, golden and notify logic must fit `triage.py` under the 500-line rule. See OI-5 (resolved: limited exception). |
 
 #### Asked & confirmed
 
@@ -46,12 +46,12 @@ All eight answers come from the user interview and are binding.
 
 - **A1** — DEV-005a is merged first and exports the interfaces listed in 2.1 ("Consumed from DEV-005a"). If 005a names differ, reconcile this spec before Wave B1 (list in OI-8). Accepted because the split was deliberate and 005a is not yet built.
 - **A2** — The routine's hub clone may be shallow. Where history is truncated, RESOLVED evidence is weaker (TRI-B-004). No commit-date lookup runs (TRI-B-015; OI-7). The CI heartbeat uses full history.
-- **A3** — The routine's cron hour is not known to this spec. The heartbeat cron is set after it is read at gate 0.3 (OI-6). The threshold is in whole days, so a few hours of offset does not change the result.
+- **A3** — The routine's cron hour is not known to this spec. The heartbeat cron is `30 16 * * *` (OI-6, resolved) and is tuned at gate 0.3 once the routine's cron hour is read. The threshold is in whole days, so a few hours of offset does not change the result.
 - **A4** — Opaque keys for private repos can be guessed from small subject spaces such as workflow names and numbers. Accepted, because the ledger carries no text and no secret. Recorded as residual risk R8.
 - **A5** — READ_ONLY runs compute the ledger locally and never persist it. Their deltas are relative to the last pushed ledger. Accepted. READ_ONLY always sends the one notify push (Q5).
 - **A6** — `hub.force_read_only` exists only for the acceptance simulation and is committed as `false` (TRI-B-030). DEV-005a owns the key (005a:144).
 - **A7** — The DEV-005a snapshot carries `execution_mode` and `hub.validate_exit` (005a:160). Notify reads both. C3 is `validate_exit` 1 only (005a TRI-A-010).
-- **A8** — Retired to OI-9. The open-PR refinement of CHAIN_BASE is an owner decision, not an assumption.
+- **A8** — Retired to OI-9. The open-PR refinement of CHAIN_BASE is an owner decision, not an assumption. OI-9 is resolved: the refinement is adopted as an implementer default.
 - **A9** — Phase 0 state read from CHAIN_BASE (TRI-B-025) moves into this story from the plan's deferred list (DEV-005a defers it here, 005a:125). The ledger's previous-index read and the day-2 idempotency gate both need it.
 
 ---
@@ -69,7 +69,7 @@ All eight answers come from the user interview and are binding.
 | Non-goals | Filing, commenting on, or updating issues or PRs (Q8). Approving, merging, reviewing, enabling auto-merge, updating branches, dispatching or re-running workflows. Account-wide discovery (Q6). Advancing `fix_rotation` on READ_ONLY runs. Security-alert coverage. A second trigger. New `state.json` keys. Changes to target repos. |
 | Assumptions | A1 to A7 and A9 above (A8 retired to OI-9). |
 | Risks | R1 The routine stays dark; root cause unknown (OI-4). R2 GitHub disables scheduled workflows in public repos after 60 days without repository activity, and a disabled heartbeat cannot alert. The runbook is TRI-B-032. R3 PushNotification is unavailable in RemoteTrigger routines (OI-3). R4 The golden formula fails validation (OI-1). R5 Pure-code line budget (OI-5). R6 Shallow history weakens RESOLVED evidence; commit-date checks are deferred to OI-7 (A2). R7 A merged-but-undeleted report branch becomes the chain base (TRI-B-024 rule). R8 Guessable opaque keys (A4). |
-| Unresolved questions | OI-1 to OI-9 (Section 4). |
+| Unresolved questions | OI-1, OI-3 and OI-4 remain open. OI-2 and OI-5 to OI-9 are RESOLVED (implementer defaults 2026-10-13; owner may override; Spec Revision Log R1). |
 
 ### 1.1 User Stories
 
@@ -99,21 +99,21 @@ Priorities are MoSCoW. IDs are `TRI-B-###` (DEV-005b only). Rule IDs such as C2 
 | TRI-B-012 | **THE SYSTEM SHALL** emit exactly one golden line: the highest score, with ties broken by manifest order then plan order. It prints every term and the runner-up (a non-public repo shows its `P-` key and no title, TRI-B-006), is tagged "low confidence" when the score is 0 or below, and prints "no eligible candidate" when the pool is empty. | Must |
 | TRI-B-013 | **WHILE** `triage.golden_formula_validated` is `false`, **THE SYSTEM SHALL** tag the golden line "formula unvalidated". | Must |
 | TRI-B-014 | **THE SYSTEM SHALL NOT** pass the golden pick to Phase 4, to Phase 5 fix rotation, to any filing or comment, or to notify. | Must |
-| TRI-B-015 | **WHEN** Phase 1.5 or the heartbeat computes hub liveness, **THE SYSTEM SHALL** call the single DEV-005a `hub_liveness(refs, run_date)` function (DEV-005a TRI-A-023). Candidate refs are origin/main and every `origin/dreamtoosa/report-*` ref. Each effective date is that ref's newest valid `last_run.date`, compared in whole days. No commit-date minimum applies. The Q4 wording and that minimum are open for owner decision (OI-7). | Must |
+| TRI-B-015 | **WHEN** Phase 1.5 or the heartbeat computes hub liveness, **THE SYSTEM SHALL** call the single DEV-005a `hub_liveness(refs, run_date)` function (DEV-005a TRI-A-023). Candidate refs are origin/main and every `origin/dreamtoosa/report-*` ref. Each effective date is that ref's newest valid `last_run.date`, compared in whole days. No commit-date minimum applies (OI-7 resolved: the DEV-005a definition is adopted, a deviation from the Q4 wording). (modified R1) | Must |
 | TRI-B-016 | **IF** any candidate ref has a `last_run.date` later than RUN_DATE + 1 day, **THEN** the heartbeat SHALL exit 1 with `E_FUTURE_DATED`. | Must |
 | TRI-B-017 | **WHEN** the heartbeat runs, **THE SYSTEM SHALL** use the DEV-005a heartbeat subcommand (005a CL-5), which exits 1 if the freshest effective date is more than `heartbeat_max_age_days` days before the UTC run date or is not evaluable, exits 0 otherwise, and exits 2 on a usage error. This story adds the CI job and its tests. | Must |
-| TRI-B-018 | **THE SYSTEM SHALL** run the heartbeat job only on `schedule` and `workflow_dispatch` (an `if:` gate), with `permissions: contents: read`, no secrets, no API calls, `actions/setup-python` 3.12, `pip install pyyaml`, and `timeout-minutes` set. The validate job SHALL NOT run on `schedule`. | Must |
+| TRI-B-018 | **THE SYSTEM SHALL** run the heartbeat job only on `schedule` and `workflow_dispatch` (an `if:` gate), with `permissions: contents: read`, no secrets, no API calls, `actions/setup-python` 3.12, `pip install pyyaml`, and `timeout-minutes` set. The schedule is `cron: '30 16 * * *'` (OI-6, tuned at gate 0.3). The validate job SHALL NOT run on `schedule`. (modified R1) | Must |
 | TRI-B-019 | **WHERE** `triage.heartbeat_max_age_days` is set, **THE SYSTEM SHALL** use it. When absent, the default is 3. The threshold SHALL NOT be hard-coded. DEV-005a owns the key (005a:144); this spec adds the bound in TRI-B-029. | Should |
 | TRI-B-020 | **WHEN** a run ends, **THE SYSTEM SHALL** decide `send` in code. `send` is true if EXECUTION_MODE is READ_ONLY, or the control-plane check failed (C3), or any finding is NEW or ESCALATED at tier CRITICAL or URGENT, or RUN_DATE is a Monday (UTC). Otherwise it is false. | Must |
 | TRI-B-021 | **WHEN** `send` is true, **THE SYSTEM SHALL** send exactly one PushNotification. Its body is a fixed template filled with reason codes, up to three finding IDs (then "+N more") and integers. It matches `^[A-Za-z0-9:/_.#\- ,]{1,200}$`, uses opaque keys for every non-public repo, and is wrapped in `<routine_summary>` tags. The prompt passes it verbatim. When `send` is false, nothing is pushed. | Must |
 | TRI-B-022 | **THE SYSTEM SHALL** add `PushNotification` to the routine's allowed tools. It SHALL NOT add any `mcp__github__*` tool to allowed tools or to the ToolSearch select line. If gate 0.2 shows that routines load PushNotification only through that select line, the line gains `PushNotification` too, and TestToolSearchUnchanged changes with it. | Must |
 | TRI-B-023 | **IF** PushNotification is unavailable in RemoteTrigger routines (OI-3), **THEN THE SYSTEM SHALL** still render the `send` decision in the index, send nothing, and rely on the heartbeat (TRI-B-017) for liveness. | Should |
-| TRI-B-024 | **WHEN** EXECUTION_MODE is READ_WRITE and `hub.pr_strategy` is `chain`, **THE SYSTEM SHALL** set CHAIN_BASE to the newest `origin/dreamtoosa/report-*` (newest by tip committer date) that has an open hub PR and is not an ancestor of `origin/main` (open-PR test pending OI-9). Otherwise CHAIN_BASE is `origin/main`. It then runs `git -C "$CLONE_ROOT/DreamToosa" worktree add "$WT" -b dreamtoosa/report-$RUN_DATE "$CHAIN_BASE"`, where `WT` comes from `mktemp -d` outside every clone, Write rule: Phase 3 writes the reports to hub `reports/` as DEV-005a does, and that is the only write outside `$WT`. Phase 6 updates `state.json` and copies only the new `dream-report-$RUN_DATE.md` files into `$WT`. The hub `dreamtoosa/` tree is never written. In READ_ONLY, the open-PR test is unavailable, so CHAIN_BASE uses the ancestor test only, and is used for reads only. | Must |
+| TRI-B-024 | **WHEN** EXECUTION_MODE is READ_WRITE and `hub.pr_strategy` is `chain`, **THE SYSTEM SHALL** set CHAIN_BASE to the newest `origin/dreamtoosa/report-*` (newest by tip committer date) that has an open hub PR and is not an ancestor of `origin/main` (open-PR test adopted, OI-9 resolved). Otherwise CHAIN_BASE is `origin/main`. It then runs `git -C "$CLONE_ROOT/DreamToosa" worktree add "$WT" -b dreamtoosa/report-$RUN_DATE "$CHAIN_BASE"`, where `WT` comes from `mktemp -d` outside every clone, Write rule: Phase 3 writes the reports to hub `reports/` as DEV-005a does, and that is the only write outside `$WT`. Phase 6 updates `state.json` and copies only the new `dream-report-$RUN_DATE.md` files into `$WT`. The hub `dreamtoosa/` tree is never written. In READ_ONLY, the open-PR test is unavailable, so CHAIN_BASE uses the ancestor test only, and is used for reads only. (modified R1) | Must |
 | TRI-B-025 | **WHEN** Phase 0 reads `state.json`, **THE SYSTEM SHALL** read it from CHAIN_BASE via `git show`, falling back to `origin/main` only when CHAIN_BASE has none. The Phase 0 idempotency gate uses that copy and checks the report file in CHAIN_BASE. Phase 1.5 liveness reads each ref as DEV-005a 2.3 step 4c specifies. | Must |
 | TRI-B-026 | **THE SYSTEM SHALL** run `python3 "$WT/dreamtoosa/validate.py"` on the worktree copy before commit, and SHALL NOT commit or push when it exits non-zero. The hub `dreamtoosa/` tree SHALL be unmodified before every engine call (Phase 1.5, the Phase 3 render and the notify call, per DEV-005a TRI-A-008) and before and after Phase 6 (`git -C "$CLONE_ROOT/DreamToosa" diff --quiet -- dreamtoosa/` and an empty `status --porcelain dreamtoosa/`). | Must |
 | TRI-B-027 | **IF** EXECUTION_MODE is READ_ONLY or the hub circuit breaker is tripped, **THEN THE SYSTEM SHALL** create no worktree, no branch and no push (DEV-004 AC-002 and AC-003 unchanged). | Must |
 | TRI-B-028 | **WHEN** two READ_WRITE runs occur with no merge between them, **THE SYSTEM SHALL** make the second report branch's parent the first branch's tip. | Must |
-| TRI-B-029 | **WHEN** validate.py runs, **THE SYSTEM SHALL** check, when present: `triage.heartbeat_max_age_days` (integer 1 to 14; DEV-005a owns the key, and this bound is OI-8), `triage.golden_exclude` (list of strings), `triage.golden_formula_validated` (boolean), `hub.force_read_only` (boolean), and `last_run.date` (ISO YYYY-MM-DD, not later than the injected today plus one day). Absent keys produce no new failure. validate.py SHALL NOT import any triage module. | Must |
+| TRI-B-029 | **WHEN** validate.py runs, **THE SYSTEM SHALL** check, when present: `triage.heartbeat_max_age_days` (integer 1 to 14; DEV-005a owns the key and carries the same bound, OI-8 applied), `triage.golden_exclude` (list of strings), `triage.golden_formula_validated` (boolean), `hub.force_read_only` (boolean), and `last_run.date` (ISO YYYY-MM-DD, not later than the injected today plus one day). Absent keys produce no new failure. validate.py SHALL NOT import any triage module. | Must |
 | TRI-B-030 | **WHEN** `hub.force_read_only` is true, **THE SYSTEM SHALL** set EXECUTION_MODE to READ_ONLY regardless of the auth probe. The committed `repos.yml` SHALL keep it `false`. | Must |
 | TRI-B-031 | **WHERE** the heartbeat job runs, **THE SYSTEM SHALL** write one `GITHUB_STEP_SUMMARY` line holding the freshest ref name, its effective date and the age in days, with no free text. | Could |
 | TRI-B-032 | **THE SYSTEM SHALL** document in `dreamtoosa/README.md` what a failing heartbeat means, the re-enable steps after GitHub's 60-day schedule disable, and the ledger and heartbeat rows of the ownership matrix, a new "Ownership matrix" section in that README with columns Artifact, Writer, Gate and Test. | Should |
@@ -135,8 +135,8 @@ Priorities are MoSCoW. IDs are `TRI-B-###` (DEV-005b only). Rule IDs such as C2 
 - The rules, caps, render and liveness definition, which belong to DEV-005a. This story consumes them.
 - Advancing `fix_rotation` on READ_ONLY runs and stale profile baselines (deferred in the DEV-005 plan). Phase 0 state reads from CHAIN_BASE are in scope in every mode (TRI-B-025, A9).
 - Security-alert coverage, account-wide discovery, a new trigger, and new write tools.
-- A third engine module, unless OI-5 is decided.
-- Changes to target-repo code. The DEV-005b row already exists in `Docs/Master-Plan.md` (line 106); this spec does not edit that file.
+- A third engine module, except the limited OI-5 exception: one extra pure module `dreamtoosa/triage_ledger.py`, only if `triage.py` would exceed 480 lines at the start of this build.
+- Changes to target-repo code. The DEV-005b row already exists in the `Docs/Master-Plan.md` Backlog table; this spec does not edit that file.
 
 ### 1.4 Brownfield Baseline
 
@@ -175,7 +175,7 @@ Priorities are MoSCoW. IDs are `TRI-B-###` (DEV-005b only). Rule IDs such as C2 
 
 **Files to modify** (created by DEV-005a)
 
-- `dreamtoosa/triage.py` — add pure functions: `merge_ledger`, `parse_ledger`, `serialize_ledger`, `golden_pick`, `notify_decision`, `notify_message`. No heartbeat function is added here; DEV-005a owns the heartbeat logic.
+- `dreamtoosa/triage.py` — add pure functions: `merge_ledger`, `parse_ledger`, `serialize_ledger`, `golden_pick`, `notify_decision`, `notify_message`. No heartbeat function is added here; DEV-005a owns the heartbeat logic. If `triage.py` would exceed 480 lines at the start of the build, the ledger functions go to one extra pure module `dreamtoosa/triage_ledger.py` (OI-5 resolved; amends Q2; owner confirmation requested).
 - `dreamtoosa/triage_report.py` — add I/O: CHAIN_BASE selection, prev-index extraction, marker-pair ledger extraction, ledger injection, `notify` subcommand, golden section in render. The `heartbeat` subcommand is DEV-005a's (CL-5).
 - `dreamtoosa/repos.yml` — add `triage.golden_exclude: []`, `triage.golden_formula_validated: false` and `triage.upstream_repos: []` (owned here; the owner populates it at OI-1). `triage.heartbeat_max_age_days: 3` and `hub.force_read_only: false` are DEV-005a keys, used as they are. No new per-repo key: golden reads the existing per-repo `backlog` mapping (DEV-005a 2.1).
 - `dreamtoosa/validate.py` — about 30 lines of guarded checks (TRI-B-029). The file is 221 lines today, and DEV-005a adds its own checks.
@@ -224,7 +224,7 @@ Priorities are MoSCoW. IDs are `TRI-B-###` (DEV-005b only). Rule IDs such as C2 
 | Threat | Category | Mitigation |
 |--------|----------|------------|
 | Forged or edited ledger in the index | Tampering | One marker pair and one ledger comment (TRI-B-002). Strict allowlist parse (TRI-B-007). Inject refuses marker strings outside the block (DEV-005a `E_INJECT_MARKERS`). Carry-forward is read-only (TRI-B-005). |
-| Future-dated or back-dated `state.json` hides darkness | Spoofing | Future-dated fails (TRI-B-016). Every report ref counts (DEV-005a TRI-A-023). Residual risk until OI-7: a current-dated `state.json` on any ref reads as fresh. validate.py date check (TRI-B-029). |
+| Future-dated or back-dated `state.json` hides darkness | Spoofing | Future-dated fails (TRI-B-016). Every report ref counts (DEV-005a TRI-A-023). Residual risk (OI-7 resolved as option (a)): a current-dated `state.json` on any ref reads as fresh. validate.py date check (TRI-B-029). |
 | Dark hub goes unnoticed | Repudiation | Independent CI heartbeat (TRI-B-017, 018). Notify on READ_ONLY (TRI-B-020). The 60-day disable is risk R2, with a runbook (TRI-B-032). |
 | Private-repo details in ledger or push | Information disclosure | Opaque keys (TRI-B-006). Notify uses opaque keys (TRI-B-021). Tests assert no subject, title, path or SHA text for a private fixture. Non-public repos get no real text in fixtures (2.1). Residual risk R8 (A4). |
 | Secret in ledger or notify text | Information disclosure | Secret-pattern check on both (TRI-B-008). The pattern set is DEV-005a's: `ghp_`, `github_pat_`, `gh[osur]_`, `sk-ant-`, `AKIA`, `AIza`, `xox[abp]-`, `-----BEGIN`, and JWT-shaped strings. |
@@ -236,8 +236,8 @@ Priorities are MoSCoW. IDs are `TRI-B-###` (DEV-005b only). Rule IDs such as C2 
 ### 2.4 Build Scope
 
 ```
-Scope boundary (pending approval; Part 4 of /agtoosa-spec derives the final block)
-Files in scope      : dreamtoosa/triage.py, dreamtoosa/triage_report.py (DEV-005a files, extended);
+Scope boundary (approved 2026-10-13; the final block is derived when the build starts)
+Files in scope      : dreamtoosa/triage.py, dreamtoosa/triage_report.py (DEV-005a files, extended; OI-5 exception: dreamtoosa/triage_ledger.py);
                       dreamtoosa/repos.yml, dreamtoosa/validate.py, dreamtoosa/ROUTINE_PROMPT.md,
                       dreamtoosa/README.md, .github/workflows/control-plane.yml, CHANGELOG.md;
                       tests/test_triage_ledger.py, tests/test_triage_rules.py, tests/test_triage_cli.py,
@@ -251,7 +251,7 @@ Out of scope        : dreamtoosa/state.json (no schema change), dreamtoosa/dream
 
 ### 2.5 Effort and Delivery Risk
 
-- **Build estimate: M.** Basis: 32 ACs, about 14 files (2.4) plus fixtures, a golden formula gate and a worktree chain change. `Docs/Master-Plan.md` line 106 says S; the owner reconciles at approval. The critic sized the whole DEV-005 as L. The split in Q3 gives 005a and 005b separate estimates. This story carries the golden formula validation (gate 1.2) and the chain fix.
+- **Build estimate: M.** Basis: 32 ACs, about 14 files (2.4) plus fixtures, a golden formula gate and a worktree chain change. The Master-Plan Backlog row was set to M by DEV-005a task 1.1; the owner may still reconcile at approval. The critic sized the whole DEV-005 as L. The split in Q3 gives 005a and 005b separate estimates. This story carries the golden formula validation (gate 1.2) and the chain fix.
 - **Outside the build estimate:** three Wave 0 human gates and two calendar days of live acceptance (8.3 to 8.5).
 - **Moves to L:** a triggered OI-5 module decision, or a formula that fails validation and needs an amendment.
 
@@ -262,7 +262,7 @@ Out of scope        : dreamtoosa/state.json (no schema change), dreamtoosa/dream
 ### 3.1 Task Tree
 
 - [ ] **0.** Wave 0 human gates (no code; manual)
-  - [ ] 0.1 Confirm each repo's visibility. The critic reports Crapsino private and DreamToosa public; this is not verified. Gates 1.1 per repo and any live render of private-repo findings. — _Requirements: TRI-B-006_ `[manual]`
+  - [x] 0.1 Confirm each repo's visibility. Done 2026-10-13 by repo-qualified `search_repositories`: AgToosa public, Crapsino private, DreamToosa public, miToosa public. Gates 1.1 per repo (frozen copies only for repos confirmed public) and any live render of private-repo findings. — _Requirements: TRI-B-006_ `[manual-done]`
   - [ ] 0.2 Verify PushNotification works from a RemoteTrigger routine, can be added to `allowed_tools`, and whether routines need it in the ToolSearch select line (TRI-B-022). — _Requirements: TRI-B-021, TRI-B-022, TRI-B-023_ `[manual]`
   - [ ] 0.3 Restore the routine: `RemoteTrigger` get, list_runs and get_run_log; re-authorize GitHub; one manual READ_WRITE run; read the cron hour. — _Requirements: TRI-B-017, TRI-B-024_ `[manual]`
 - [ ] **1.** Golden formula validation (precedes any golden fixture)
@@ -320,7 +320,7 @@ Prerequisite (not a sub-task): DEV-005a merged to DreamToosa `main`.
 - **Wave B5 (local gates, then PR):** 6.3, 8.2, 9.1, 9.2 and 9.3.
 - **Wave B6 (live, after Wave 0 and the merge):** 8.1, then 8.3 to 8.5. 8.1 needs gate 0.2 passed.
 
-The Work Package DAG is derived at approval (agent-instructed). The overlaps on `triage.py` and `triage_report.py` are handled above as sequential fallbacks.
+The Work Package DAG is not yet derived: `/agtoosa-spec tasks` produces it before the build starts, after DEV-005a merges (agent-instructed). The overlaps on `triage.py` and `triage_report.py` are handled above as sequential fallbacks.
 
 ### 3.3 Test Plan
 
@@ -366,7 +366,7 @@ Expected results after the build, on the current hub: the heartbeat command exit
   - `TestNoState` and `TestMainOnlyStale` (017): exit 1 with a fixed message.
   - `TestReportRefByCommitterDate` (024): CHAIN_BASE is the newest open-PR report ref by tip committer date, not by name; name and date mismatch fixture.
   - `TestSharedLiveness` (015): heartbeat and render call the same `hub_liveness` and agree on one fixture.
-  - `TestCommitDateUnavailable` (015): deferred until OI-7 is decided; no test is written before then.
+  - `TestCommitDateUnavailable` (015): dropped. OI-7 is resolved as option (a), so no commit-date minimum applies and no test is written.
   - `TestNotifyDecision` (020): READ_ONLY, C3, NEW CRITICAL, ESCALATED URGENT, DOWNGRADED (no send), 2026-10-12 (Monday, send), 2026-10-13 (no send with no other reason).
   - `TestNotifyMessage` (021): regex; 200-character cap; IDs and integers only; opaque keys for private repos; "+N more".
 - **`tests/test_control_plane_workflow.py`**
@@ -401,12 +401,25 @@ Nothing here is answered. Each item names what it blocks.
 
 | ID | Open item | State | Blocks |
 |----|-----------|-------|--------|
-| OI-1 | **Golden formula validation outcome.** Critic evidence (to be re-verified at gate 1.2): under the plan's rules, DEV-153 scores 0 (R = 0, because its row cites nothing and its spec cites `test.yml`, not the finding evidence), so it is low confidence. miToosa BL-24 (P1) scores −3 and BL-42 (P0) scores −4 under the plan's arithmetic. DEV-150 is shipped (`docs/Master-Plan.md:411`) but `Todo` in Backlog (`:239`), so completion detection must exclude it. The figures are not reproducible until P, B, L and S have sources (TRI-B-011). With S=1 and P=0, a score of 0 needs L=1 and B=1. On these figures DEV-153 (0) outranks BL-24 (-3) and BL-42 (-4) and would be selected, which conflicts with the premise that the formula does not select DEV-153 (owner to confirm that premise). Gate 1.2 runs the full pool and records the full result and this conflict before 3.3. | OPEN. Not validated. | 3.3; TRI-B-013 stays active until the owner records validation and sets `triage.golden_formula_validated: true`. |
-| OI-2 | **Visibility of Crapsino and DreamToosa.** The critic reports Crapsino private and DreamToosa public, from a repo-qualified search. Not verified in this spec. | OPEN. Wave 0 human check. | Gate 0.1 (predecessor of 1.1 per repo); TRI-B-006 live use; Wave B6. |
-| OI-3 | **PushNotification in RemoteTrigger routines.** Unverified. | OPEN. Wave 0 human check. | Gate 0.2; TRI-B-022 live update, including whether the ToolSearch select line changes. TRI-B-023 applies if it fails. |
-| OI-4 | **Restoring the dark routine.** Last run 2026-09-18, READ_ONLY after a 401. Root cause unknown. | OPEN. Wave 0 human action. | Gate 0.3; Wave B6. The heartbeat stays red until a run lands. |
-| OI-5 | **Line budget under Q2 (spec-raised).** The two-file engine is binding. DEV-005a plus DEV-005b pure code may exceed 500 lines in `triage.py`. | OPEN. Decision required if `triage.py` passes 480 lines at the start of B2. Options: (a) owner permits a third pure module, which amends Q2; (b) trim the code. Not answered here. | B2 and the 500-line guard. |
-| OI-6 | **Routine cron hour and heartbeat cron (spec-raised).** Unknown. Proposed rule for owner confirmation: the heartbeat runs at least 6 hours after the routine's scheduled start. | OPEN. Read at gate 0.3. | Heartbeat `cron:` value in TRI-B-018. |
-| OI-7 | **Liveness definition and commit-date minimum (Q4 deviation).** DEV-005a TRI-A-023 uses the newest valid `last_run.date` over every report ref. Q4 names the newest report ref, and an earlier draft of this spec added a commit-date minimum. Owner chooses (a) DEV-005a's definition (current text) or (b) Q4 wording plus the commit-date minimum, which needs commit-date fields in the DEV-005a snapshot (005a:160) and reinstates `TestCommitDateUnavailable`. | OPEN. Owner decision. | TRI-B-015; 2.3 threat row; `TestCommitDateUnavailable`; B1 |
-| OI-8 | **DEV-005a amendments needed before B1 (this spec does not edit DEV-005a).** (a) DEV-005a's Crapsino excerpts (005a:140, 270) follow the TRI-B-006 and gate 0.1 rule. (b) One fixture tree and one AgToosa pin (`9784e2d`): DEV-005a moves off `backlog/` and `b257b9d` (005a:140, 270), and TRI-A-028 covers the golden line this spec writes (TRI-B-009). (c) `heartbeat_max_age_days` gains the 1-to-14 bound (TRI-B-029). (d) Future-dated handling: TRI-B-016 (`E_FUTURE_DATED`) versus DEV-005a's valid-date rule. | OPEN. Owner, then a DEV-005a amendment. | B1; 2.1; TRI-B-029 |
-| OI-9 | **CHAIN_BASE open-PR refinement (A8, retired from assumptions).** The rule picks the newest report branch that has an open hub PR and is not an ancestor of `origin/main`. The plan says the newest unmerged report branch. Owner confirms the refinement or keeps the plan rule. | OPEN. Owner decision. | TRI-B-024; task 8.3 |
+| OI-1 | **Golden formula validation outcome.** Critic evidence (to be re-verified at gate 1.2): under the plan's rules, DEV-153 scores 0 (R = 0, because its row cites nothing and its spec cites `test.yml`, not the finding evidence), so it is low confidence. miToosa BL-24 (P1) scores −3 and BL-42 (P0) scores −4 under the plan's arithmetic. DEV-150 is shipped (`docs/Master-Plan.md:411`) but `Todo` in Backlog (`:239`), so completion detection must exclude it. The figures are not reproducible until P, B, L and S have sources (TRI-B-011). With S=1 and P=0, a score of 0 needs L=1 and B=1. On these figures DEV-153 (0) outranks BL-24 (-3) and BL-42 (-4) and would be selected, which conflicts with the premise that the formula does not select DEV-153 (owner to confirm that premise). Gate 1.2 runs the full pool and records the full result and this conflict before 3.3. | OPEN. Not validated. The 005b build records the formula run (task 1.2); `triage.golden_formula_validated` stays `false` until the owner signs off. | 3.3; TRI-B-013 stays active until the owner records validation and sets `triage.golden_formula_validated: true`. |
+| OI-2 | **Visibility of the four manifest repos.** The critic reported Crapsino private and DreamToosa public. | RESOLVED (implementer default 2026-10-13, owner may override). Verified 2026-10-13 by repo-qualified `search_repositories`: AgToosa public, Crapsino private, DreamToosa public, miToosa public. Gate 0.1 ticked. | None. Gate 0.1 passed; it still precedes 1.1 per repo. |
+| OI-3 | **PushNotification in RemoteTrigger routines.** Unverified. | OPEN (manual). Wave 0 human check. | Gate 0.2; TRI-B-022 live update, including whether the ToolSearch select line changes. TRI-B-023 applies if it fails. |
+| OI-4 | **Restoring the dark routine.** Last run 2026-09-18, READ_ONLY after a 401. Root cause unknown. | OPEN (manual). Wave 0 human action. | Gate 0.3; Wave B6. The heartbeat stays red until a run lands. |
+| OI-5 | **Line budget under Q2 (spec-raised).** The two-file engine is binding. DEV-005a plus DEV-005b pure code may exceed 500 lines in `triage.py`. | RESOLVED (implementer default 2026-10-13, owner may override): option (a), limited. A single extra pure module `dreamtoosa/triage_ledger.py` is permitted ONLY if `triage.py` would exceed 480 lines at the start of the 005b build. This amends Q2 and is flagged for owner confirmation. Otherwise the two-file design holds. | B2 and the 500-line guard, which also covers the extra module if the trigger fires. |
+| OI-6 | **Routine cron hour and heartbeat cron (spec-raised).** Unknown. Proposed rule for owner confirmation: the heartbeat runs at least 6 hours after the routine's scheduled start. | RESOLVED (implementer default 2026-10-13, owner may override): heartbeat cron `30 16 * * *`. The hub report PRs of 2026-09-10 and 2026-09-11 were created at about 10:10 UTC, so this is more than 6 hours after the routine start. Tune at gate 0.3. | Heartbeat `cron:` value in TRI-B-018; tuned at gate 0.3. |
+| OI-7 | **Liveness definition and commit-date minimum (Q4 deviation).** DEV-005a TRI-A-023 uses the newest valid `last_run.date` over every report ref. Q4 names the newest report ref, and an earlier draft of this spec added a commit-date minimum. Owner chooses (a) DEV-005a's definition (current text) or (b) Q4 wording plus the commit-date minimum, which needs commit-date fields in the DEV-005a snapshot (005a:160) and reinstates `TestCommitDateUnavailable`. | RESOLVED (implementer default 2026-10-13, owner may override): option (a), the DEV-005a TRI-A-023 definition. No commit-date minimum applies, and `TestCommitDateUnavailable` is dropped. | None. TRI-B-015 and the 2.3 threat row are updated. |
+| OI-8 | **DEV-005a amendments needed before B1 (this spec does not edit DEV-005a).** (a) DEV-005a's Crapsino excerpts (005a:140, 270) follow the TRI-B-006 and gate 0.1 rule. (b) One fixture tree and one AgToosa pin (`9784e2d`): DEV-005a moves off `backlog/` and `b257b9d` (005a:140, 270), and TRI-A-028 covers the golden line this spec writes (TRI-B-009). (c) `heartbeat_max_age_days` gains the 1-to-14 bound (TRI-B-029). (d) Future-dated handling: TRI-B-016 (`E_FUTURE_DATED`) versus DEV-005a's valid-date rule. | RESOLVED (implementer default 2026-10-13, owner may override): the four amendments are applied to the DEV-005a text now (its Spec Revision Log R1). (a) The Crapsino rule is explicit in 005a A13 (its fixtures were already synthetic). (b) One fixture tree `backlogs/`; the single AgToosa pin `9784e2d` belongs to this story, and 005a holds no real pin; TRI-A-028 now covers the golden line. (c) `heartbeat_max_age_days` is an integer 1 to 14 in the 005a validator list. (d) `hub_liveness` ignores invalid or future dates, and the `heartbeat` subcommand also exits 1 with `E_FUTURE_DATED` when any candidate ref date is later than run date + 1. | None. Verify the 005a text matches at the start of B1. |
+| OI-9 | **CHAIN_BASE open-PR refinement (A8, retired from assumptions).** The rule picks the newest report branch that has an open hub PR and is not an ancestor of `origin/main`. The plan says the newest unmerged report branch. Owner confirms the refinement or keeps the plan rule. | RESOLVED (implementer default 2026-10-13, owner may override): the open-PR + not-ancestor refinement is adopted in TRI-B-024. | Observed in task 8.3. |
+
+Resolution note: rows marked RESOLVED are implementer defaults made 2026-10-13 under the owner instruction "fix all issues and build all tasks". The owner may override any of them in PR review. They are recorded in the Spec Revision Log (R1).
+
+## Spec Revision Log
+
+| Rev | Date | Change | Reason | Approval |
+|-----|------|--------|--------|----------|
+| R1 | 2026-10-13 | Open items: OI-2 and OI-5 to OI-9 marked RESOLVED with decision text (OI-5 limited extra pure module `triage_ledger.py`; OI-6 heartbeat cron `30 16 * * *`; OI-7 option (a); OI-8 amendments applied to the DEV-005a text in its R1; OI-9 open-PR + not-ancestor adopted); OI-1, OI-3 and OI-4 left open. Gate 0.1 ticked (`[manual-done]`) with the verified visibility result. Text kept consistent with those decisions: TRI-B-015, TRI-B-018 and TRI-B-024 marked (modified R1) (decisions written in, cron value added; behaviour otherwise unchanged); TRI-B-029 wording; A3, A8; 1.3, 2.1, 2.3 threat row and 2.4 (OI-5 exception); `TestCommitDateUnavailable` dropped; header Status and Clarity, Goal Contract, scope-boundary caption and Work Package DAG timing aligned with the approval; Master-Plan line-number and estimate references replaced by table references. | Owner instruction 2026-10-13 (fix all issues, build all tasks): visibility verified, and OI-5 to OI-9 resolved by implementer default so the build can proceed once DEV-005a lands. | Implementer defaults; owner override open |
+
+## ✅ Spec Approved
+- **Approved by:** sky2464 (chat instructions "approved", "both", "fix all issues and build all tasks", 2026-10-13)
+- **Timestamp:** 2026-10-13T07:16:58Z
+- Open items OI-1, OI-3 and OI-4 remain open. Implementer-default resolutions (OI-2, OI-5 to OI-9) are recorded in the Spec Revision Log (R1).
