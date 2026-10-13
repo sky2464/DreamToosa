@@ -18,7 +18,7 @@ DreamToosa is the **hub control plane** for the scheduled **Dream Report** maint
 |-----------|--------|------------------|------|
 | Reliability | Routine completes or degrades cleanly | `state.json`, read-only mode, hub circuit breaker, PR chaining (DEV-004) | MCP 401 blocks remote PR/issue automation |
 | Security | No secrets in repo; validated manifest | `validate.py`, AgToosa review workflows, placeholder IDs in examples | Untrusted repo content in routine prompts |
-| Maintainability | Clear module boundaries | `dreamtoosa/` package vs root API examples; AGENTS.md map | Duplicate DreamsClient implementations |
+| Maintainability | Clear module boundaries | `dreamtoosa/` package vs root API examples; AGENTS.md map; canonical remote client in `dreams_implementation.py` (DEV-005) | `dream_example.py` still carries a parallel orchestrator path |
 | Performance | Per-repo time box | `budget.soft_time_box_minutes_per_repo` in repos.yml | Five-repo runs may exceed wall clock |
 | Operability | Reports + CI signal | `reports/`, GitHub Actions validate workflow | No production metrics stack in hub |
 

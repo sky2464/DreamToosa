@@ -14,11 +14,15 @@ on:
     branches: [main]
     paths:
       - 'dreamtoosa/**'
+      - 'dreams_*.py'
+      - 'dreamtoosa_dreams_integration.py'
       - 'tests/**'
       - '.github/workflows/control-plane.yml'
   pull_request:
     paths:
       - 'dreamtoosa/**'
+      - 'dreams_*.py'
+      - 'dreamtoosa_dreams_integration.py'
       - 'tests/**'
       - '.github/workflows/control-plane.yml'
 

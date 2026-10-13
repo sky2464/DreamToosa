@@ -1,7 +1,7 @@
 # Master-Plan
 
 > **Source of truth for active work.** Completed work lives in `Docs/archived/` — see Completed This Cycle for links.
-> **Last updated:** 2026-10-13 23:55
+> **Last updated:** 2026-10-14 05:05
 
 ## Project Charter
 
@@ -17,43 +17,31 @@
 | Risks | AgToosa's open PR backlog and intermittent red `validate` on `main`; five-repo runs may exceed the per-run time box; Dreams API remains beta-gated; GitHub MCP 401 forces read-only maintainer runs |
 | Unresolved questions | AgToosa remains `fix_eligible: false` while its PR backlog drains; optional: attach RemoteTrigger run log as supplemental audit artifact |
 | GitHub repo | https://github.com/sky2464/DreamToosa |
-| Milestone | v0.1.0 (DEV-001 shipped) |
+| Milestone | v0.1.1 (DEV-005 shipped) |
 | Active cycle | Multi-repo routine enablement |
-| Cycle state | Active — DEV-005 enrolled |
+| Cycle state | Idle — DEV-005 shipped; enroll next story via `/agtoosa-spec` or `/agtoosa-next pick` |
 | Cycle capacity | 5 story points |
-| Current phase | ✏️ Spec · 🏗️ Build · **🔍 Review** · 🚢 Ship |
+| Current phase | ✏️ Spec · 🏗️ Build · 🔍 Review · **🚢 Ship** (idle) |
 
 > **Cycle state contract:** use `Active` while a story is enrolled; use `Idle — <reason>` only when an empty cycle is intentional.
 
 ## Active Cycle
 
 > Stories committed to the current sprint/cycle.
-> **Progress:** `▰▰▰▰▰▰▰▰ 5/5 tasks` ← DEV-005 build complete; ready for review
+
+<!-- Archived to Docs/archived/cycle-2026-10-14.md -->
 
 | ID | Title | Type | Estimate | Status | Tasks Done |
 |----|-------|------|----------|--------|-----------|
-| DEV-005 | Chore: Unify duplicate DreamsClient / DreamConfig modules | Chore | M | 🟨 In Progress | 5/5 |
+| — | *(no active story)* | — | — | — | — |
 
 Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blocked · 🔧 Awaiting Manual · 🏁 Shipped
 
 ## Active Tasks
 
-> Task breakdown for DEV-005. See `Docs/archived/spec-DEV-005.md` §3.1.
+> Task breakdown for the enrolled story. Cleared when the story ships.
 
-- [x] **1.** Audit and merge client capabilities
-  - [x] 1.1 Diff `dreams_client.py` vs `dreams_implementation.py`; list methods to port
-  - [x] 1.2 Port missing methods into `dreams_implementation.py`; keep module under 500 lines
-- [x] **2.** Remove duplicate module and relocate workflow
-  - [x] 2.1 Move `DreamWorkflow` to `dreams_workflow.py` with canonical imports
-  - [x] 2.2 Delete `dreams_client.py`; fix remaining imports
-- [x] **3.** Refactor integration layer
-  - [x] 3.1 Replace direct `beta.dreams` usage in `dreamtoosa_dreams_integration.py`
-- [x] **4.** Documentation and profile
-  - [x] 4.1 Update README, AGENTS, dreamer docstring
-  - [x] 4.2 Update `Docs/legacy_dreams/` and `dreamtoosa/profiles/python-lib.md`
-- [x] **5.** Tests and verification
-  - [x] 5.1 Add `tests/test_dreams_implementation.py` with mocked SDK
-  - [x] 5.2 Run unittest + py_compile; grep guard for duplicate classes
+*(Empty — enroll a story via `/agtoosa-spec`.)*
 
 > **Decision recorded (DEV-004 - PR Chaining):** When daily report PRs are not merged immediately by humans, the routine branches from the newest unmerged report branch on origin (chaining) rather than forking from stale `origin/main`. This ensures continuous `state.json` lineage and eliminates cascading merge conflicts.
 
@@ -93,7 +81,7 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 | ID | Title | Type | Estimate | Epic | Priority | Clarity | Status |
 |----|-------|------|----------|------|----------|---------|--------|
 
-*(Empty — DEV-005 moved to Active Cycle.)*
+*(Empty — add chores via `/agtoosa-task` or `/agtoosa-next pick`.)*
 
 ## Epics
 
@@ -102,7 +90,7 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 | ID | Title | Stories | Status |
 |----|-------|---------|--------|
 | DEV-100 | Epic: Multi-repo maintainer routine | 0 open / 4 shipped | 🏁 Shipped |
-| DEV-101 | Epic: Claude Dreams memory curation | 1 open (DEV-005) / 1 shipped | 🟨 In Progress |
+| DEV-101 | Epic: Claude Dreams memory curation | 0 open / 2 shipped | 🏁 Shipped |
 
 ## Active Diagnosis
 
@@ -124,6 +112,7 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 
 | ID | Title | Shipped | Archived Spec |
 |----|-------|---------|--------------|
+| DEV-005 | Chore: Unify duplicate DreamsClient / DreamConfig modules | 2026-10-14 | [spec-DEV-005.md](archived/spec-DEV-005.md) |
 | DEV-001 | Feature: Multi-repo control plane for the Dream Report routine | 2026-10-13 | [spec-DEV-001.md](archived/spec-DEV-001.md) |
 | DEV-002 | Chore: Root README and control-plane CI | 2026-09-08 | [spec-DEV-002.md](archived/spec-DEV-002.md) |
 | DEV-003 | Feature: Local agent memory curation engine and CLI | 2026-09-08 | [spec-DEV-003.md](archived/spec-DEV-003.md) |
@@ -158,4 +147,5 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 | 2026-10-13 | ship DEV-001 docs — archived spec/review; changelog + Master-Plan | AgToosa |
 | 2026-10-13 | spec DEV-005 — interview Q1–Q3; spec + test plan; enrolled in Active Cycle | AgToosa |
 | 2026-10-13 | build DEV-005 completed — unified client, tests 17/17 | AgToosa |
-
+| 2026-10-14 | review DEV-005 — Review ✅ Approved (security+arch; 0 critical) | AgToosa |
+| 2026-10-14 | ship DEV-005 — smoke PASS; v0.1.1; spec/review archived; cycle idle | AgToosa |
