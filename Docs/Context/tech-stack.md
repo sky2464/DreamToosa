@@ -1,49 +1,39 @@
 # Tech Stack
 
-<!-- Fill in during /agtoosa-init. Used by /agtoosa-spec and /agtoosa-build for dependency verification. -->
-
 ## Language
 
-language: ""
-<!-- e.g., TypeScript, Python, Go, Ruby -->
+language: "Python 3.8+"
 
 ## Frameworks
 
-framework: ""
-<!-- e.g., Next.js, FastAPI, Gin, Rails -->
+framework: "stdlib-first library (dreamtoosa); Anthropic Python SDK for remote Dreams API examples"
 
 ## Database
 
-database: ""
-<!-- e.g., PostgreSQL, MongoDB, SQLite, DynamoDB -->
+database: "None — JSON files (dreamtoosa/state.json, local MemoryStore on disk)"
 
 ## Deployment
 
-deployment: ""
-<!-- e.g., Vercel, AWS Lambda, Docker + Kubernetes, GCP Cloud Run -->
+deployment: "GitHub (hub repo); routine executes in Anthropic Cloud sandbox (RemoteTrigger trig_01PvQiwSRhJktFxMXwxf14Qi)"
 
 ## Test Framework
 
-test_framework: ""
-<!-- e.g., Vitest, Jest, pytest, go test -->
+test_framework: "unittest (python3 -m unittest discover -s tests)"
 
 ## Browser / Device Matrix
 
-<!-- Used by /agtoosa-review QA Lead for compatibility checks -->
-
 browser_matrix:
-- ""
-<!-- e.g., Chrome latest, Firefox latest, Safari 16+, Mobile Safari iOS 16+ -->
+  - "N/A for hub control plane (target repos may use Playwright/Flutter per profile)"
 
 ## Infrastructure-as-Code
 
-iac_tool: ""
-<!-- e.g., Terraform, Pulumi, CDK, CloudFormation -->
+iac_tool: "None in-repo"
 
 ## CI/CD
 
-ci_platform: ""
-<!-- e.g., GitHub Actions, CircleCI, GitLab CI -->
+ci_platform: "GitHub Actions (.github/workflows/control-plane.yml — validate manifest/state/tests)"
 
 ## Notes
-<!-- Add constraints, deprecated libraries to avoid, or vendor lock-in notes here. -->
+- Required env for API examples: ANTHROPIC_API_KEY (not used in CI validation path).
+- Optional clone root: DREAMTOOSA_CLONE_ROOT for non-sandbox layouts.
+- Do not add Node build tooling for doc-only changes per AGENTS.md.

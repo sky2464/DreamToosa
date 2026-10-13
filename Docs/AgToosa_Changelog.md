@@ -5,6 +5,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), version
 
 ---
 
+## [Unreleased]
+
+### Changed
+
+- **DEV-001 shipped** — Multi-repo Dream Report control plane documented and archived (`Docs/archived/spec-DEV-001.md`, `review-DEV-001.md`); `Docs/Master-Plan.md` cycle closed 2026-10-13.
+
 ---
 
 ## [0.3.34] — 2026-07-26
