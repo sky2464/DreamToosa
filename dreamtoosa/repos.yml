@@ -117,6 +117,17 @@ repos:
     enabled: true
     max_open_prs: 3
     fix_eligible: true
+    visibility: private
+    dependabot_scope: unknown
+    product_workflows: [ci.yml]
+    watch_workflows: []
+    backlog:
+      path: template/Docs/Master-Plan.md
+      header_all: [ID, Title, Priority, Status]
+      columns: {id: ID, title: Title, priority: Priority, status: Status}
+      p0_values: [P0]
+      done_values: [Shipped, Done]
+      done_sections: [Done]
 
 # Where the consolidated report lands. This repo is the control plane: reports
 # for ALL targets are committed here, so there is one merge point instead of N.
