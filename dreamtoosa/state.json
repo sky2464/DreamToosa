@@ -2,8 +2,8 @@
   "schema_version": 1,
   "_comment": "Cross-run state for the Dream Report routine (trig_01PvQiwSRhJktFxMXwxf14Qi). The routine runs with persist_session=false, so this committed file is the only memory between runs. Every run reads it first and writes it back in the same commit as the report.",
   "last_run": {
-    "date": "2026-10-13",
-    "session_id": "session_01DPvtbDSTr46oNDWzYwxZE4",
+    "date": "2026-10-14",
+    "session_id": "session_01MgMHGgbu7SUFD54snyaKNM",
     "repos_reviewed": [
       "sky2464/AgToosa",
       "sky2464/Crapsino",
@@ -13,7 +13,7 @@
     "repos_skipped": [
       "sky2464/Agtoosa2"
     ],
-    "notes": "Agtoosa2 skipped: no clone at /home/user/Agtoosa2, and this session's GitHub access scope doesn't include sky2464/Agtoosa2 at all (only agtoosa, crapsino, dreamtoosa, mitoosa). All 4 reachable repos reviewed read-only; no circuit-breaker skips (all under max_open_prs). Crapsino had zero new commits since last review. Confirmed 3 pre-existing issues already resolved by in-window commits and posted evidence comments recommending closure: AgToosa #167 (CHANGELOG gap), AgToosa #168 (CI smoke-filter regex grouping), miToosa #45 (Firebase-plist test skip). No new issues filed (no new defects found). Fix rotation advanced to sky2464/miToosa (index 3) but no fix PR was opened: miToosa's 10 open issues are all Large/deferred-scope chores outside this profile's lint/dead-code/docs fix-PR scope, or depend on external tooling (gstack) unavailable here, and this sandbox has no Flutter SDK to verify any Dart change before pushing. bats and flutter toolchains are both absent from this sandbox; all verification this run was static diff review. Verification commands could not be run for AgToosa (bats) or miToosa (flutter); Crapsino had no diff to verify; DreamToosa's py_compile check passed."
+    "notes": "Agtoosa2 skipped again: no clone at /home/user/Agtoosa2, still outside this session's GitHub access scope. All 4 reachable repos reviewed read-only; no circuit-breaker skips (all at 0 open PRs). Crapsino had zero new commits for the 3rd review in a row. Filed 3 new issues, one per repo, all genuinely new (not matching any open issue or baseline): DreamToosa#21 (validate.py fails on the real manifest — repos.yml's Agtoosa2 entry missing DEV-005a triage/backlog fields, high priority — likely breaks control-plane.yml CI), miToosa#64 (CHANGELOG.md [Unreleased] stale, missing BL-39/BL-40/#48 entries), Crapsino#7 (Dockerfile base images float on unpinned alpine tags). AgToosa's 2 commits (#180/#181) were clean, no new findings. Fix rotation advanced past index 4 (Agtoosa2, skip: no clone/out of scope) and index 0 (AgToosa, skip: fix_eligible false) to index 1 (Crapsino) — selected, but had 0 open issues and 0 commits to review; the one new finding there (Dockerfile pinning, #7) could not be safely fixed in this sandbox (no Docker daemon to verify the build), so it was filed as an issue only. No fix PR opened this run. bats and flutter toolchains remain absent from this sandbox; docker CLI is present but the daemon is not reachable. Verification: AgToosa bats not run (no bats); Crapsino npm ci --dry-run + generator-diff clean, playwright not run (no diff, no browsers); DreamToosa py_compile OK but python3 dreamtoosa/validate.py and part of its unittest suite fail against the real manifest (see #21); miToosa flutter analyze/test not run (no Flutter SDK), static diff review only."
   },
   "fix_rotation": {
     "_comment": "Exactly one repo carries fix work per run. Advance last_index by 1 (mod length) each run, skipping repos that are disabled, not fix_eligible, or over max_open_prs.",
@@ -24,35 +24,35 @@
       "sky2464/miToosa",
       "sky2464/Agtoosa2"
     ],
-    "last_index": 3,
-    "last_advanced": "2026-10-13"
+    "last_index": 1,
+    "last_advanced": "2026-10-14"
   },
   "repos": {
     "sky2464/AgToosa": {
-      "last_reviewed_sha": "b257b9d660174db7c9eee71ca6851de1191c0118",
-      "last_report_date": "2026-10-13",
+      "last_reviewed_sha": "ca19d3591607731d67057fce5b79b30004a3fa00",
+      "last_report_date": "2026-10-14",
       "issues_filed": [166, 168],
       "prs_opened": [],
       "last_skip_reason": null
     },
     "sky2464/Crapsino": {
       "last_reviewed_sha": "ceb42b352e1975528ea541a4aa183e159226be5f",
-      "last_report_date": "2026-10-13",
-      "issues_filed": [],
+      "last_report_date": "2026-10-14",
+      "issues_filed": [7],
       "prs_opened": [],
       "last_skip_reason": null
     },
     "sky2464/DreamToosa": {
-      "last_reviewed_sha": "964512ac334c38e1418f08c79052fc6cc8ba9652",
-      "last_report_date": "2026-10-13",
-      "issues_filed": [8],
+      "last_reviewed_sha": "f044cfe8fdbbbdb022a22110cca09cb2f741bf78",
+      "last_report_date": "2026-10-14",
+      "issues_filed": [8, 21],
       "prs_opened": [],
       "last_skip_reason": null
     },
     "sky2464/miToosa": {
-      "last_reviewed_sha": "3886a34a514eefccc1d0a62eab86a04f7295d1f8",
-      "last_report_date": "2026-10-13",
-      "issues_filed": [],
+      "last_reviewed_sha": "a5b85350a935e9b7014350e1746b3548993a0dfd",
+      "last_report_date": "2026-10-14",
+      "issues_filed": [64],
       "prs_opened": [],
       "last_skip_reason": null
     },
