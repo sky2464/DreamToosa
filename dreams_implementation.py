@@ -8,13 +8,13 @@ start remote API changes here. It requires API credentials and service access.
 
 For offline curation and local JSON persistence, use Dreamer and MemoryStore
 from dreamtoosa. The local package is not an API-compatible replacement for
-this client. dreams_client.py and dreamtoosa_dreams_integration.py are retained
-historical remote variants. See README.md#memory-curation-implementations.
+this client. See README.md#memory-curation-implementations and dreams_workflow.py
+for higher-level remote workflows.
 """
 
 import anthropic
 import time
-from typing import Optional
+from typing import Optional, List, Any
 from dataclasses import dataclass
 
 
@@ -24,11 +24,15 @@ class DreamConfig:
     memory_store_id: str
     session_ids: list[str] = None
     model: str = "claude-opus-4-7"
-    instructions: str = ""
+    instructions: Optional[str] = ""
+    poll_interval: int = 10
+    max_wait_time: int = 3600
 
     def __post_init__(self):
         if self.session_ids is None:
             self.session_ids = []
+        if self.instructions is None:
+            self.instructions = ""
 
 
 class DreamsClient:
@@ -72,9 +76,13 @@ class DreamsClient:
         """Retrieve dream details."""
         return self.client.beta.dreams.retrieve(dream_id)
 
-    def wait_for_completion(self, dream_id: str,
-                           poll_interval: int = 10,
-                           max_wait: int = 3600) -> dict:
+    def wait_for_completion(
+        self,
+        dream_id: str,
+        poll_interval: int = 10,
+        max_wait: int = 3600,
+        verbose: bool = True,
+    ) -> Any:
         """
         Poll a dream until completion.
 
@@ -91,30 +99,49 @@ class DreamsClient:
         while time.time() - start_time < max_wait:
             dream = self.get_dream(dream_id)
 
-            print(f"Dream {dream_id}")
-            print(f"  Status: {dream.status}")
-            print(f"  Input tokens: {dream.usage.input_tokens}")
-            print(f"  Output tokens: {dream.usage.output_tokens}")
+            if verbose:
+                print(f"Dream {dream_id}")
+                print(f"  Status: {dream.status}")
+                print(f"  Input tokens: {dream.usage.input_tokens}")
+                print(f"  Output tokens: {dream.usage.output_tokens}")
 
             if dream.status == "completed":
-                print("✓ Dream completed successfully")
+                if verbose:
+                    print("✓ Dream completed successfully")
                 return dream
 
             elif dream.status == "failed":
-                print(f"✗ Dream failed: {dream.error}")
+                if verbose:
+                    print(f"✗ Dream failed: {dream.error}")
                 return dream
 
             elif dream.status == "canceled":
-                print("⊘ Dream was canceled")
+                if verbose:
+                    print("⊘ Dream was canceled")
                 return dream
 
-            # Still pending or running
-            print(f"  Waiting {poll_interval}s before next poll...")
+            if verbose:
+                print(f"  Waiting {poll_interval}s before next poll...")
             time.sleep(poll_interval)
 
         raise TimeoutError(f"Dream {dream_id} did not complete within {max_wait}s")
 
-    def get_output_store(self, dream: dict) -> Optional[str]:
+    def wait_for_dream(
+        self,
+        dream_id: str,
+        poll_interval: int = 10,
+        max_wait_time: int = 3600,
+        verbose: bool = True,
+    ) -> Any:
+        """Alias for wait_for_completion (legacy call sites)."""
+        return self.wait_for_completion(
+            dream_id,
+            poll_interval=poll_interval,
+            max_wait=max_wait_time,
+            verbose=verbose,
+        )
+
+    def get_output_store(self, dream: Any) -> Optional[str]:
         """Extract output memory store ID from completed dream."""
         if dream.status != "completed":
             return None
@@ -125,15 +152,51 @@ class DreamsClient:
 
         return None
 
-    def list_dreams(self, include_archived: bool = False, limit: int = 20):
-        """List dreams in the workspace."""
-        dreams = self.client.beta.dreams.list(
-            limit=limit,
-            include_archived=include_archived
-        )
+    def get_dream_output(self, dream: Any) -> Optional[str]:
+        """Alias for get_output_store (legacy call sites)."""
+        return self.get_output_store(dream)
 
-        for dream in dreams:
+    def review_memories(self, memory_store_id: str, limit: int = 20) -> List[str]:
+        """List memories in a store (prints truncated previews)."""
+        memories = self.client.beta.memory.memories.list(
+            memory_store_id=memory_store_id,
+            limit=limit,
+        )
+        memory_contents = []
+        for i, memory in enumerate(memories.data, 1):
+            content = memory.content
+            memory_contents.append(content)
+            display = f"{content[:100]}..." if len(content) > 100 else content
+            print(f"{i}. {display}")
+        return memory_contents
+
+    def create_session_with_memory(
+        self,
+        agent_id: str,
+        environment_id: str,
+        memory_store_id: str,
+    ) -> str:
+        """Create an agent session with a memory store attached."""
+        session = self.client.beta.sessions.create(
+            agent=agent_id,
+            environment_id=environment_id,
+            resources=[
+                {"type": "memory_store", "memory_store_id": memory_store_id},
+            ],
+        )
+        print(f"✓ Session created: {session.id}")
+        return session.id
+
+    def list_dreams(self, include_archived: bool = False, limit: int = 20) -> List[Any]:
+        """List dreams in the workspace."""
+        result = []
+        for dream in self.client.beta.dreams.list(
+            limit=limit,
+            include_archived=include_archived,
+        ):
+            result.append(dream)
             print(f"{dream.id}: {dream.status}")
+        return result
 
     def cancel_dream(self, dream_id: str):
         """Cancel a pending or running dream."""

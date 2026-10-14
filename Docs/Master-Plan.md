@@ -32,10 +32,6 @@
 
 | ID | Title | Type | Estimate | Status | Tasks Done |
 |----|-------|------|----------|--------|-----------|
-| DEV-001 | Feature: Multi-repo control plane for the Dream Report routine | Feature | M | ✅ Done | 4/6 |
-| DEV-002 | Chore: Root README and control-plane CI | Chore | S | 🏁 Shipped | 5/5 |
-| DEV-003 | Feature: Local agent memory curation engine and CLI | Feature | S | 🏁 Shipped | 4/4 |
-| DEV-004 | Feature: Resilient Multi-Repo Control Plane & PR Lifecycle | Feature | M | 🏁 Shipped | 4/4 |
 | DEV-005a | Feature: Fleet Triage report core (sections, severity engine, visibility key) | Feature | L | 🟨 In Progress | 2/20 |
 
 Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blocked · 🔧 Awaiting Manual · 🏁 Shipped
@@ -118,8 +114,8 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 
 | ID | Title | Stories | Status |
 |----|-------|---------|--------|
-| DEV-100 | Epic: Multi-repo maintainer routine | 3 open / 5 total | 🟨 In Progress |
-| DEV-101 | Epic: Claude Dreams memory curation | 1 shipped / 1 total | 🏁 Shipped |
+| DEV-100 | Epic: Multi-repo maintainer routine | 2 open / 6 total | 🟨 In Progress |
+| DEV-101 | Epic: Claude Dreams memory curation | 0 open / 2 shipped | 🏁 Shipped |
 
 ## Active Diagnosis
 
@@ -181,6 +177,6 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 | 2026-10-13 | spec DEV-005a and DEV-005b approved (OI-1, OI-3, OI-4 open; implementer-default resolutions in each Spec Revision Log R1) | DreamToosa |
 | 2026-10-13 | build DEV-001 completed: AC-1 to AC-4 verified against repos.yml, profiles, state.json and ROUTINE_PROMPT.md; set Done, not shipped; Tasks Done 4/6 left as is because the spec has no task list | DreamToosa |
 | 2026-10-13 | build DEV-005a started | DreamToosa |
-
 | 2026-10-14 | review DEV-005 — Review ✅ Approved (security+arch; 0 critical) | AgToosa |
 | 2026-10-14 | ship DEV-005 — smoke PASS; v0.1.1; spec/review archived; cycle idle | AgToosa |
+| 2026-10-14 | build DEV-005a resumed after main merge (DEV-005 shipped) | DreamToosa |

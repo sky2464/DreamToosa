@@ -48,7 +48,7 @@ python3 dream_example.py
 │
 └── 🗂️ LEGACY REFERENCES (from earlier runs)
     ├── claude-dreams-implementation.md
-    ├── dreams_client.py
+    ├── dreams_implementation.py
     ├── DREAMS-QUICK-START.md
     └── [other dated versions]
 ```
