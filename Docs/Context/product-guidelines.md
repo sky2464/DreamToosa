@@ -1,31 +1,22 @@
 # Product Guidelines
 
-<!-- Fill in during /agtoosa-init. Used for UI copy, error messages, and UX decisions. -->
-
 ## Brand Voice
-brand_voice: ""
-# e.g., "Direct and professional. No jargon. Short sentences."
+brand_voice: "Educational and explicit—clear docstrings, runnable examples, placeholder IDs (memstore_*, sesn_*, drm_*), status called out in prose."
 
 ## UI Style
-ui_style: ""
-# e.g., "Minimal, dark mode first. Tailwind CSS. shadcn/ui components."
+ui_style: "N/A for primary product (CLI/docs). Downstream web targets (e.g. Crapsino) use their own stacks per profile."
 
 ## Error Message Tone
-error_tone: ""
-# e.g., "Friendly and actionable. Always suggest the next step."
+error_tone: "Actionable: state what failed, what was skipped (circuit breaker, read-only mode), and the next maintainer step."
 
 ## Accessibility Standard
-accessibility: "WCAG 2.1 AA"
-# Minimum standard — enforced by /agtoosa-review QA Lead
+accessibility: "WCAG 2.1 AA (applies when changing web-facing target repos—not hub Python docs)"
 
 ## Naming Conventions
 naming_conventions:
-  components: ""
-  # e.g., PascalCase
-  files: ""
-  # e.g., kebab-case
-  functions: ""
-  # e.g., camelCase
+  components: "PascalCase for classes (Dreamer, MemoryStore, DreamsClient)"
+  files: "snake_case for Python modules; dream-report-YYYY-MM-DD.md for reports"
+  functions: "snake_case"
 
 ## Notes
-<!-- Add brand guidelines, design system links, or localization requirements here. -->
+Preserve multiple reference variants unless explicitly consolidating (see AGENTS.md). Prefer additive documentation over deleting legacy examples.

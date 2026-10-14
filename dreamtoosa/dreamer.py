@@ -9,8 +9,9 @@ MemoryStore from dreamtoosa, or run `python3 -m dreamtoosa --demo`.
 
 This module is independent of the remote Anthropic API wrappers. It does not
 implement their client interface or synchronize local stores with the service.
-For remote API examples, start with dreams_implementation.py; dreams_client.py
-and dreamtoosa_dreams_integration.py are historical remote reference variants.
+For remote API examples, use dreams_implementation.py (canonical DreamsClient)
+and dreams_workflow.py for higher-level flows; dreamtoosa_dreams_integration.py
+orchestrates domains atop the same client.
 For new local work, extend this module instead of antigravity_dream_example.py.
 See README.md#memory-curation-implementations for the implementation map.
 """

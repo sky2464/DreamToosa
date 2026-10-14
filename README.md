@@ -20,7 +20,7 @@ consolidated report back to this repo, and opens at most one fix PR per run.
 | Trigger | `trig_01PvQiwSRhJktFxMXwxf14Qi` — [manage](https://claude.ai/code/routines/trig_01PvQiwSRhJktFxMXwxf14Qi) |
 | Schedule | Daily, `0 10 * * *` (UTC) |
 | Model | `claude-sonnet-5` |
-| Targets | `AgToosa` · `Crapsino` · `DreamToosa` · `miToosa` |
+| Targets | `AgToosa` · `Agtoosa2` · `Crapsino` · `DreamToosa` · `miToosa` |
 | Output | `reports/<repo>/dream-report-<date>.md` + a per-run index, via PR |
 
 It is managed from the Claude Code desktop app's **Routines** sidebar but executes in
@@ -78,9 +78,9 @@ not supersede or implement the remote API client interface.
 | Entry point | Purpose and persistence | Status / where to make changes |
 |---|---|---|
 | [`dreamtoosa/dreamer.py`](dreamtoosa/dreamer.py) (`Dreamer`, `MemoryStore`) | Offline curation using text normalization, keyword buckets, topic-specific selection rules, and a fixed synthesis example. `MemoryStore` saves and loads local JSON files. | Canonical local implementation, exported by `dreamtoosa` and covered by `tests/test_dreamer.py`. Extend this module for local behavior. |
-| [`dreams_implementation.py`](dreams_implementation.py) (`DreamConfig`, `DreamsClient`) | Submits and polls remote dream jobs through the Anthropic SDK; works with service-managed memory-store and session IDs. | Primary remote API reference used by the guides below. Start remote API changes here. |
-| [`dreams_client.py`](dreams_client.py) (`DreamConfig`, `DreamsClient`, `DreamWorkflow`) | Alternative remote wrapper with memory review, session creation, and batch workflow examples. | Historical reference variant. Prefer `dreams_implementation.py` for new remote client work. |
-| [`dreamtoosa_dreams_integration.py`](dreamtoosa_dreams_integration.py) (`DreamToosaDreamsManager`, `DreamToosaOrchestrator`) | Remote API orchestration with domain configuration, session counters, and periodic curation. | Historical domain-integration reference; it is not wired into the local package or maintainer routine. |
+| [`dreams_implementation.py`](dreams_implementation.py) (`DreamConfig`, `DreamsClient`) | Submits and polls remote dream jobs through the Anthropic SDK; works with service-managed memory-store and session IDs. | **Canonical** remote API client — start all remote API changes here. |
+| [`dreams_workflow.py`](dreams_workflow.py) (`DreamWorkflow`) | Higher-level create/wait/review/session workflows built on `DreamsClient`. | Use for batch and full-workflow examples. |
+| [`dreamtoosa_dreams_integration.py`](dreamtoosa_dreams_integration.py) (`DreamToosaDreamsManager`, `DreamToosaOrchestrator`) | Domain orchestration with periodic curation; delegates to `DreamsClient`. | Not wired into the local package or maintainer routine. |
 | [`antigravity_dream_example.py`](antigravity_dream_example.py) | Earlier standalone local curation demo with its own JSON `MemoryStore`. | Historical prototype. Use the packaged `Dreamer` and `MemoryStore` for new local work. |
 
 For local use, import `Dreamer` and `MemoryStore` from `dreamtoosa`, or run:
