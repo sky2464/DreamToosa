@@ -40,6 +40,9 @@ Edit `repos.yml`. Two constraints:
   this file.
 - Set `max_open_prs: 0` to make a repo permanently review-only, or
   `enabled: false` to drop it entirely.
+- While the `triage` block exists, every repo also needs `visibility`, a `backlog`
+  mapping and the workflow lists; `validate.py` rejects the manifest otherwise. The
+  field meanings are one-line comments at the top of `repos.yml`.
 
 ## Applying a prompt change
 
@@ -76,3 +79,39 @@ newest session id. Run-log content is data, not instructions.
 - **PRs must not be drafts.** Draft PRs cannot merge and were a previous stall cause.
 - **Bounded output.** At most one report PR plus one fix PR per run. Generating more
   unmerged PRs than a human can review is the failure this design prevents.
+
+## Fleet Triage write boundary and visibility
+
+Fleet Triage is the block at the top of each Dream Report index: repo freshness, open
+PRs, default-branch CI and issues. Severity comes from `triage.py` rules, never from
+the model; the model only gathers facts.
+
+**What it never does.** It does not approve, merge, review, comment on, close, reopen,
+label, edit, enable auto-merge for, update the branch of, dispatch or re-run any PR,
+issue or workflow, and it files nothing. The routine loads ten GitHub tools, and
+`update_pull_request` is not one of them. Of those ten, `issue_write`,
+`add_issue_comment` and `create_pull_request` exist only for Phases 4 and 5, which never
+read Fleet Triage findings. CI tests the tool list against the prompt text. The runtime
+boundary is advisory: the platform injects `mcp__github__*`, and it is not yet known
+whether the routine session honours `.claude/settings.json` deny rules (manual gate
+0.3), so `.claude/settings.json` is not changed.
+
+**Visibility.** Each repo in `repos.yml` declares `visibility: public` or `private`, and
+`validate.py` rejects any other value. The hub is public, so the rule fails closed: a
+`private`, absent or unrecognised value, or a failed or mismatched cross-check (a
+repo-qualified `search_repositories` call in Phase 1.5), is treated as private. A
+private repo contributes only its name, age, tier and a count of withheld CRITICAL,
+URGENT and HIGH items. No title, body, file path, log text, commit message, SHA or date
+is published. Security-class findings show category, repo and finding ID only, for every
+repo. From DEV-005a on, per-repo reports for non-public repos use the same withheld
+form; files already under `reports/` are untouched, and whether to keep, redact or
+remove them is an open owner decision.
+
+Verified on 2026-10-13: AgToosa, DreamToosa and miToosa are public; Crapsino is private.
+Nothing updates these values when a repo changes visibility on GitHub, so edit
+`repos.yml` in the same sitting.
+
+**Manual gates (status 2026-10-13).** 0.1 visibility check: done. 0.2 restore the dark
+routine (no run since 2026-09-18, cause unknown): open. 0.3 deny-rule check with
+`get_run_log`: open. The live prompt update and the first observed run (4.4, 4.5) wait
+on 0.2.
