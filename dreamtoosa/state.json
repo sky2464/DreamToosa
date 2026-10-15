@@ -2,8 +2,8 @@
   "schema_version": 1,
   "_comment": "Cross-run state for the Dream Report routine (trig_01PvQiwSRhJktFxMXwxf14Qi). The routine runs with persist_session=false, so this committed file is the only memory between runs. Every run reads it first and writes it back in the same commit as the report.",
   "last_run": {
-    "date": "2026-10-14",
-    "session_id": "session_01MgMHGgbu7SUFD54snyaKNM",
+    "date": "2026-10-15",
+    "session_id": "session_01W1MZkeBWGWMVc7JbMCeuuA",
     "repos_reviewed": [
       "sky2464/AgToosa",
       "sky2464/Crapsino",
@@ -13,7 +13,7 @@
     "repos_skipped": [
       "sky2464/Agtoosa2"
     ],
-    "notes": "Agtoosa2 skipped again: no clone at /home/user/Agtoosa2, still outside this session's GitHub access scope. All 4 reachable repos reviewed read-only; no circuit-breaker skips (all at 0 open PRs). Crapsino had zero new commits for the 3rd review in a row. Filed 3 new issues, one per repo, all genuinely new (not matching any open issue or baseline): DreamToosa#21 (validate.py fails on the real manifest — repos.yml's Agtoosa2 entry missing DEV-005a triage/backlog fields, high priority — likely breaks control-plane.yml CI), miToosa#64 (CHANGELOG.md [Unreleased] stale, missing BL-39/BL-40/#48 entries), Crapsino#7 (Dockerfile base images float on unpinned alpine tags). AgToosa's 2 commits (#180/#181) were clean, no new findings. Fix rotation advanced past index 4 (Agtoosa2, skip: no clone/out of scope) and index 0 (AgToosa, skip: fix_eligible false) to index 1 (Crapsino) — selected, but had 0 open issues and 0 commits to review; the one new finding there (Dockerfile pinning, #7) could not be safely fixed in this sandbox (no Docker daemon to verify the build), so it was filed as an issue only. No fix PR opened this run. bats and flutter toolchains remain absent from this sandbox; docker CLI is present but the daemon is not reachable. Verification: AgToosa bats not run (no bats); Crapsino npm ci --dry-run + generator-diff clean, playwright not run (no diff, no browsers); DreamToosa py_compile OK but python3 dreamtoosa/validate.py and part of its unittest suite fail against the real manifest (see #21); miToosa flutter analyze/test not run (no Flutter SDK), static diff review only."
+    "notes": "Agtoosa2 skipped again: no clone at /home/user/Agtoosa2, still outside this session's GitHub access scope. All 4 reachable repos reviewed read-only; no circuit-breaker skips (all at 0 open PRs). Clean run: every issue the 2026-10-14 report filed was independently re-verified closed by actually re-checking the fix (not just trusting issue state) — Crapsino#7 (Dockerfile pin: diff confirms both base images pinned, PR #8 merged), DreamToosa#21 (Agtoosa2 manifest gap: re-ran python3 dreamtoosa/validate.py, 35/35 pass, PR #23 merged), miToosa#64 (CHANGELOG gap: diff confirms BL-39/BL-40/#48 entries added, PR #66 merged). AgToosa had zero commits since last review (HEAD unchanged at ca19d35). miToosa also merged BL-41 (PR #65, a real data-loss bug fix in level-result persistence, well tested) and BL-38 (PR #67, partial/explicitly-deferred file-size modularization of #52) plus a same-day duplicate-import CI fix. No new issues filed this run (no new defects found) — added one comment to miToosa#52 (still open) noting two more files (progress_screen.dart 575 lines, settings_screen.dart 503 lines) exceed the 500-line budget but aren't tracked by the new line_budget_test or the PR's deferred list; this is an instance of #52's existing scope, not a new finding. Fix rotation advanced from index 1 (Crapsino, last run's pick) to index 2 (DreamToosa) — selected, eligible by every rule, but had zero open issues and this run's review of it surfaced no new findings, so there was nothing to resolve; no fix PR opened. Also flagged (non-actioned, needs a human): dreamtoosa/profiles/shell-spec-driven.md's known-baseline section still names AgToosa#146/#153/#141 as open, all three have actually been closed since early September. bats and flutter toolchains remain absent from this sandbox; docker CLI/daemon not re-checked this run (no Dockerfile changes pending verification). Verification: AgToosa none needed (0 commits); Crapsino static diff only (no new deps/lockfile touched); DreamToosa validate.py re-run clean (35/35); miToosa flutter analyze/test not run (no Flutter SDK), new test files read in full and assessed as genuine coverage, not executed."
   },
   "fix_rotation": {
     "_comment": "Exactly one repo carries fix work per run. Advance last_index by 1 (mod length) each run, skipping repos that are disabled, not fix_eligible, or over max_open_prs.",
@@ -24,34 +24,34 @@
       "sky2464/miToosa",
       "sky2464/Agtoosa2"
     ],
-    "last_index": 1,
-    "last_advanced": "2026-10-14"
+    "last_index": 2,
+    "last_advanced": "2026-10-15"
   },
   "repos": {
     "sky2464/AgToosa": {
       "last_reviewed_sha": "ca19d3591607731d67057fce5b79b30004a3fa00",
-      "last_report_date": "2026-10-14",
+      "last_report_date": "2026-10-15",
       "issues_filed": [166, 168],
       "prs_opened": [],
       "last_skip_reason": null
     },
     "sky2464/Crapsino": {
-      "last_reviewed_sha": "ceb42b352e1975528ea541a4aa183e159226be5f",
-      "last_report_date": "2026-10-14",
+      "last_reviewed_sha": "2b4927984f855383af14540836f3aef05e2bcd26",
+      "last_report_date": "2026-10-15",
       "issues_filed": [7],
       "prs_opened": [],
       "last_skip_reason": null
     },
     "sky2464/DreamToosa": {
-      "last_reviewed_sha": "f044cfe8fdbbbdb022a22110cca09cb2f741bf78",
-      "last_report_date": "2026-10-14",
+      "last_reviewed_sha": "79c596ba78546361f808231ae8b444d2efacf2f4",
+      "last_report_date": "2026-10-15",
       "issues_filed": [8, 21],
       "prs_opened": [],
       "last_skip_reason": null
     },
     "sky2464/miToosa": {
-      "last_reviewed_sha": "a5b85350a935e9b7014350e1746b3548993a0dfd",
-      "last_report_date": "2026-10-14",
+      "last_reviewed_sha": "d10a5c8f7d0344a46e5aae9ada4c59a22c9ddb21",
+      "last_report_date": "2026-10-15",
       "issues_filed": [64],
       "prs_opened": [],
       "last_skip_reason": null
