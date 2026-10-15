@@ -8,7 +8,7 @@ Consolidated review across the DreamToosa target fleet. Per-repo detail in `repo
 |------|---|---|---|
 | sky2464/AgToosa | 0 | None new — `main` unchanged since 2026-10-14; profile's known-baseline section (#146/#153/#141) confirmed stale (all closed) | — |
 | sky2464/Crapsino | 2 | None new — PR #8 resolved #7 (Dockerfile base images now pinned); verified | — |
-| sky2464/DreamToosa | 4 | None new — PR #23 resolved #21; `validate.py` re-run clean (35/35) | — |
+| sky2464/DreamToosa | 4 | PR #23 resolved #21 (`validate.py` re-run clean, 35/35); 1 new, discovered via test-suite run not diff review: `tests/test_triage_cli.py` fails on `main` since #23 bumped the manifest to 5 repos without updating two hardcoded 4-repo test expectations (filed #25) | — |
 | sky2464/miToosa | 6 | None new filed — BL-41 (data-loss fix) and #64 (CHANGELOG) both resolved and verified; comment added to open #52 (two more oversized files not yet tracked by its own line-budget test) | — |
 | sky2464/Agtoosa2 | — | — | **skipped: no clone** (`/home/user/Agtoosa2` does not exist; also outside this session's GitHub access scope) |
 
@@ -20,7 +20,7 @@ Every issue filed by the previous run (2026-10-14) was independently verified cl
 - **DreamToosa#21** (Agtoosa2 manifest gap) — re-ran `validate.py` against the real manifest; 35/35 pass.
 - **miToosa#64** (CHANGELOG gap) — diff confirms the missing BL-39/BL-40/#48 entries were added.
 
-This is a clean fleet: a human was actively merging fixes from the last report between runs, and this run found nothing left to file.
+A human was actively merging fixes from the previous report between runs, which is why the diff-review pass alone found nothing new. Running this hub repo's own test suite as verification (not just `validate.py`) surfaced one thing diff review missed: **PR #23's otherwise-correct fix for #21 left `tests/test_triage_cli.py` red on `main`**, because it changed the manifest's enabled-repo count without updating two tests that hardcoded it at 4. Filed as **DreamToosa#25**, with a standing-down comment on this run's own report PR (#24) explaining the unrelated CI failure there. Full detail in `reports/DreamToosa/dream-report-2026-10-15.md`.
 
 ## sky2464/AgToosa
 
@@ -42,9 +42,9 @@ This is a clean fleet: a human was actively merging fixes from the last report b
 
 **What improved:** PR #23 backfilled `Agtoosa2`'s missing triage/backlog fields in `repos.yml`, resolving **#21** — the control plane's own `validate.py` gate. Re-verified directly: `python3 dreamtoosa/validate.py` now passes 35/35, exit 0.
 
-**What needs attention:** Nothing new.
+**What needs attention:** **New finding**, surfaced only by running the full test suite (not by diffing): `python3 -m unittest discover tests` fails on `main` with 2 failures in `tests/test_triage_cli.py::TestManifestCompatibility`. PR #23 correctly fixed `validate.py` but, as a side effect, bumped the manifest's enabled-repo count from 4 to 5 — two tests that hardcode "the real manifest has exactly 4 repos" (a literal list, and a synthetic snapshot fixture) were never updated. Confirmed pre-existing on `main`, independent of this run's own report PR. Filed as **#25** with a proposed patch; standing down (not fixing) in this run's own report PR #24 per the CI-red protocol, with a comment there pointing to #25.
 
-**Top action items:** (1) None outstanding. (2) This repo holds this run's fix rotation slot (see below) but had zero open issues, so no fix PR was opened.
+**Top action items:** (1) Fix **#25** — small, well-isolated, and it's the actual CI gate `control-plane.yml` runs, currently red on `main`. (2) This repo holds this run's fix rotation slot (see below); it had zero open issues *at rotation time*, but #25 (found mid-run) is now available for the next turn or a human.
 
 ## sky2464/miToosa
 
@@ -60,12 +60,16 @@ This is a clean fleet: a human was actively merging fixes from the last report b
 
 ## Fix work this run
 
-**No fix PR opened.** Fix rotation advanced from index 1 (`sky2464/Crapsino`, last run's pick) to index 2, **`sky2464/DreamToosa`**. DreamToosa is enabled, `fix_eligible: true`, and well under its `max_open_prs` cap — eligible by every rotation rule. But it currently has **zero open issues** (its one open item from the last run, #21, was already fixed and closed by a human before this run started), and this run's own review of DreamToosa surfaced no new findings to turn into an issue. There was nothing to resolve, so nothing was opened. `fix_rotation.last_index` still advances to 2 to keep the rotation fair and moving.
+**No fix PR opened.** Fix rotation advanced from index 1 (`sky2464/Crapsino`, last run's pick) to index 2, **`sky2464/DreamToosa`**. DreamToosa is enabled, `fix_eligible: true`, and well under its `max_open_prs` cap — eligible by every rotation rule. At rotation time it had **zero open issues** (its one open item from the last run, #21, was already fixed and closed by a human before this run started), and the Phase 1 diff review surfaced no new findings to turn into an issue. There was nothing to resolve under this run's own fix-rotation mechanism, so nothing was opened there.
+
+Separately — not as fix-rotation work, but as ordinary CI-red handling on this run's own report PR (#24) — investigating a failing check on that PR surfaced **DreamToosa#25**, a real regression on `main` unrelated to #24's diff. It was filed as an issue with a proposed patch and left unfixed (fixing it would have meant widening a report-only PR), rather than opened as this run's rotation-slot fix PR, since the rotation mechanism had already been resolved ("no fix target") before this was found.
+
+`fix_rotation.last_index` advances to 2 regardless, to keep the rotation fair and moving.
 
 ## Repo holding the fix rotation next run
 
-`sky2464/DreamToosa` was this run's target (no PR opened, no open issue to work); **the next run's rotation target is index 3 → `sky2464/miToosa`**, which currently holds the fleet's one open, in-scope-adjacent issue (#52) — though note the profile's own scope note keeps UI/layout-touching fixes there issue-only, not PR-eligible, so it may again result in review/comment rather than a fix PR.
+`sky2464/DreamToosa` was this run's target (no PR opened); **the next run's rotation target is index 3 → `sky2464/miToosa`**, whose one open issue (#52) is kept issue-only by its own profile's scope note (UI/layout fixes need a human on a running build). `sky2464/DreamToosa` itself now also has a clean, well-isolated candidate (**#25**) waiting for whichever turn or human reaches it first.
 
 ## Most important thing for a human to do before the next run
 
-Nothing urgent — this is the first clean run in the fleet's recent history with zero new issues filed. The one small housekeeping item worth a human's attention: **refresh `dreamtoosa/profiles/shell-spec-driven.md`'s known-baseline section** (drop #146/#153/#141, all closed since early September) so future runs stop carrying stale references, and consider whether AgToosa's `fix_eligible: false` should flip back to `true` now that its PR backlog is at 0.
+**Fix DreamToosa#25** — `tests/test_triage_cli.py` is red on `main` right now (confirmed independent of this run's report PR), and it's the control plane's own CI gate (`control-plane.yml`'s "Validate manifest, state, and test suite" check). It's small and well-isolated: two hardcoded 4-repo test expectations and a synthetic fixture need to account for `Agtoosa2`'s now-5-repo manifest. Second: refresh `dreamtoosa/profiles/shell-spec-driven.md`'s known-baseline section (drop #146/#153/#141, all closed since early September), and consider whether AgToosa's `fix_eligible: false` should flip back to `true` now that its PR backlog is at 0.
