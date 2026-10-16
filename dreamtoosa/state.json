@@ -2,8 +2,8 @@
   "schema_version": 1,
   "_comment": "Cross-run state for the Dream Report routine (trig_01PvQiwSRhJktFxMXwxf14Qi). The routine runs with persist_session=false, so this committed file is the only memory between runs. Every run reads it first and writes it back in the same commit as the report.",
   "last_run": {
-    "date": "2026-10-15",
-    "session_id": "session_01W1MZkeBWGWMVc7JbMCeuuA",
+    "date": "2026-10-16",
+    "session_id": "session_01S9ZnV8e7asKb8oe19Njo7C",
     "repos_reviewed": [
       "sky2464/AgToosa",
       "sky2464/Crapsino",
@@ -13,7 +13,7 @@
     "repos_skipped": [
       "sky2464/Agtoosa2"
     ],
-    "notes": "Agtoosa2 skipped again: no clone at /home/user/Agtoosa2, still outside this session's GitHub access scope. All 4 reachable repos reviewed read-only; no circuit-breaker skips (all at 0 open PRs). Every issue the 2026-10-14 report filed was independently re-verified closed by actually re-checking the fix (not just trusting issue state) — Crapsino#7 (Dockerfile pin: diff confirms both base images pinned, PR #8 merged), DreamToosa#21 (Agtoosa2 manifest gap: re-ran python3 dreamtoosa/validate.py, 35/35 pass, PR #23 merged), miToosa#64 (CHANGELOG gap: diff confirms BL-39/BL-40/#48 entries added, PR #66 merged). AgToosa had zero commits since last review (HEAD unchanged at ca19d35). miToosa also merged BL-41 (PR #65, a real data-loss bug fix in level-result persistence, well tested) and BL-38 (PR #67, partial/explicitly-deferred file-size modularization of #52) plus a same-day duplicate-import CI fix. Added one comment to miToosa#52 (still open) noting two more files (progress_screen.dart 575 lines, settings_screen.dart 503 lines) exceed the 500-line budget but aren't tracked by the new line_budget_test or the PR's deferred list; instance of #52's existing scope, not a new issue. Fix rotation advanced from index 1 (Crapsino, last run's pick) to index 2 (DreamToosa) — selected, eligible by every rule, but had zero open issues at rotation time and the Phase 1 diff review surfaced no new findings there, so there was nothing to resolve under the rotation mechanism; no fix PR opened. Not a clean run after all, though: this run's own report PR (#24) came back with CI red on the 'Validate manifest, state, and test suite' check. Investigated per the CI-red protocol — reproduced the same 2 test_triage_cli.py failures against origin/main in an isolated worktree with none of #24's files present, confirming it's a pre-existing regression on main, not introduced by this run's report/state commit. Root cause: PR #23 (the #21 fix) correctly backfilled Agtoosa2's triage fields but, as a side effect, bumped the manifest from 4 to 5 enabled/triage-tracked repos; two hardcoded 4-repo expectations in tests/test_triage_cli.py (TestManifestCompatibility) and a synthetic snapshot fixture were never updated to match. Filed as DreamToosa#25 with a proposed patch, and posted a standing-down comment on PR #24 pointing to #25 rather than widening the report-only PR with an unrelated test/fixture fix. #25 was discovered too late in the run to be opened as this run's fix-rotation PR (the rotation had already resolved to 'no fix target' before CI surfaced it) — it's a strong candidate for DreamToosa's next rotation turn or a human in the meantime, and it is the actual CI gate control-plane.yml runs, currently red on main. Also flagged (non-actioned, needs a human): dreamtoosa/profiles/shell-spec-driven.md's known-baseline section still names AgToosa#146/#153/#141 as open, all three have actually been closed since early September. bats and flutter toolchains remain absent from this sandbox; docker CLI/daemon not re-checked this run (no Dockerfile changes pending verification). Verification: AgToosa none needed (0 commits); Crapsino static diff only (no new deps/lockfile touched); DreamToosa validate.py re-run clean (35/35) but full test suite (python3 -m unittest discover tests) is red, see #25; miToosa flutter analyze/test not run (no Flutter SDK), new test files read in full and assessed as genuine coverage, not executed."
+    "notes": "Agtoosa2 skipped again: no clone at /home/user/Agtoosa2, still outside this session's GitHub access scope. The committed state.json at the start of this run still read last_run.date=2026-10-14, because the 2026-10-15 run's own report+state PR (#24) never merged; this run re-derived its review window and fix-rotation position from the last committed state rather than trusting #24's pending content, per the control plane's stated contract. All 4 repos' HEADs were identical to what the 2026-10-15 run had already reviewed (0 new commits beyond that), so most diff review found nothing beyond what that run had already filed — independently re-confirmed rather than just trusted: AgToosa's stale profile-baseline flag (#146/#153/#141 all closed) still holds; Crapsino and miToosa had nothing new. Two genuinely new outcomes this run: (1) DreamToosa held the fix rotation (index 1->2, same target the stuck run had already selected) and, unlike that run, had a ready open issue (#25, the test_triage_cli manifest-drift regression from PR #23) to resolve — fixed via PR #26, reviewed through security/architecture/tests/docs, verified green on the full 160-test suite and validate.py (35/35); the straightforward fix (persisting the extra synthetic repo into the shared snapshot fixture) was tried first and broke 17 unrelated tests, so it was reworked to scope the extra entry to the one test that needs it. (2) miToosa#68 filed: docs/Master-Plan.md's backlog table marks BL-39/BL-40/BL-41 as Backlog while its own CHANGELOG and roadmap table both already treat them as shipped/confirmed-in-code — a genuine Master-Plan-drift finding, not previously caught. PR #24 remains unmerged (now 2 days); this run added a second unmerged hub-report branch chained onto it per pr_strategy:chain, bringing the hub's unmerged-report-PR count to 2 (cap 3) — flagged for a human. bats, flutter and a reachable Docker daemon remain absent from this sandbox. Verification: AgToosa none needed (0 commits); Crapsino static diff only (0 commits); DreamToosa full test suite now green after PR #26 (was failures=2) and validate.py 35/35; miToosa flutter analyze/test not run (no Flutter SDK), Master-Plan drift confirmed by direct read of docs/Master-Plan.md against CHANGELOG.md."
   },
   "fix_rotation": {
     "_comment": "Exactly one repo carries fix work per run. Advance last_index by 1 (mod length) each run, skipping repos that are disabled, not fix_eligible, or over max_open_prs.",
@@ -25,34 +25,34 @@
       "sky2464/Agtoosa2"
     ],
     "last_index": 2,
-    "last_advanced": "2026-10-15"
+    "last_advanced": "2026-10-16"
   },
   "repos": {
     "sky2464/AgToosa": {
       "last_reviewed_sha": "ca19d3591607731d67057fce5b79b30004a3fa00",
-      "last_report_date": "2026-10-15",
+      "last_report_date": "2026-10-16",
       "issues_filed": [166, 168],
       "prs_opened": [],
       "last_skip_reason": null
     },
     "sky2464/Crapsino": {
       "last_reviewed_sha": "2b4927984f855383af14540836f3aef05e2bcd26",
-      "last_report_date": "2026-10-15",
+      "last_report_date": "2026-10-16",
       "issues_filed": [7],
       "prs_opened": [],
       "last_skip_reason": null
     },
     "sky2464/DreamToosa": {
       "last_reviewed_sha": "79c596ba78546361f808231ae8b444d2efacf2f4",
-      "last_report_date": "2026-10-15",
+      "last_report_date": "2026-10-16",
       "issues_filed": [8, 21, 25],
-      "prs_opened": [],
+      "prs_opened": [26],
       "last_skip_reason": null
     },
     "sky2464/miToosa": {
       "last_reviewed_sha": "d10a5c8f7d0344a46e5aae9ada4c59a22c9ddb21",
-      "last_report_date": "2026-10-15",
-      "issues_filed": [64],
+      "last_report_date": "2026-10-16",
+      "issues_filed": [64, 68],
       "prs_opened": [],
       "last_skip_reason": null
     },
