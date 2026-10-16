@@ -456,10 +456,11 @@ class TestManifestCompatibility(unittest.TestCase):  # guards schema drift betwe
     def test_real_manifest_loads_through_the_cli_accessors(self):
         man = tr.load_manifest(self.REAL)
         repos = tr.enabled(man)
-        self.assertEqual([m["repo"] for m in repos], ["sky2464/AgToosa", "sky2464/Crapsino", "sky2464/DreamToosa", "sky2464/miToosa"])
+        self.assertEqual([m["repo"] for m in repos], ["sky2464/AgToosa", "sky2464/Crapsino", "sky2464/DreamToosa", "sky2464/miToosa", "sky2464/Agtoosa2"])
         self.assertTrue(all(isinstance(m.get("backlog"), dict) and m.get("product_workflows") for m in repos))
         self.assertEqual({m["repo"]: m["visibility"] for m in repos}, {"sky2464/AgToosa": "public", "sky2464/Crapsino": "private",
-                                                                       "sky2464/DreamToosa": "public", "sky2464/miToosa": "public"})
+                                                                       "sky2464/DreamToosa": "public", "sky2464/miToosa": "public",
+                                                                       "sky2464/Agtoosa2": "private"})
         self.assertEqual(tr.hub_dir(man, "/x"), Path("/x/DreamToosa"))
         for m in repos:  # every real backlog mapping parses the synthetic backlog text without raising
             text = (FX / "backlogs" / (m["repo"].split("/")[1].lower() + ".md")).read_text(encoding="utf-8")
@@ -469,6 +470,21 @@ class TestManifestCompatibility(unittest.TestCase):  # guards schema drift betwe
         man = tr.load_manifest(self.REAL)
         snap = jload("snapshot-2026-10-13.json")
         self.assertIsInstance(tr.engine().check_snapshot(snap, man), list)  # fixture owner differs, so repos are missing: codes, never a raise
+        # The shared snapshot fixture only covers the 4 repos it was written for; dozens of other
+        # tests in this package pin exact finding lists against it, so a 5th entry is added here,
+        # local to this test only, rather than persisted to the shared fixture file.
+        snap["repos"].append({
+            "repo": "fixture-owner/Agtoosa2", "name": "Agtoosa2", "enabled": True, "visibility": "private",
+            "visibility_check": "ok", "dependabot_scope": "unknown",
+            "tip": {"sha": "fa00501" + "0" * 33, "committer_date": "2026-10-12T10:00:00+00:00",
+                    "prev_committer_date": "2026-10-10T10:00:00+00:00", "subject": "synthetic tip subject for the Agtoosa2 fixture"},
+            "fix_links": [], "hygiene": {"merged_undeleted": 1, "shallow": False},
+            "prs": {"status": "not_evaluable", "reason": "not captured"},
+            "issues": {"status": "not_evaluable", "reason": "not captured"},
+            "workflows": {"status": "ok", "reason": None, "dynamic_ids": [], "runs": [
+                {"workflow": "ci.yml", "kind": "product", "event": "push", "head_sha": "fa00501" + "0" * 33,
+                 "conclusion": "success", "run_id": 9401, "created_at": "2026-10-12T10:05:00Z"}]},
+        })
         remapped = json.loads(json.dumps(snap).replace("fixture-owner/", "sky2464/"))
         self.assertEqual(tr.engine().check_snapshot(remapped, man), [])
         self.assertEqual(tr.check_all(remapped, man), [])
