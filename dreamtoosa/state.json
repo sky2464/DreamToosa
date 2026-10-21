@@ -2,8 +2,8 @@
   "schema_version": 1,
   "_comment": "Cross-run state for the Dream Report routine (trig_01PvQiwSRhJktFxMXwxf14Qi). The routine runs with persist_session=false, so this committed file is the only memory between runs. Every run reads it first and writes it back in the same commit as the report.",
   "last_run": {
-    "date": "2026-10-14",
-    "session_id": "session_01MgMHGgbu7SUFD54snyaKNM",
+    "date": "2026-10-21",
+    "session_id": "session_01RXWKvaiAKXrUcZhSWKhFDs",
     "repos_reviewed": [
       "sky2464/AgToosa",
       "sky2464/Crapsino",
@@ -13,7 +13,7 @@
     "repos_skipped": [
       "sky2464/Agtoosa2"
     ],
-    "notes": "Agtoosa2 skipped again: no clone at /home/user/Agtoosa2, still outside this session's GitHub access scope. All 4 reachable repos reviewed read-only; no circuit-breaker skips (all at 0 open PRs). Crapsino had zero new commits for the 3rd review in a row. Filed 3 new issues, one per repo, all genuinely new (not matching any open issue or baseline): DreamToosa#21 (validate.py fails on the real manifest — repos.yml's Agtoosa2 entry missing DEV-005a triage/backlog fields, high priority — likely breaks control-plane.yml CI), miToosa#64 (CHANGELOG.md [Unreleased] stale, missing BL-39/BL-40/#48 entries), Crapsino#7 (Dockerfile base images float on unpinned alpine tags). AgToosa's 2 commits (#180/#181) were clean, no new findings. Fix rotation advanced past index 4 (Agtoosa2, skip: no clone/out of scope) and index 0 (AgToosa, skip: fix_eligible false) to index 1 (Crapsino) — selected, but had 0 open issues and 0 commits to review; the one new finding there (Dockerfile pinning, #7) could not be safely fixed in this sandbox (no Docker daemon to verify the build), so it was filed as an issue only. No fix PR opened this run. bats and flutter toolchains remain absent from this sandbox; docker CLI is present but the daemon is not reachable. Verification: AgToosa bats not run (no bats); Crapsino npm ci --dry-run + generator-diff clean, playwright not run (no diff, no browsers); DreamToosa py_compile OK but python3 dreamtoosa/validate.py and part of its unittest suite fail against the real manifest (see #21); miToosa flutter analyze/test not run (no Flutter SDK), static diff review only."
+    "notes": "This routine's own state.json was stale by 7 days: last_run.date here still read 2026-10-14, but GitHub history shows at least 5 further runs (10-15, 10-16, 10-17, 10-18, 10-20) actually happened — they filed/commented on issues and opened PRs with session links in their bodies, but their Phase 6 report+state commit never merged, so none of that landed in this file. This run derived the review window independently from actual git history and GitHub API state (not from the stale committed state), so nothing was missed or duplicated, but it means issues_filed/prs_opened below now also backfill entries this file never recorded (DreamToosa#25, miToosa#68; DreamToosa PR#26, miToosa PR#69 — both opened by this routine per branch-naming convention and session links; PR provenance for Crapsino#8/miToosa#66/#67 is ambiguous, branch names don't match this routine's convention, so left unattributed). Headline finding: sky2464/DreamToosa (the hub) now has 6 open PRs against its own max_open_prs:3 cap (#24,26,27,28,29,30), none merged since 2026-10-14 — this is the single biggest risk to the routine right now and has been flagged by name in every run since 10-17. Verified independently (not just trusted from prior PR prose): main's test suite fails 2/160 (exactly issue #25's described regression); checked out PR #26 in a scratch git worktree and the same suite passes 160/160 there — #26 is a real, complete, 5-day-unmerged fix. Because DreamToosa is over its PR cap, Phase 2's circuit breaker applies: no new issues filed and it was skipped as a fix-rotation candidate this run (rotation advanced past it to miToosa). All 4 reachable repos reviewed read-only this run; no new code-level findings anywhere — AgToosa 0 commits (both prior issues #166/#168 confirmed closed), Crapsino 2 commits (Dockerfile pin fix from #7 verified merged clean), miToosa 6 commits (BL-38 modularization, BL-41 atomic commits, a duplicate-import fix, and a CHANGELOG update that closes #64, all verified clean; open issue #68 already has a complete unmerged fix, PR #69, so no new fix PR opened there either). No new issues filed anywhere this run. bats and flutter toolchains remain absent from this sandbox; docker CLI is present but the daemon socket is not reachable (same standing limitations as prior runs)."
   },
   "fix_rotation": {
     "_comment": "Exactly one repo carries fix work per run. Advance last_index by 1 (mod length) each run, skipping repos that are disabled, not fix_eligible, or over max_open_prs.",
@@ -24,36 +24,36 @@
       "sky2464/miToosa",
       "sky2464/Agtoosa2"
     ],
-    "last_index": 1,
-    "last_advanced": "2026-10-14"
+    "last_index": 3,
+    "last_advanced": "2026-10-21"
   },
   "repos": {
     "sky2464/AgToosa": {
       "last_reviewed_sha": "ca19d3591607731d67057fce5b79b30004a3fa00",
-      "last_report_date": "2026-10-14",
+      "last_report_date": "2026-10-21",
       "issues_filed": [166, 168],
       "prs_opened": [],
       "last_skip_reason": null
     },
     "sky2464/Crapsino": {
-      "last_reviewed_sha": "ceb42b352e1975528ea541a4aa183e159226be5f",
-      "last_report_date": "2026-10-14",
+      "last_reviewed_sha": "2b4927984f855383af14540836f3aef05e2bcd26",
+      "last_report_date": "2026-10-21",
       "issues_filed": [7],
       "prs_opened": [],
       "last_skip_reason": null
     },
     "sky2464/DreamToosa": {
-      "last_reviewed_sha": "f044cfe8fdbbbdb022a22110cca09cb2f741bf78",
-      "last_report_date": "2026-10-14",
-      "issues_filed": [8, 21],
-      "prs_opened": [],
-      "last_skip_reason": null
+      "last_reviewed_sha": "79c596ba78546361f808231ae8b444d2efacf2f4",
+      "last_report_date": "2026-10-21",
+      "issues_filed": [8, 21, 25],
+      "prs_opened": [26],
+      "last_skip_reason": "backlog (6 open PRs, cap 3)"
     },
     "sky2464/miToosa": {
-      "last_reviewed_sha": "a5b85350a935e9b7014350e1746b3548993a0dfd",
-      "last_report_date": "2026-10-14",
-      "issues_filed": [64],
-      "prs_opened": [],
+      "last_reviewed_sha": "d10a5c8f7d0344a46e5aae9ada4c59a22c9ddb21",
+      "last_report_date": "2026-10-21",
+      "issues_filed": [64, 68],
+      "prs_opened": [69],
       "last_skip_reason": null
     },
     "sky2464/Agtoosa2": {
