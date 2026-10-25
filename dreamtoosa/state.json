@@ -45,8 +45,8 @@
     "sky2464/DreamToosa": {
       "last_reviewed_sha": "79c596ba78546361f808231ae8b444d2efacf2f4",
       "last_report_date": "2026-10-17",
-      "issues_filed": [8, 21],
-      "prs_opened": [],
+      "issues_filed": [8, 21, 25],
+      "prs_opened": [26],
       "last_skip_reason": null
     },
     "sky2464/miToosa": {
