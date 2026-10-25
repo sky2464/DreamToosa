@@ -46,14 +46,14 @@
       "last_reviewed_sha": "79c596ba78546361f808231ae8b444d2efacf2f4",
       "last_report_date": "2026-10-18",
       "issues_filed": [8, 21, 25],
-      "prs_opened": [],
+      "prs_opened": [26],
       "last_skip_reason": "backlog (4 open PRs, cap 3)"
     },
     "sky2464/miToosa": {
       "last_reviewed_sha": "d10a5c8f7d0344a46e5aae9ada4c59a22c9ddb21",
       "last_report_date": "2026-10-18",
-      "issues_filed": [64],
-      "prs_opened": [],
+      "issues_filed": [64, 68],
+      "prs_opened": [69],
       "last_skip_reason": null
     },
     "sky2464/Agtoosa2": {
