@@ -31,35 +31,53 @@
     "sky2464/AgToosa": {
       "last_reviewed_sha": "ca19d3591607731d67057fce5b79b30004a3fa00",
       "last_report_date": "2026-10-21",
-      "issues_filed": [166, 168],
+      "issues_filed": [
+        166,
+        168
+      ],
       "prs_opened": [],
       "last_skip_reason": null
     },
     "sky2464/Crapsino": {
       "last_reviewed_sha": "2b4927984f855383af14540836f3aef05e2bcd26",
       "last_report_date": "2026-10-21",
-      "issues_filed": [7],
+      "issues_filed": [
+        7
+      ],
       "prs_opened": [],
       "last_skip_reason": null
     },
     "sky2464/DreamToosa": {
       "last_reviewed_sha": "79c596ba78546361f808231ae8b444d2efacf2f4",
       "last_report_date": "2026-10-21",
-      "issues_filed": [8, 21, 25],
-      "prs_opened": [26],
+      "issues_filed": [
+        8,
+        21,
+        25
+      ],
+      "prs_opened": [
+        26
+      ],
       "last_skip_reason": "backlog (6 open PRs, cap 3)"
     },
     "sky2464/miToosa": {
       "last_reviewed_sha": "d10a5c8f7d0344a46e5aae9ada4c59a22c9ddb21",
       "last_report_date": "2026-10-21",
-      "issues_filed": [64, 68],
-      "prs_opened": [69],
+      "issues_filed": [
+        64,
+        68
+      ],
+      "prs_opened": [
+        69
+      ],
       "last_skip_reason": null
     },
     "sky2464/Agtoosa2": {
       "last_reviewed_sha": null,
       "last_report_date": null,
-      "issues_filed": [8],
+      "issues_filed": [
+        8
+      ],
       "prs_opened": [],
       "last_skip_reason": "no clone at /home/user/Agtoosa2; also outside this session's GitHub access scope"
     }
