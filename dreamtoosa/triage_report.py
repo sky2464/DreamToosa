@@ -1,17 +1,6 @@
 #!/usr/bin/env python3
-"""Fleet Triage CLI (DEV-005a): check, render and heartbeat. Run it as a script by absolute path; it imports triage from its own directory.
-
-  triage_report.py check     --snapshot S --manifest M [--clone-root R]
-  triage_report.py render    --snapshot S --manifest M [--clone-root R | --backlog-dir D] [--inject INDEX] [--unavailable CODE]
-  triage_report.py heartbeat --repo-root DIR [--today YYYY-MM-DD] [--manifest M]
-
-Exit 0 ok, 1 fixed codes on stdout one per line (check found a problem, render refused, heartbeat stale), 2 usage error or cannot run (E_RUN).
-With --clone-root, check and render first confirm that dreamtoosa/ in the hub clone is untouched (E_ENGINE_TAMPERED, before triage.py is imported), then
-re-derive the git facts (E_VERIFY_GIT:<field>) and read backlog, cron and fix links from git at the verified tip. --backlog-dir is for tests: <name>.md
-files, with cron intervals from cron-<run_date>.json beside the directory. No network: git is only read. Severity is assigned by triage.py alone.
-"""
+"""Fleet Triage CLI: check, render, heartbeat, notify. Run by absolute path. Exit 0 ok, 1 fixed codes, 2 usage or E_RUN. With --clone-root the hub dreamtoosa/ tree must be clean (E_ENGINE_TAMPERED) before triage.py is imported. No network."""
 from __future__ import annotations
-
 import argparse
 import datetime
 import json
@@ -19,7 +8,6 @@ import re
 import subprocess
 import sys
 from pathlib import Path
-
 HERE = Path(__file__).resolve().parent
 if sys.path[:1] != [str(HERE)]:
     sys.path.insert(0, str(HERE))
@@ -28,9 +16,7 @@ try:
 except Exception:  # a missing PyYAML means "cannot run", never a check failure
     print("E_RUN")
     sys.exit(2)
-
 triage = None  # the rules module: engine() imports it only after the hub integrity check passed, so a tampered triage.py never runs (TRI-A-008)
-
 BEGIN, END = "<!-- fleet-triage:begin -->", "<!-- fleet-triage:end -->"
 TAMPERED, MARKERS = "E_ENGINE_TAMPERED", "E_INJECT_MARKERS"
 CODE_RE = re.compile(r"E_[A-Z0-9_]{1,40}(?::[\w.-]{1,40})?", re.A)
@@ -40,12 +26,8 @@ HUB_RULES, TIERS3 = ("C2", "C3", "U2"), ("CRITICAL", "URGENT", "HIGH")
 # Reasons the engine or the routine prompt write; any other snapshot-supplied reason is shown escaped and flagged like other untrusted text.
 REASONS = frozenset({"READ_ONLY", "time box", "not captured", "deep-read cap", "no completed run", "no dynamic workflow ids", "PRs not evaluable",
                      "backlog not captured", "no plan rows parsed", "shallow clone"})
-
-
 class Code(Exception):
     """Stops a command with fixed codes (exit 1); the codes are its args."""
-
-
 def engine():
     """Import triage.py from this file's directory on first use and return it; every function that needs the rules calls this first."""
     global triage
@@ -53,40 +35,28 @@ def engine():
         import triage as loaded
         triage = loaded
     return triage
-
-
 def _git(root, *args: str) -> tuple[int, str]:
     r = subprocess.run(["git", "-c", "log.showSignature=false", "-C", str(root), *args], capture_output=True, stdin=subprocess.DEVNULL,
                        encoding="utf-8", errors="replace", timeout=60)
     return r.returncode, r.stdout
-
-
 def load_manifest(path: str | Path) -> dict:
     """repos.yml as a dict whose `repos` is a list of mappings with a `repo` name; ValueError for any other shape."""
     m = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
     if not isinstance(m, dict) or not isinstance(m.get("repos"), list) or not all(isinstance(x, dict) and isinstance(x.get("repo"), str) for x in m["repos"]):
         raise ValueError("manifest shape")
     return m
-
-
 def enabled(manifest: dict) -> list[dict]:
     """Manifest repos that are not switched off, in manifest order."""
     return [m for m in manifest["repos"] if m.get("enabled", True)]
-
-
 def repo_dir(clone_root: str | Path, repo: str) -> Path:
     """$CLONE_ROOT/<name> for an owner/name repo; ValueError when the name could leave the clone root."""
     name = repo.split("/")[-1]
     if not re.fullmatch(r"\w[\w.-]*", name, re.A):
         raise ValueError("repo name")
     return Path(clone_root) / name
-
-
 def hub_dir(manifest: dict | None, clone_root: str | Path) -> Path:
     """The hub clone: $CLONE_ROOT/<name of hub.repo>, DreamToosa when the manifest does not say."""
     return repo_dir(clone_root, ((manifest or {}).get("hub") or {}).get("repo") or "x/DreamToosa")
-
-
 def integrity(hub: str | Path) -> bool:
     """TRI-A-008: true only when git sees no change at all under dreamtoosa/ (a missing repo or a git failure counts as tampered)."""
     hub = Path(hub)
@@ -95,15 +65,11 @@ def integrity(hub: str | Path) -> bool:
     diff_rc = _git(hub, "diff", "--quiet", "HEAD", "--", "dreamtoosa/")[0]
     status_rc, status_out = _git(hub, "status", "--porcelain", "--", "dreamtoosa/")
     return diff_rc == 0 and status_rc == 0 and not status_out.strip()
-
-
 def _same(a, b) -> bool:
     try:
         return datetime.datetime.fromisoformat(a) == datetime.datetime.fromisoformat(b)
     except (TypeError, ValueError):
         return a == b
-
-
 def git_liveness(hub: str | Path, state_file: str) -> dict[str, str]:
     """{ref: last_run.date} for origin/main and every origin/dreamtoosa/report-* ref whose state file holds a string date."""
     out = _git(hub, "for-each-ref", "--format=%(refname)", "refs/remotes/origin/main", "refs/remotes/origin/dreamtoosa/report-*")[1]
@@ -117,16 +83,12 @@ def git_liveness(hub: str | Path, state_file: str) -> dict[str, str]:
         if isinstance(date, str):
             res[full[len("refs/remotes/"):]] = date
     return res
-
-
 def fix_links_from_git(d: str | Path, tip: str, run_date: str) -> list[dict]:
     """Issue numbers and commit SHAs of closes/fixes/resolves #N subjects over the 90 days before run_date (subjects are not kept)."""
     since = (datetime.date.fromisoformat(run_date[:10]) - datetime.timedelta(days=90)).isoformat() + "T00:00:00+00:00"
     rc, out = _git(d, "log", f"--since={since}", "--format=%H%x09%s", tip)
     pairs = {(int(n), h) for ln in (out.splitlines() if rc == 0 else []) for h, _, subj in [ln.partition("\t")] for n in FIX_RE.findall(subj)}
     return [{"issue": n, "sha": h} for n, h in sorted(pairs)]
-
-
 def verify_git(snap: dict, clone_root: str | Path, manifest: dict | None = None) -> list[str]:
     """Re-derive tip SHA, committer dates, optional backlog blob SHA, fix links and liveness dates from git; sorted E_VERIFY_GIT:<field> codes."""
     bad: set[str] = set()
@@ -164,8 +126,6 @@ def verify_git(snap: dict, clone_root: str | Path, manifest: dict | None = None)
     if any(truth.get(r.get("ref")) != r.get("last_run_date") for r in (snap.get("hub") or {}).get("liveness_refs") or []):
         fail("liveness")
     return sorted(bad)
-
-
 def check_all(snap: object, manifest: dict, clone_root: str | Path | None = None) -> list[str]:
     """Every check as fixed codes ([] when valid): hub integrity first, then the schema, secret, path and cap scans, then git re-derivation."""
     if clone_root and not integrity(hub_dir(manifest, clone_root)):
@@ -179,20 +139,14 @@ def check_all(snap: object, manifest: dict, clone_root: str | Path | None = None
     if refs is not None and (not isinstance(refs, list) or not all(isinstance(r, dict) and REF_RE.fullmatch(str(r.get("ref"))) for r in refs)):
         codes = sorted({*codes, "E_SCHEMA"})  # the ref name is shown in the report, so only the two ref shapes the routine reads are allowed
     return codes if codes or not clone_root else verify_git(snap, clone_root, manifest)
-
-
 def _show(d, tip: str, path) -> str | None:
     if not path or Path(path).is_absolute() or ".." in Path(path).parts:
         return None
     rc, out = _git(d, "show", f"{tip}:{path}")
     return out if rc == 0 else None
-
-
 def _cron(text: str | None) -> str | None:
     found = re.findall(r"^\s*-?\s*cron:\s*['\"]([^'\"]+)['\"]", text or "", re.M)
     return found[0] if len(found) == 1 else None
-
-
 def gather(snap: dict, manifest: dict, clone_root: str | Path | None = None, backlog_dir: str | Path | None = None) -> tuple[dict, dict, dict]:
     """(plan rows, fix links, cron text) per repo: from git at the snapshot tip with clone_root, from fixture files with backlog_dir, else empty."""
     engine()
@@ -207,43 +161,35 @@ def gather(snap: dict, manifest: dict, clone_root: str | Path | None = None, bac
             text, links[repo] = _show(d, tip, mp.get("path")), fix_links_from_git(d, tip, rd)
             cron[repo] = {w["file"]: _cron(_show(d, tip, f".github/workflows/{w['file']}")) for w in m.get("watch_workflows") or [] if w.get("kind") == "security"}
         else:
-            f = Path(backlog_dir or ".") / (repo.split("/")[-1].lower() + ".md")
-            text, links[repo], cron[repo] = (f.read_text(encoding="utf-8") if backlog_dir and f.is_file() else None), s.get("fix_links") or [], jcron.get(repo, {})
+            text, links[repo], cron[repo] = _read(backlog_dir, repo.split("/")[-1].lower() + ".md"), s.get("fix_links") or [], jcron.get(repo, {})
         if text is not None and mp:
             rows[repo] = triage.parse_backlog(text, mp)
     return rows, links, cron
-
-
-def assemble(snap: object, manifest: dict, clone_root: str | Path | None = None, backlog_dir: str | Path | None = None) -> tuple[list[str], str]:
-    """check_all, then evaluate and render: (codes, block); the block is empty when any code is returned."""
+def assemble(snap: object, manifest: dict, clone_root: str | Path | None = None, backlog_dir: str | Path | None = None, prev_text: str | None = None) -> tuple[list[str], str]:
+    """check_all, then evaluate and render. Without prev_text the block matches the DEV-005a fixture byte for byte."""
     codes = check_all(snap, manifest, clone_root)
     if codes:
         return codes, ""
     rows, links, cron = gather(snap, manifest, clone_root, backlog_dir)
-    return [], render(triage.evaluate(snap, rows, links, cron, manifest), manifest, snap)
-
-
+    ev = triage.evaluate(snap, rows, links, cron, manifest)
+    if prev_text is None:
+        return [], render(ev, manifest, snap)
+    gline, carry, comment = _ledger_view(ev, manifest, snap, prev_text, clone_root, backlog_dir)
+    return [], render(ev, manifest, snap, gline, carry, comment)
 def _days(run: str, ts) -> int:
     a, b = triage._date(run), triage._date(ts)
     return max(0, (a - b).days) if a and b else 0
-
-
 def _pr(p: dict) -> str:
     n = f"#{p['number']}"
     if p["cls"] == "READY":
         return f"{n} READY, idle {p['idle_days']} d" + (f"; {p['label']}" if p["label"] else "")
     return f"{n} BLOCKED: {p['blocker']}; {p['unblock']}" if p["cls"] == "BLOCKED" else f"{n} not evaluable ({p['reason']})"
-
-
 def _ci(c: dict) -> str:
     since = f"{c['streak']} consecutive failures since {c['first_red']}"
     return {"GREEN": f"green on tip (run {c['run_id']})", "GREEN_PRE_TIP": f"green, pre-tip (latest run on {c['sha7']})",
             "RED": f"red on tip, {since} (run {c['run_id']})", "RED_PRE_TIP": f"red on {c['sha7']}, not tip (unconfirmed)"}.get(c["state"])
-
-
-def render(ev: triage.Evaluation, manifest: dict, snap: dict | None = None) -> str:
-    """The six-section Fleet Triage block with its markers. Output depends only on the inputs (stable order); a non-public repo yields only its
-    withheld line; untrusted text (tip subject, issue title and labels from `snap`) appears only as escaped code spans."""
+def render(ev: triage.Evaluation, manifest: dict, snap: dict | None = None, golden_line: str | None = None, carry: str | None = None, ledger_comment: str | None = None) -> str:
+    """Six-section Fleet Triage block. Stable order. A non-public repo yields only its withheld line. Untrusted text is an escaped code span."""
     cfg = {**engine()._DEFAULTS, **(manifest.get("triage") or {})}
     fresh = {f["repo"]: f for f in ev.freshness}
     pubs = [r for r, f in fresh.items() if f["public"]]
@@ -251,17 +197,14 @@ def render(ev: triage.Evaluation, manifest: dict, snap: dict | None = None) -> s
     ro, flags = ev.mode == "READ_ONLY", []
     part = lambda r: any(ev.sections[r][k]["state"] != "OK" for k in ("prs", "issues", "workflows"))  # noqa: E731 - API-backed rules did not all run
     show = lambda f: f.rule in HUB_RULES or f.repo in pubs  # noqa: E731 - hub rules carry only the heartbeat age
-
     def u(where: str, text) -> str:
         md, fl = triage.escape_untrusted(text)
         flags.extend(f"{where}: {x}" for x in fl)
         return re.sub(r"fleet-triage:(begin|end)", r"fleet-triage \1", md)
-
     def ns(st: dict, where: str = "section") -> str:
         rsn = st["reason"]
         ok = isinstance(rsn, str) and (rsn in REASONS or rsn.startswith("unknown cron shape: "))
         return "not evaluable (" + (rsn if ok else u(f"{where} reason", rsn)) + ")"
-
     h, top = ev.hub, (ev.shown[0] if ev.shown else None)
     beat = f"newest last_run.date is {h['age_days']} d old ({h['source_ref']})" if h["state"] == "OK" else "not evaluable (no valid last_run.date)"
     nprs = h["open_report_prs"] if h["open_report_prs"] is not None else f"not evaluable ({'READ_ONLY' if ro else 'not captured'})"
@@ -318,8 +261,7 @@ def render(ev: triage.Evaluation, manifest: dict, snap: dict | None = None) -> s
     L += [f"Withheld from this list: {len(ev.shown) - len(vis)} ranked items in non-public repos."] if len(ev.shown) > len(vis) else []
     L += [f"+{ev.more} more URGENT or HIGH not shown (caps: {cfg['max_items_total']} in total, {cfg['max_items_per_repo']} per repo)"] if ev.more else []
     cnt = f"Counted only, not listed: MEDIUM {ev.counts['MEDIUM']}, LOW {ev.counts['LOW']}" + (" (partial: some sections not evaluable)" if any(part(r) for r in fresh) else "")
-    L += [cnt + ".", "", "### 5. Golden feature", "", "not in DEV-005a (DEV-005b)",
-          "", "### 6. Limits and integrity", ""]
+    L += [cnt + ".", "", "### 5. Golden feature", "", golden_line or "not in DEV-005a (DEV-005b)", "", "### 6. Limits and integrity", ""]
     c = ev.caps
     L += [f"- Deep-read caps per repo: {c['pr_deep_reads']} PR deep reads, {c['merged_pr_reads']} merged-PR check reads, {c['issue_reads']} issue reads; "
           f"time box {c['box_minutes']} min" + (f"; cut at {u('timebox exceeded_section', c['exceeded_section'])}" if c["exceeded_section"] else ""),
@@ -335,10 +277,16 @@ def render(ev: triage.Evaluation, manifest: dict, snap: dict | None = None) -> s
             bad.setdefault(f"cross-check {chk if chk != 'ok' else 'visibility differs'}", []).append(r)
     L += [f"- Visibility {k}: {', '.join(v)} (treated as non-public)" for k, v in sorted(bad.items())]
     L += [f"- {r} {k}: {ns(ev.sections[r][k])}" for r in pubs for k in ("backlog", "dependabot", "cron") if ev.sections[r][k]["state"] != "OK"]
+    if carry:
+        L.append(carry)
+        if carry.startswith("carry-forward"):
+            flags.append(carry)
+    if ledger_comment:
+        if triage.SECRET_RE.search(ledger_comment):
+            raise Code("E_SECRET_PATTERN", "ledger")
+        L.append(ledger_comment)
     L += ["- Integrity flags: " + ("; ".join(sorted(set(flags))) if flags else "no suspicious text recorded"), END]
     return "\n".join(L) + "\n"
-
-
 def inject(index_path: str | Path, block: str) -> None:
     """Replace only the text between the fleet-triage markers of the index (prepend the block when it has none). Raises Code(E_INJECT_MARKERS),
     writing nothing, when the block is malformed or any marker string appears outside exactly one begin/end pair."""
@@ -356,8 +304,6 @@ def inject(index_path: str | Path, block: str) -> None:
             raise Code(MARKERS)
         new = text[:bs] + body + text[es + len(END):]
     p.write_bytes(new.encode("utf-8"))
-
-
 def _heartbeat(a) -> int:
     root = Path(a.repo_root)
     if not (root / ".git").exists():
@@ -376,11 +322,75 @@ def _heartbeat(a) -> int:
         raise Code("E_NOT_EVALUABLE")
     print(f"{'OK' if age <= mx else 'E_STALE'} ref={src} age_days={age} max_days={mx}")
     return 0 if age <= mx else 1
-
-
+def _read(backlog_dir, rel): return (Path(backlog_dir) / rel).read_text(encoding="utf-8") if backlog_dir and (Path(backlog_dir) / rel).is_file() else None
+def _texts(snap, manifest, clone_root, backlog_dir, path_of, suffix):
+    tips = {r["repo"]: r["tip"]["sha"] for r in snap["repos"]}
+    return {m["repo"]: (_show(repo_dir(clone_root, m["repo"]), tips[m["repo"]], path_of(m)) if clone_root else _read(backlog_dir, m["repo"].split("/")[-1].lower() + suffix)) or "" for m in enabled(manifest)}
+def changelogs(snap, manifest, clone_root=None, backlog_dir=None) -> dict:
+    """CHANGELOG.md per enabled repo, from the same root as its backlog. Missing is empty."""
+    return _texts(snap, manifest, clone_root, backlog_dir, lambda m: "CHANGELOG.md", ".changelog.md")
+def spec_lookup(snap, manifest, clone_root=None, backlog_dir=None):
+    """spec_exists for golden_pick (TRI-B-011): (repo, plan ID) -> <backlog dir>/archived/spec-<ID>.md text at the pinned tip or in the fixture dir, else None."""
+    tips, bps = {r["repo"]: r["tip"]["sha"] for r in snap["repos"]}, {m["repo"]: (m.get("backlog") or {}).get("path") or "" for m in enabled(manifest)}
+    return lambda repo, pid: _show(repo_dir(clone_root, repo), tips[repo], (Path(bps.get(repo, "")).parent / "archived" / f"spec-{pid}.md").as_posix()) if clone_root else _read(backlog_dir, f"archived/spec-{pid}.md")
+def _ledger_view(ev, manifest, snap, prev_text, clone_root, backlog_dir):
+    parsed = triage.parse_ledger(prev_text or "")
+    if isinstance(parsed, triage.LedgerError) and parsed.code != "BASELINE":
+        extra = f" {parsed.field}" if parsed.field else ""
+        return None, f"carry-forward not evaluable ({parsed.code}){extra}", None
+    carry = "baseline (no prior ledger)" if not isinstance(parsed, triage.Ledger) else None
+    fresh_pub = {x["repo"] for x in ev.freshness if x.get("public")}
+    findings = [{"id": f.key, "rule": f.rule, "sev": f.tier, "public": f.repo in fresh_pub, "repo": f.repo, "evidence": list(f.evidence)} for f in ev.findings]
+    _deltas, led = triage.merge_ledger(findings, set(), parsed if isinstance(parsed, triage.Ledger) else None, ev.run_date)
+    cfg = manifest.get("triage") or {}
+    pool = triage.golden_pool(_texts(snap, manifest, clone_root, backlog_dir, lambda m: (m.get("backlog") or {}).get("path"), ".md"), manifest, cfg.get("golden_exclude") or (),
+                              changelogs(snap, manifest, clone_root, backlog_dir))
+    golden = triage.golden_pick(pool, findings, parsed if isinstance(parsed, triage.Ledger) else None, cfg, spec_lookup(snap, manifest, clone_root, backlog_dir), ev.run_date)
+    if triage.SECRET_RE.search(golden.line or ""):
+        return None, "carry-forward not evaluable (E_SECRET_PATTERN) ledger", None
+    comment = triage.serialize_ledger(led)
+    return golden.line, carry, comment
+def chain_base_from_git(hub, read_only, chain, open_prs):
+    """Newest origin/dreamtoosa/report-* by tip committer date. open_prs are ref names with an open hub PR."""
+    out = _git(hub, "for-each-ref", "--format=%(refname)%09%(committerdate:iso-strict)", "refs/remotes/origin/dreamtoosa/report-*")[1]
+    refs = []
+    for line in out.splitlines():
+        full, _, when = line.partition("\t"); ref = full[len("refs/remotes/"):] if full.startswith("refs/remotes/") else full
+        refs.append({"ref": ref, "committer_date": when, "open_pr": ref in set(open_prs or ()), "ancestor": _git(hub, "merge-base", "--is-ancestor", full, "refs/remotes/origin/main")[0] == 0})
+    return engine().select_chain_base(refs, read_only, chain)
+def _notify(a) -> int:
+    engine()
+    man = load_manifest(a.manifest) if a.manifest else {"repos": [], "hub": {}, "triage": {}}
+    try:
+        snap = json.loads(Path(a.snapshot).read_text(encoding="utf-8"))
+    except ValueError:
+        raise Code("E_SCHEMA") from None
+    prev = Path(a.prev_index).read_text(encoding="utf-8") if a.prev_index else ""
+    today = a.today or snap.get("run_date")
+    read_only = snap.get("execution_mode") == "READ_ONLY" or (man.get("hub") or {}).get("force_read_only") is True
+    c3 = (snap.get("hub") or {}).get("validate_exit") == 1
+    if {m["repo"] for m in enabled(man)} - {r.get("repo") for r in snap.get("repos") or []}: raise Code("E_SCHEMA")  # an enabled manifest repo missing from the snapshot: check's code
+    deltas = []
+    if man.get("repos"):
+        rows, links, cron = gather(snap, man, a.clone_root, a.backlog_dir)
+        ev = triage.evaluate(snap, rows, links, cron, man)
+        parsed = triage.parse_ledger(prev)
+        prev_led = parsed if isinstance(parsed, triage.Ledger) else None
+        fresh_pub = {x["repo"] for x in ev.freshness if x.get("public")}
+        findings = [{"id": f.key, "rule": f.rule, "sev": f.tier, "public": f.repo in fresh_pub, "repo": f.repo, "evidence": list(f.evidence)} for f in ev.findings]
+        deltas, _led = triage.merge_ledger(findings, set(), prev_led, today)
+    decision = triage.notify_decision(read_only, c3, deltas, today)
+    msg = triage.notify_message(decision.reasons, triage.notify_ids(deltas), today) if decision.send else ""
+    if msg and triage.SECRET_RE.search(msg):
+        print("E_SECRET_PATTERN message")
+        return 1
+    print(json.dumps({"send": decision.send, "message": msg}))
+    return 0
 def _run(a) -> int:
     if a.cmd == "heartbeat":
         return _heartbeat(a)
+    if a.cmd == "notify":
+        return _notify(a)
     if a.cmd == "render" and a.unavailable:
         block = f"{BEGIN}\nFleet Triage unavailable: {a.unavailable}\n{END}\n"  # a fixed code and nothing else
     else:
@@ -389,7 +399,8 @@ def _run(a) -> int:
             snap = json.loads(Path(a.snapshot).read_text(encoding="utf-8"))
         except ValueError:
             raise Code("E_SCHEMA") from None
-        codes, block = assemble(snap, man, a.clone_root, a.backlog_dir) if a.cmd == "render" else (check_all(snap, man, a.clone_root), "")
+        prev = Path(a.prev_index).read_text(encoding="utf-8") if getattr(a, "prev_index", None) else None
+        codes, block = assemble(snap, man, a.clone_root, a.backlog_dir, prev) if a.cmd == "render" else (check_all(snap, man, a.clone_root), "")
         if codes:
             raise Code(*codes)
         if a.cmd == "check":
@@ -402,14 +413,10 @@ def _run(a) -> int:
         sys.stdout.buffer.write(block.encode("utf-8"))
         sys.stdout.buffer.flush()
     return 0
-
-
 def _code(s: str) -> str:
     if not CODE_RE.fullmatch(s):
         raise argparse.ArgumentTypeError("expected a fixed E_ code")
     return s
-
-
 def _iso(s: str) -> str:
     try:
         if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", s, re.A):
@@ -418,18 +425,16 @@ def _iso(s: str) -> str:
     except ValueError:
         raise argparse.ArgumentTypeError("expected YYYY-MM-DD") from None
     return s
-
-
 def main(argv: list[str] | None = None) -> int:
     """Run the CLI: 0 ok, 1 after printing fixed codes, 2 after printing E_RUN (the exception class name goes to stderr) or on a usage error."""
     p = argparse.ArgumentParser(prog="triage_report.py", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("cmd", choices=("check", "render", "heartbeat"))
-    for flag in ("snapshot", "manifest", "clone-root", "backlog-dir", "inject", "repo-root"):
+    p.add_argument("cmd", choices=("check", "render", "heartbeat", "notify"))
+    for flag in ("snapshot", "manifest", "clone-root", "backlog-dir", "inject", "repo-root", "prev-index"):
         p.add_argument("--" + flag)
     p.add_argument("--unavailable", type=_code)
     p.add_argument("--today", type=_iso)
     a = p.parse_args(argv)
-    need = {"check": ("snapshot", "manifest"), "render": () if a.unavailable else ("snapshot", "manifest"), "heartbeat": ("repo_root",)}[a.cmd]
+    need = {"check": ("snapshot", "manifest"), "render": () if a.unavailable else ("snapshot", "manifest"), "heartbeat": ("repo_root",), "notify": ("snapshot", "prev_index")}[a.cmd]
     if [n for n in need if not getattr(a, n)] or (a.clone_root and a.backlog_dir):
         p.error(f"missing or conflicting arguments for {a.cmd}")
     try:
@@ -441,7 +446,5 @@ def main(argv: list[str] | None = None) -> int:
         print("E_RUN")
         print(type(e).__name__, file=sys.stderr)
         return 2
-
-
 if __name__ == "__main__":
     sys.exit(main())

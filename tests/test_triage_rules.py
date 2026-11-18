@@ -30,11 +30,8 @@ Decisions pinned: PR red = conclusion outside success|neutral|skipped (None = pe
 """
 import copy, dataclasses, datetime, json, random, re, unittest
 from pathlib import Path
-
 import yaml
-
 import dreamtoosa.triage as triage
-
 FX = Path(__file__).parent / "fixtures" / "triage"
 RD = "2026-10-13"
 AG, CR, DT, MI = (f"fixture-owner/{n}" for n in ("AgToosa", "Crapsino", "DreamToosa", "miToosa"))
@@ -68,8 +65,6 @@ BASE = {
     f"H4:{CR}:UX-R1": ("MEDIUM", 4, 2, "UX-R1: fix and add a test (verify)", None),
     f"H5:{AG}:#11": ("LOW", 4, 3, "Close candidate #11: fix fa000b1 on default branch", ["commit:fa000b1", "issue:11"]),
 }
-
-
 def g(o, k): return o[k] if isinstance(o, dict) else getattr(o, k)
 def jload(n): return json.loads((FX / n).read_text(encoding="utf-8"))
 def yload(n): return yaml.safe_load((FX / n).read_text(encoding="utf-8"))
@@ -137,13 +132,10 @@ RULE_ROWS = (
        (lambda t: t.set_runs(CR, [r for r in t.R(CR)["workflows"]["runs"] if r["run_id"] != 9114]), "H1", CR, "nightly-audit.yml", None),  # only 2 failures left
        (None, "H3", MI, "weekly-health.yml", None), (h3_runs(), "H3", MI, "weekly-health.yml", "HIGH"), (h3_runs(), "U1", MI, "weekly-health.yml", None),  # H3: failure off the tip
        (lambda t: (h3_runs()(t), t.R(MI)["workflows"]["runs"].append(mkrun("weekly-health.yml", "success", 0, 61, sha=t.R(MI)["tip"]["sha"]))), "H3", MI, "weekly-health.yml", None)])
-
-
 class Base(unittest.TestCase):
     def setUp(self):
         self.snap, self.man, self.cron = jload("snapshot-2026-10-13.json"), yload("repos-2026-10-13.yml"), jload("cron-2026-10-13.json")
         self.rows, self.fix = rows_for(self.man), {r["repo"]: r["fix_links"] for r in self.snap["repos"]}
-
     def R(self, repo): return next(r for r in self.snap["repos"] if r["repo"] == repo)
     def M(self, repo): return next(r for r in self.man["repos"] if r["repo"] == repo)
     def issue(self, repo, n): return next(i for i in self.R(repo)["issues"]["open"] if i["number"] == n)
@@ -153,22 +145,17 @@ class Base(unittest.TestCase):
     def set_plan(self, repo, rows): self.rows[repo] = triage.parse_backlog(plan_text(rows), self.M(repo)["backlog"])
     def sec(self, ev, repo, name): s = g(ev, "sections")[repo][name]; return g(s, "state"), g(s, "reason")
     def has(self, *a): return bool(self.F(*a))
-
     def F(self, rule=None, repo=None, sub=None, ev=None):
         return [f for f in g(ev or self.ev(), "findings") if rule in (None, g(f, "rule")) and repo in (None, g(f, "repo"))
                 and sub in (None, g(f, "key").split(":", 2)[2])]
-
     def one(self, rule, repo, sub, ev=None):
         fs = self.F(rule, repo, sub, ev)
         self.assertEqual(len(fs), 1, (rule, repo, sub))
         return fs[0]
-
     def liveness(self, age, count="keep"):
         self.snap["hub"]["liveness_refs"] = [{"ref": "origin/main", "last_run_date": day(age)[:10]}]
         if count != "keep":
             self.snap["hub"]["open_report_prs"] = count
-
-
 class TestFixturesAndCheck(Base):  # FX-1, TR-14
     def test_synthetic_titles_fake_shas_and_manifest_values(self):
         titles = [r["tip"]["subject"] for r in self.snap["repos"]] + [g(x, "title") for rows in self.rows.values() for x in rows]
@@ -178,7 +165,6 @@ class TestFixturesAndCheck(Base):  # FX-1, TR-14
         self.assertTrue(shas and all(s.startswith("fa") for s in shas))
         self.assertEqual([r["visibility"] for r in self.man["repos"]], ["public", "private", "public", "public"])  # test-only values
         self.assertEqual((self.man["hub"]["force_read_only"], yload("repos-2026-10-13-readonly.yml")["hub"]["force_read_only"]), (False, True))
-
     def test_fixtures_are_valid_and_rejections_have_codes(self):  # fixtures sit exactly at the caps: 5 PR deep reads, 3 merged-PR reads, 3 issue reads
         self.assertEqual(triage.check_snapshot(self.snap, self.man), [])
         for mn in ("repos-2026-10-13.yml", "repos-2026-10-13-readonly.yml"):
@@ -190,20 +176,16 @@ class TestFixturesAndCheck(Base):  # FX-1, TR-14
             s = copy.deepcopy(self.snap)
             mut(s)
             self.assertTrue(any(c.startswith(code) for c in triage.check_snapshot(s, self.man)), code)
-
-
 class TestFacts(Base):  # TR-1 freshness, TR-2 pull requests, TR-3 CI
     def tier(self, age):
         self.R(MI)["tip"]["committer_date"] = day(age, "01:00:00").replace("Z", "+00:00")
         f = next(x for x in g(self.ev(), "freshness") if g(x, "repo") == MI)
         return g(f, "tier"), g(f, "age_days")
-
     def test_tiers_thresholds_and_future_clamp(self):
         for age, tier in [(0, "ACTIVE"), (7, "ACTIVE"), (8, "QUIET"), (14, "QUIET"), (15, "STALE"), (44, "STALE"), (45, "DORMANT"), (300, "DORMANT"), (-5, "ACTIVE")]:
             self.assertEqual(self.tier(age), (tier, max(age, 0)), age)
         self.man["defaults"].update(stale_after_days=20, dormant_after_days=30)
         self.assertEqual([self.tier(a)[0] for a in (18, 25, 30)], ["QUIET", "STALE", "DORMANT"])
-
     def test_base_rows_and_disabled_repo(self):
         rows = g(self.ev(), "freshness")
         self.assertEqual([(g(r, "repo"), g(r, "tier"), g(r, "age_days"), g(r, "public")) for r in rows],
@@ -211,7 +193,6 @@ class TestFacts(Base):  # TR-1 freshness, TR-2 pull requests, TR-3 CI
         self.assertEqual(g(rows[0], "tip_sha"), self.R(AG)["tip"]["sha"])
         self.M(CR)["enabled"] = False
         self.assertEqual(([g(r, "repo") for r in g(self.ev(), "freshness")], self.F(repo=CR)), ([AG, DT, MI], []))
-
     def test_public_fails_closed(self):
         for key, val in [("visibility", "private"), ("visibility", "internal"), ("visibility", None), ("visibility_check", "mismatch"), ("visibility_check", "unavailable")]:
             self.setUp()
@@ -219,7 +200,6 @@ class TestFacts(Base):  # TR-1 freshness, TR-2 pull requests, TR-3 CI
                 if key in d:
                     d.pop(key) if val is None else d.update({key: val})
             self.assertFalse(next(g(r, "public") for r in g(self.ev(), "freshness") if g(r, "repo") == DT), (key, val))
-
     def test_blocker_order_unblock_templates_and_ready(self):
         rv = lambda *r: [{"login": a, "state": s} for a, s in r]
         cr = rv(("r1", "CHANGES_REQUESTED"))
@@ -238,7 +218,6 @@ class TestFacts(Base):  # TR-1 freshness, TR-2 pull requests, TR-3 CI
         for i, (kw, blocker) in enumerate(cases):
             want = ("READY", None, None) if blocker is None else ("BLOCKED", blocker, UNBLOCK[blocker].format(fake(0x5000 + 100 + i)[:7]))
             self.assertEqual((g(rows[100 + i], "cls"), g(rows[100 + i], "blocker"), g(rows[100 + i], "unblock")), want, (i, kw))
-
     def test_base_fixture_classes_labels_cap_and_order(self):
         rows = g(self.ev(), "prs")
         self.assertEqual([(g(r, "repo"), g(r, "number"), g(r, "cls"), g(r, "blocker")) for r in rows],
@@ -249,16 +228,13 @@ class TestFacts(Base):  # TR-1 freshness, TR-2 pull requests, TR-3 CI
         by = {g(r, "number"): r for r in rows}
         self.assertEqual({n: g(r, "label") for n, r in by.items() if g(r, "label")}, {42: SELF_LABEL})
         self.assertEqual((g(by[27], "reason"), g(by[27], "unblock"), g(by[43], "idle_days")), ("deep-read cap", None, 9))
-
     def st(self, repo=MI, wf="weekly-health.yml"):
         r = next(r for r in g(self.ev(), "ci") if (g(r, "repo"), g(r, "workflow")) == (repo, wf))
         return g(r, "state"), g(r, "streak"), g(r, "first_red")
-
     def test_base_states(self):
         got = {(g(r, "repo"), g(r, "workflow")): (g(r, "state"), g(r, "streak"), g(r, "first_red")) for r in g(self.ev(), "ci")}
         self.assertEqual(got, {(AG, "ci.yml"): ("GREEN_PRE_TIP", 0, None), (CR, "ci.yml"): ("GREEN", 0, None),
                                (DT, "control-plane.yml"): ("GREEN", 0, None), (MI, "weekly-health.yml"): ("RED", 3, "2026-10-08")})
-
     def test_streak_counts_push_and_schedule_only(self):
         runs, tip = self.R(MI)["workflows"]["runs"], self.R(MI)["tip"]["sha"]
         runs[:] = [r for r in runs if r["event"] != "pull_request"]  # the PR-event success between failures did not reset the streak
@@ -267,14 +243,11 @@ class TestFacts(Base):  # TR-1 freshness, TR-2 pull requests, TR-3 CI
         self.assertEqual(self.st(), ("RED", 3, "2026-10-08"))  # a PR-event failure adds nothing; an in-progress run is not completed
         runs.append(mkrun("weekly-health.yml", "success", 4, 3))  # a push success between the 10-10 and 10-08 failures ends the streak
         self.assertEqual(self.st(), ("RED", 2, "2026-10-10"))
-
     def test_no_completed_run_and_tip_run_beats_pre_tip(self):
         self.set_runs(MI, [mkrun("weekly-health.yml", None, 0, 5)])
         self.assertEqual(self.st()[0], "NOT_EVALUABLE")
         self.R(AG)["workflows"]["runs"].append(mkrun("ci.yml", "failure", 1, 6, sha=self.R(AG)["tip"]["sha"]))
         self.assertEqual(self.st(AG, "ci.yml")[0], "RED")
-
-
 class TestRules(Base):  # TR-4..TR-9: rule table, plan docs and parser
     def test_rule_boundaries_and_exclusions(self):
         for i, (mut, rule, repo, sub, want) in enumerate(RULE_ROWS):
@@ -282,7 +255,6 @@ class TestRules(Base):  # TR-4..TR-9: rule table, plan docs and parser
             if mut:
                 mut(self)
             self.assertEqual([g(f, "tier") for f in self.F(rule, repo, sub)], [want] if want else [], (i, rule, repo, sub))
-
     def test_hub_rules_c2_c3_u2(self):  # (hub age, open report PRs, max_unmerged_report_prs, validate exit) -> hub rules that fire
         for age, count, cap, vexit, want in [(2, 0, 3, 0, ""), (3, 0, 3, 0, "U2"), (7, 0, 3, 0, "U2"), (8, 0, 3, 0, "C2"), (25, 3, 3, 0, "C2 U2"),
                                              (3, None, 3, 0, "U2"), (2, None, 3, 0, ""), (25, None, 3, 0, "C2"), (0, 2, 3, 0, ""), (1, 3, 3, 0, "U2"),
@@ -294,7 +266,6 @@ class TestRules(Base):  # TR-4..TR-9: rule table, plan docs and parser
         self.man["hub"]["max_unmerged_report_prs"], self.snap["hub"]["validate_exit"] = 3, 1
         self.assertEqual(g(self.one("U2", DT, "hub"), "action"), "Hub degraded: heartbeat 5 d; 3 open report PRs")
         self.assertEqual(g(self.one("C3", DT, "validate"), "action"), "Control plane invalid: run validate.py and fix the reported check")
-
     def test_u1_require_check_suffix_and_h3_action(self):
         for days, suffix in [((14,), False), ((15,), True)]:
             u1_runs(*days)(self)
@@ -302,12 +273,10 @@ class TestRules(Base):  # TR-4..TR-9: rule table, plan docs and parser
         h3_runs()(self)
         f = self.one("H3", MI, "weekly-health.yml")
         self.assertEqual((g(f, "confidence"), g(f, "action"), "unconfirmed" in g(f, "tags")), (1, f"{MI}: weekly-health.yml red on {fake(0x3ff)[:7]}, not tip; dispatch to confirm (owner)", True))
-
     def test_h2_window_docs_only_and_merged_at_beats_merged_flag(self):
         m = lambda n, at, **kw: {"number": n, "merged_at": at, "head_sha": fake(n), "checks": [], "changed_non_docs": True, **kw}
         self.R(CR)["prs"]["closed_recent"][:] = [m(70, day(14)), m(71, day(15)), m(72, None, merged=True), m(73, day(3), changed_non_docs=False), m(74, day(2), checks=ck("success"))]
         self.assertEqual(g(self.one("H2", CR, "ci.yml"), "evidence"), ["pr:70"])
-
     def test_plan_only_findings_are_capped_and_evidence_comes_from_the_row(self):
         words = ["data loss", "deletes", "corrupted", "leaks", "secret", "credential", "auth bypass", "injection"]
         self.set_plan(MI, [(f"KW{i}", f"synthetic {w} in src/a.py:{i + 1}", "P0", "Todo") for i, w in enumerate(words)]
@@ -320,19 +289,16 @@ class TestRules(Base):  # TR-4..TR-9: rule table, plan docs and parser
         self.assertEqual(len(self.F(None, MI, "D1")), 1)  # duplicate rows give one finding
         row = next(r for r in self.rows[MI] if g(r, "id") == "KW0")
         self.assertEqual(g(self.one("C1", MI, "KW0"), "evidence"), [f"plan:docs/Master-Plan.md:{g(row, 'line')}"])
-
     def test_evidence_gate_demotes_to_medium_and_hides(self):
         [r.update(run_id=None) for r in self.R(MI)["workflows"]["runs"]]
         ev = self.ev()
         f = self.one("U1", MI, "weekly-health.yml", ev)
         self.assertEqual((g(f, "tier"), g(f, "evidence"), "gated" in g(f, "tags"), g(f, "key") in [g(x, "key") for x in g(ev, "shown")]), ("MEDIUM", [], True, False))
-
     def test_tags(self):
         self.assertTrue({"verify", "untracked"} <= set(g(self.one("C1", MI, "BL-101"), "tags")))
         self.assertIn("untracked", g(self.one("H4", AG, "SYN-201"), "tags"))
         self.assertNotIn("untracked", g(self.one("H4", MI, "BL-102"), "tags"))  # trusted issue #72 cites BL-102
         self.assertTrue("close-candidate" in g(self.one("H5", AG, "#11"), "tags") and "fix-link-unverified" in g(self.one("H5", CR, "#61"), "tags"))
-
     def test_rows_in_each_repo_header_shape(self):
         by = {repo: {g(r, "id"): r for r in rows} for repo, rows in self.rows.items()}
         self.assertEqual({k: sorted(v) for k, v in by.items()},
@@ -346,15 +312,12 @@ class TestRules(Base):  # TR-4..TR-9: rule table, plan docs and parser
         for repo, rows in self.rows.items():  # line is 1-based and text is the raw row
             lines = backlog_text(repo).split("\n")
             self.assertTrue(rows and all(lines[g(r, "line") - 1].strip() == g(r, "text").strip() for r in rows), repo)
-
     def test_id_regex(self):
         good = ["A1", "TC1", "UX-R1", "DEV-005a", "BL-42", "SYN-201"]
         bad = ["x1", "ABCDEFGHIJ-1", "A1b2", "A1 B2", "DEV-00055", "GH #12", "—", ""]
         before = copy.deepcopy(MAP)
         self.assertEqual([g(r, "id") for r in triage.parse_backlog(plan_text([(i, "synthetic t", "P0", "Todo") for i in good + bad]), MAP)], good)
         self.assertEqual(MAP, before)  # the mapping is never mutated
-
-
 class TestTrustDedupeRank(Base):  # TR-10 trust, TR-11 dedupe, TR-12 rank and caps
     def test_external_count_and_untrusted_issue_never_joins(self):
         ext = g(self.ev(), "external")
@@ -365,7 +328,6 @@ class TestTrustDedupeRank(Base):  # TR-10 trust, TR-11 dedupe, TR-12 rank and ca
         self.R(MI)["issues"]["open"].append(mkissue(90, ["bug"], 30, "synthetic mentions BL-101", author="fixture-stranger"))
         f = self.one("C1", MI, "BL-101")
         self.assertTrue("untracked" in g(f, "tags") and "issue:90" not in g(f, "evidence"))
-
     def test_issue_joins_plan_finding_on_exact_plan_id_only(self):
         f = self.one("H4", MI, "BL-102")
         self.assertTrue("issue:72" in g(f, "evidence") and any(e.startswith("plan:") for e in g(f, "evidence")))
@@ -373,19 +335,16 @@ class TestTrustDedupeRank(Base):  # TR-10 trust, TR-11 dedupe, TR-12 rank and ca
         self.assertFalse(self.has("H5", MI, "#72"))  # merged into the row, never a second row
         self.issue(MI, 72)["title"] = "synthetic tracking BL-1020 totals bug"
         self.assertTrue(self.has("H5", MI, "#72") and "untracked" in g(self.one("H4", MI, "BL-102"), "tags"))
-
     def test_issue_joins_workflow_finding_by_filename(self):
         self.R(MI)["issues"]["open"].append(mkissue(91, ["bug"], 30, "synthetic notes on weekly-health.yml failures"))
         f = self.one("U1", MI, "weekly-health.yml")
         self.assertEqual((g(f, "tier"), "issue:91" in g(f, "evidence"), self.has("H5", MI, "#91")), ("URGENT", True, False))
-
     def test_plan_row_citing_the_issue_number_joins_but_never_across_repos(self):
         self.set_plan(MI, [("T1", "synthetic off by one in src/a.py:9, see #91", "P0", "Todo")])
         self.R(MI)["issues"]["open"].append(mkissue(91, ["bug"], 30))
         self.R(AG)["issues"]["open"].append(mkissue(92, ["bug"], 30, "synthetic mentions T1"))
         self.assertEqual((self.has("H4", MI, "T1"), self.has("H5", MI, "#91"), self.has("H5", AG, "#92")), (True, False, True))
         self.assertNotIn("issue:92", g(self.one("H4", MI, "T1"), "evidence"))
-
     def test_base_fixture_ranking_tiers_and_action_templates(self):
         ev = self.ev()
         self.assertEqual([g(f, "key") for f in g(ev, "findings")], list(BASE))
@@ -396,7 +355,6 @@ class TestTrustDedupeRank(Base):  # TR-10 trust, TR-11 dedupe, TR-12 rank and ca
             if evid is not None:
                 self.assertEqual(sorted(g(f, "evidence")), evid, g(f, "key"))
         self.assertEqual(g(ev, "top_action"), BASE[next(iter(BASE))][3])
-
     def test_caps_counts_and_more(self):
         ev = self.ev()
         top = [f for f in g(ev, "shown") if g(f, "tier") in ("URGENT", "HIGH")]
@@ -407,19 +365,15 @@ class TestTrustDedupeRank(Base):  # TR-10 trust, TR-11 dedupe, TR-12 rank and ca
             self.man["triage"].update(max_items_total=total, max_items_per_repo=per)
             ev, keys = self.ev(), list(BASE)
             self.assertEqual(([g(f, "key") for f in g(ev, "shown") if g(f, "tier") != "CRITICAL"], g(ev, "more")), ([keys[i] for i in idx], more))
-
     def test_critical_is_never_capped(self):
         self.R(MI)["issues"]["open"] += [mkissue(200 + i, ["security"], 2) for i in range(10)]
         shown = g(self.ev(), "shown")
         self.assertTrue(all(f"C1:{MI}:#{200 + i}" in [g(f, "key") for f in shown] for i in range(10)))
         self.assertEqual(len([f for f in shown if g(f, "tier") != "CRITICAL"]), 8)
-
     def test_no_findings_means_no_ranked_action(self):
         self.snap, self.rows = jload("snapshot-read-only.json"), {r: [] for r in self.rows}
         self.liveness(0)
         self.assertEqual([g(self.ev(), k) for k in ("findings", "top_action", "more")], [[], None, 0])
-
-
 class TestNotEvaluableAndLiveness(Base):  # TR-13, TR-14, TR-15, TR-16
     def test_read_only_sections_freshness_and_git_derived_findings(self):
         self.snap = jload("snapshot-read-only.json")
@@ -433,13 +387,11 @@ class TestNotEvaluableAndLiveness(Base):  # TR-13, TR-14, TR-15, TR-16
         self.assertEqual(sorted(g(f, "key") for f in g(ev, "findings")),  # plan rows and liveness come from git, so they survive READ_ONLY
                          sorted([f"C1:{CR}:A1", f"C1:{MI}:BL-101", f"C2:{DT}:liveness", f"H4:{AG}:SYN-201", f"H4:{CR}:TC1", f"H4:{MI}:BL-102", f"H4:{CR}:UX-R1"]))
         self.assertTrue(all("verify" in g(f, "tags") and "untracked" not in g(f, "tags") for f in g(ev, "findings") if g(f, "rule") != "C2"))  # tracking needs issues
-
     def test_force_switch_overrides_a_read_write_snapshot(self):
         self.man = yload("repos-2026-10-13-readonly.yml")
         ev = self.ev()
         self.assertEqual((g(ev, "mode"), g(ev, "prs"), self.sec(ev, MI, "issues")), ("READ_ONLY", [], ("NOT_EVALUABLE", "READ_ONLY")))
         self.assertEqual({g(f, "rule") for f in g(ev, "findings")} - {"C1", "C2", "H4"}, set())
-
     def test_reasons_pass_through_and_zero_is_never_invented(self):
         self.R(MI)["issues"] = {"status": "not_evaluable", "reason": "time box"}
         self.snap["timebox"]["exceeded_section"] = "issues"
@@ -449,20 +401,17 @@ class TestNotEvaluableAndLiveness(Base):  # TR-13, TR-14, TR-15, TR-16
         self.assertEqual((self.sec(ev, AG, "dependabot")[0], self.sec(ev, DT, "dependabot")[0]), ("NOT_EVALUABLE", "OK"))  # no dynamic ids vs resolved ids
         del self.rows[CR]
         self.assertEqual(self.sec(self.ev(), CR, "backlog")[0], "NOT_EVALUABLE")
-
     def test_hygiene_is_labelled_and_never_a_finding(self):
         ev, h = self.ev(), lambda r: g(g(self.ev(), "sections")[r], "hygiene")
         self.assertEqual([g(h(AG), k) for k in ("state", "merged_undeleted", "label")], ["OK", 4, "ancestry-merged only"])
         self.assertEqual((g(h(CR), "state"), "shallow" in g(h(CR), "reason")), ("NOT_EVALUABLE", True))
         self.assertTrue(all(re.fullmatch(r"[CUH][1-7]", g(f, "rule")) for f in g(ev, "findings")))
-
     def test_liveness_newest_valid_date_in_whole_days(self):
         refs = [{"ref": "origin/main", "last_run_date": "2026-10-08"}, {"ref": "origin/dreamtoosa/report-a", "last_run_date": "2026-10-11"},
                 {"ref": "origin/dreamtoosa/report-b", "last_run_date": "2026-10-09"}]
         self.assertEqual((triage.hub_liveness(refs, RD), triage.hub_liveness([{"ref": "r", "last_run_date": RD}], RD)), ((2, "origin/dreamtoosa/report-a"), (0, "r")))
         tie = [{"ref": "origin/z", "last_run_date": "2026-10-10"}, {"ref": "origin/a", "last_run_date": "2026-10-10"}]
         self.assertEqual((triage.hub_liveness(tie, RD), triage.hub_liveness(tie[::-1], RD)), ((3, "origin/a"), (3, "origin/a")))  # ties: smallest ref
-
     def test_liveness_ignores_invalid_and_future_dates(self):
         bad = [{"ref": f"b{i}", "last_run_date": v} for i, v in enumerate(["2026-10-20", "not-a-date", None, "2026-13-45", 20261013, "", "2026-10-15"])]
         self.assertEqual(triage.hub_liveness(bad + [{"ref": "origin/main", "last_run_date": "2026-10-10"}], RD), (3, "origin/main"))
@@ -473,8 +422,6 @@ class TestNotEvaluableAndLiveness(Base):  # TR-13, TR-14, TR-15, TR-16
         self.snap["hub"]["liveness_refs"] = [{"ref": "origin/main", "last_run_date": "2026-10-30"}]
         h = g(self.ev(), "hub")
         self.assertEqual((g(h, "age_days"), g(h, "state"), self.has("C2", DT)), (None, "NOT_EVALUABLE", False))
-
-
 class TestDeterminism(Base):  # engine half of RN-1
     def test_fifty_shuffles_give_identical_evaluations(self):
         want = dump(self.ev())
@@ -488,7 +435,63 @@ class TestDeterminism(Base):  # engine half of RN-1
             got = triage.evaluate(snap, rows, {r["repo"]: r["fix_links"] for r in snap["repos"]}, self.cron, self.man)
             self.assertEqual(dump(got), want, i)
         self.assertEqual((self.snap, self.rows, self.fix, self.cron, self.man), before)  # inputs are never mutated
-
-
+class TestGoldenPool(unittest.TestCase):
+    def manifest(self):
+        return {"repos": [
+            {"repo": "o/Pub", "enabled": True, "visibility": "public", "backlog": {"path": "docs/Master-Plan.md"}},
+            {"repo": "o/Priv", "enabled": True, "visibility": "private", "backlog": {"path": "docs/PLAN.md"}},
+        ]}
+    def text(self):
+        return "\n".join(["## Active Cycle", "| ID | Title | Type | Status |", "|---|---|---|---|", "| DEV-1 | active feature | Feature | Todo |",
+                          "## Backlog", "| ID | Title | Type | Priority | Status | Depends |", "|---|---|---|---|---|---|",
+                          "| DEV-2 | backlog feature | Feature | P0 | Todo | DEV-9 |", "| DEV-3 | review | Feature | P1 | In Review |",
+                          "| DEV-4 | shipped word | Feature | P0 | Shipped - v1 |", "| DEV-9 | done dep | Feature | P1 | Done |",
+                          "## Completed This Cycle", "| ID | Title |", "|---|---|", "| DEV-150 | shipped row |"])
+    def test_pool_filters_status_section_and_completed_ids(self):
+        pool = triage.golden_pool({"o/Pub": self.text(), "o/Priv": self.text().replace("DEV-1", "DEV-8").replace("active feature", "secret title")}, self.manifest(), exclude={"DEV-2"})
+        ids = {r["id"] for r in pool}
+        self.assertIn("DEV-1", ids)
+        self.assertNotIn("DEV-2", ids)  # golden_exclude
+        self.assertNotIn("DEV-3", ids)
+        self.assertNotIn("DEV-4", ids)
+        self.assertNotIn("DEV-150", ids)
+        priv = next(r for r in pool if r["repo"] == "o/Priv")
+        self.assertTrue(priv["display_id"].startswith("P-"))
+        self.assertEqual(priv["title"], "")
+        self.assertNotIn("secret title", triage.golden_pick(pool, [], None, {}, lambda *_: False, "2026-10-13").line)
+    def test_non_public_entries_carry_no_title_or_text(self):  # TRI-B-006: no field of a private pool entry holds row text
+        texts = {"o/Pub": self.text(), "o/Priv": self.text().replace("DEV-1", "DEV-8").replace("active feature", "secret title").replace("backlog feature", "secret backlog")}
+        pool = triage.golden_pool(texts, self.manifest())
+        priv = [r for r in pool if r["repo"] == "o/Priv"]
+        self.assertTrue(priv)
+        for r in priv:
+            self.assertEqual((r["text"], r["section"], r["title"]), ("", "", ""))
+            self.assertNotIn("secret", repr(r))
+        self.assertTrue(any(r["repo"] == "o/Pub" and r["text"] for r in pool))  # public rows keep their text
+    def test_released_changelog_ids_are_excluded(self):  # TRI-B-010
+        pool = triage.golden_pool({"o/Pub": self.text()}, self.manifest(), changelogs={"o/Pub": "## Unreleased\n- DEV-1 wip\n## v1.0\n- DEV-1 shipped\n"})
+        self.assertNotIn("DEV-1", {r["id"] for r in pool})
+        pool = triage.golden_pool({"o/Pub": self.text()}, self.manifest(), changelogs={"o/Pub": "## Unreleased\n- DEV-1 wip\n"})
+        self.assertIn("DEV-1", {r["id"] for r in pool})  # unreleased text does not exclude
+class TestGoldenTerms(unittest.TestCase):
+    def test_terms_runner_up_tie_and_low_confidence(self):
+        man = {"repos": [{"repo": "o/A", "enabled": True, "visibility": "public", "backlog": {"path": "docs/Master-Plan.md"}},
+                         {"repo": "o/B", "enabled": True, "visibility": "public", "backlog": {"path": "docs/Master-Plan.md"}}]}
+        text = "## Backlog\n| ID | Title | Type | Priority | Status |\n|---|---|---|---|---|\n| DEV-10 | one | Feature | P1 | Todo |\n| DEV-11 | two | Feature | P1 | Todo |\n"
+        pool = triage.golden_pool({"o/A": text, "o/B": text.replace("DEV-10", "DEV-20").replace("DEV-11", "DEV-21")}, man)
+        g = triage.golden_pick(pool, [], None, {"golden_formula_validated": False, "upstream_repos": ["o/A"]}, lambda repo, pid: pid == "DEV-10", "2026-10-13")
+        self.assertIn("formula unvalidated", g.line)
+        self.assertIn("runner-up", g.line)
+        self.assertTrue(g.low_confidence or g.score > 0)
+        shuffled = list(reversed(pool))
+        self.assertEqual(triage.golden_pick(shuffled, [], None, {"golden_formula_validated": False}, lambda *_: False, "2026-10-13").line, triage.golden_pick(pool, [], None, {"golden_formula_validated": False}, lambda *_: False, "2026-10-13").line)
+    def test_empty_pool_and_unvalidated_tag_and_notify_omits_the_pick(self):
+        g = triage.golden_pick([], [], None, {"golden_formula_validated": False}, None, "2026-10-13")
+        self.assertIn("no eligible candidate", g.line)
+        self.assertIn("formula unvalidated", g.line)
+        msg = triage.notify_message(["READ_ONLY"], ["C1:o/A:#1"], "2026-10-13")
+        self.assertNotIn("DEV-153", msg)
+        self.assertFalse(Path("tests/fixtures/triage/golden-pool-2026-10-13.json").exists())
+from pathlib import Path
 if __name__ == "__main__":
     unittest.main()
