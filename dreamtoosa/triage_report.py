@@ -200,7 +200,7 @@ def render(ev: triage.Evaluation, manifest: dict, snap: dict | None = None, gold
     def u(where: str, text) -> str:
         md, fl = triage.escape_untrusted(text)
         flags.extend(f"{where}: {x}" for x in fl)
-        return re.sub(r"fleet-triage:(begin|end)", r"fleet-triage \1", md)
+        return re.sub(r"(fleet-triage(?:-ledger)?):", r"\1 ", md)  # no marker or ledger comment can be forged
     def ns(st: dict, where: str = "section") -> str:
         rsn = st["reason"]
         ok = isinstance(rsn, str) and (rsn in REASONS or rsn.startswith("unknown cron shape: "))
@@ -359,8 +359,9 @@ def chain_base_from_git(hub, read_only, chain, open_prs):
         refs.append({"ref": ref, "committer_date": when, "open_pr": ref in set(open_prs or ()), "ancestor": _git(hub, "merge-base", "--is-ancestor", full, "refs/remotes/origin/main")[0] == 0})
     return engine().select_chain_base(refs, read_only, chain)
 def _notify(a) -> int:
-    engine()
     man = load_manifest(a.manifest) if a.manifest else {"repos": [], "hub": {}, "triage": {}}
+    if a.clone_root and not integrity(hub_dir(man, a.clone_root)): raise Code(TAMPERED)  # TRI-A-008: as check and render, before triage.py is imported
+    engine()
     try:
         snap = json.loads(Path(a.snapshot).read_text(encoding="utf-8"))
     except ValueError:
@@ -378,12 +379,10 @@ def _notify(a) -> int:
         prev_led = parsed if isinstance(parsed, triage.Ledger) else None
         fresh_pub = {x["repo"] for x in ev.freshness if x.get("public")}
         findings = [{"id": f.key, "rule": f.rule, "sev": f.tier, "public": f.repo in fresh_pub, "repo": f.repo, "evidence": list(f.evidence)} for f in ev.findings]
-        deltas, _led = triage.merge_ledger(findings, set(), prev_led, today)
+        deltas = triage.merge_ledger(findings, set(), prev_led, today)[0] if prev_led or parsed.code == "BASELINE" else []  # a broken ledger is not evaluable: page nothing as NEW
     decision = triage.notify_decision(read_only, c3, deltas, today)
     msg = triage.notify_message(decision.reasons, triage.notify_ids(deltas), today) if decision.send else ""
-    if msg and triage.SECRET_RE.search(msg):
-        print("E_SECRET_PATTERN message")
-        return 1
+    if msg and triage.SECRET_RE.search(msg): raise Code("E_SECRET_PATTERN message")
     print(json.dumps({"send": decision.send, "message": msg}))
     return 0
 def _run(a) -> int:
