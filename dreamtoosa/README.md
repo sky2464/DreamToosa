@@ -111,7 +111,25 @@ Verified on 2026-10-13: AgToosa, DreamToosa and miToosa are public; Crapsino is 
 Nothing updates these values when a repo changes visibility on GitHub, so edit
 `repos.yml` in the same sitting.
 
-**Manual gates (status 2026-10-13).** 0.1 visibility check: done. 0.2 restore the dark
-routine (no run since 2026-09-18, cause unknown): open. 0.3 deny-rule check with
-`get_run_log`: open. The live prompt update and the first observed run (4.4, 4.5) wait
-on 0.2.
+## Ownership matrix
+
+| Artifact | Writer | Gate | Test |
+|---|---|---|---|
+| Fleet Triage ledger comment | `triage_report.py render` | one marker pair and one ledger comment; secret scan before write | `tests/test_triage_ledger.py` |
+| Golden feature line | `golden_pick` in `triage.py` | `triage.golden_formula_validated` stays false until the owner accepts the formula | `tests/test_triage_rules.py` |
+| Hub heartbeat | `triage_report.py heartbeat`, scheduled by `.github/workflows/control-plane.yml` | job runs only on `schedule` and `workflow_dispatch`; `contents: read`; no secrets | `tests/test_control_plane_workflow.py` |
+| Notify decision | `notify_decision` / `notify` subcommand | one message, fixed template, no push when `send` is false | `tests/test_triage_cli.py` |
+
+## Heartbeat runbook
+
+A failing heartbeat means the freshest valid `last_run.date` on `origin/main` or any `origin/dreamtoosa/report-*` ref is older than `triage.heartbeat_max_age_days` (3 when the key is absent), or the date is not evaluable, or a ref is future-dated (`E_FUTURE_DATED`). It does not mean the workflow failed to start. Read the step summary keys `ref`, `date` and `age_days`.
+
+GitHub disables scheduled workflows on a public repository after 60 days without repository activity. Re-enable the schedule from the Actions tab for this workflow, then run **workflow_dispatch** once so the next `30 16 * * *` heartbeat is armed. A disabled schedule cannot page anyone; the re-enable step is the recovery.
+
+`PushNotification` is not part of the ten-tool ToolSearch line. The live routine may call it only from the notify gate, and only when `send` is true. This repository does not send that notification. OI-3 (whether RemoteTrigger routines can load the tool) is still open.
+
+**Manual gates.** 0.1 visibility check: done. On this branch `dreamtoosa/state.json`
+`last_run.date` is `2026-10-17` (the 2026-09-18 dark-routine note is stale). The
+routine was not recreated. 0.2, 0.3, the live prompt update (4.4) and an
+owner-watched READ_WRITE run (4.5) are still open. No committed report contains a
+`fleet-triage:begin` block.
