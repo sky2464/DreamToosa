@@ -1,0 +1,5 @@
+AgToosa docs/Master-Plan.md 9784e2d789c2f7765af2ca29d24fda66ad240b85 public
+miToosa docs/Master-Plan.md 3886a34a514eefccc1d0a62eab86a04f7295d1f8 public
+DreamToosa Docs/Master-Plan.md a8b4beb50454ee8c57deba1f76d5b2d590160eec public
+Crapsino docs/PLAN.md ceb42b352e1975528ea541a4aa183e159226be5f private synthetic Sev-table already at crapsino.md; no real text copied
+Agtoosa2 private unconfirmed; synthetic P- rows at agtoosa2-synthetic.md; no real text copied
