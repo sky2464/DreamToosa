@@ -19,6 +19,7 @@ an older manifest validates exactly as before. This script imports no triage mod
 control plane must stay checkable even when those modules are broken.
 """
 
+import datetime
 import json
 import re
 import sys
@@ -105,6 +106,16 @@ def _check_triage(manifest: dict, entries: List[dict], check: Callable[..., bool
     positive("budget.soft_time_box_minutes_fleet_triage is a positive integer", box)
     force = _at(manifest, "hub", "force_read_only")
     check("hub.force_read_only is a boolean when present", force is None or isinstance(force, bool), f"got {force!r}")
+    hb = triage.get("heartbeat_max_age_days")
+    if "heartbeat_max_age_days" in triage:
+        check("triage.heartbeat_max_age_days is an integer from 1 to 14", type(hb) is int and 1 <= hb <= 14, f"got {hb!r}")
+    for key, label in (("golden_exclude", "triage.golden_exclude is a list of strings"), ("upstream_repos", "triage.upstream_repos is a list of strings")):
+        if key in triage:
+            val = triage.get(key)
+            check(label, isinstance(val, list) and all(isinstance(x, str) for x in val), f"got {val!r}")
+    if "golden_formula_validated" in triage:
+        flag = triage.get("golden_formula_validated")
+        check("triage.golden_formula_validated is a boolean", isinstance(flag, bool), f"got {flag!r}")
 
     b = lambda e, *keys: _at(e, "backlog", *keys)  # noqa: E731
     rules: List[Tuple[str, Callable[[dict], bool]]] = [
@@ -136,6 +147,7 @@ def validate_control_plane(
     state_path: Optional[Path] = None,
     profiles_dir: Optional[Path] = None,
     verbose: bool = True,
+    today: Optional[str] = None,
 ) -> Tuple[int, List[str]]:
     """
     Validate the control plane configuration and return (checks_run, failures).
@@ -220,6 +232,16 @@ def validate_control_plane(
         len(rotation) == len(set(rotation)),
     )
 
+    if isinstance(state.get("last_run"), dict) and "date" in state["last_run"]:
+        raw = state["last_run"]["date"]
+        today_d = datetime.date.fromisoformat(today) if today else datetime.datetime.now(datetime.timezone.utc).date()
+        parsed = None
+        if isinstance(raw, str) and re.fullmatch(r"\d{4}-\d{2}-\d{2}", raw):
+            try:
+                parsed = datetime.date.fromisoformat(raw)
+            except ValueError:
+                parsed = None
+        check("last_run.date is YYYY-MM-DD and not later than today plus one day", parsed is not None and parsed <= today_d + datetime.timedelta(days=1), f"got {raw!r}")
     last_index = (state.get("fix_rotation") or {}).get("last_index")
     check(
         "fix_rotation.last_index is in range",

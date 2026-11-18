@@ -158,6 +158,9 @@ triage:
   pr_idle_days: 7                   # A READY PR idle longer than this raises U3
   routine_gap_days: 2               # Hub heartbeat older than this (up to 7 days) raises U2; over 7 days raises C2
   heartbeat_max_age_days: 3         # `triage_report heartbeat` fails when the newest last_run.date is older than this
+  golden_exclude: []                # Plan IDs the golden pool skips. The owner fills this at OI-1.
+  golden_formula_validated: false   # Stays false until the owner accepts the golden formula. Do not set true here.
+  upstream_repos: []                 # Repos that score L=1. The owner fills this at OI-1.
   trusted_logins:                   # Issue and PR authors outside this list are counted as external and never ranked
     - sky2464
     - "dependabot[bot]"

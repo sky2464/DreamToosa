@@ -28,11 +28,11 @@
 ## Active Cycle
 
 > Stories committed to the current sprint/cycle.
-> **Progress:** `▰▱▱▱▱▱▱▱ 2/20 tasks` ← DEV-005a; updated by `/agtoosa-build` after each task completes
+> **Progress:** `▰▰▰▰▰▰▱▱ 15/20 tasks` ← DEV-005a; updated by `/agtoosa-build` after each task completes
 
 | ID | Title | Type | Estimate | Status | Tasks Done |
 |----|-------|------|----------|--------|-----------|
-| DEV-005a | Feature: Fleet Triage report core (sections, severity engine, visibility key) | Feature | L | 🟨 In Progress | 2/20 |
+| DEV-005a | Feature: Fleet Triage report core (sections, severity engine, visibility key) | Feature | L | 🟨 In Progress | 15/20 |
 
 Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blocked · 🔧 Awaiting Manual · 🏁 Shipped
 
@@ -47,22 +47,22 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
   - [ ] 0.3 Check with `get_run_log` whether the routine session honours `.claude/settings.json` deny rules `[manual]`
 - [x] **1.** Lifecycle: register the story
   - [x] 1.1 Register DEV-005a (Active Cycle, estimate L) and DEV-005b (Backlog, estimate M), add the Update Log rows, add the CHANGELOG [Unreleased] entry citing `control-plane.yml`
-- [ ] **2.** Deterministic engine (no routine change)
-  - [ ] 2.1 Author synthetic fixtures under `tests/fixtures/triage/` (both snapshots, test manifest, `backlogs/*.md`)
-  - [ ] 2.2 Write failing tests first in `tests/test_triage_rules.py`, `tests/test_triage_render.py`, `tests/test_triage_cli.py`
-  - [ ] 2.3 Implement `dreamtoosa/triage.py` (pure rules, under 450 lines)
-  - [ ] 2.4 Implement `dreamtoosa/triage_report.py` (check, render, heartbeat, verify-git, inject, under 450 lines)
-  - [ ] 2.5 Generate `tests/fixtures/triage/expected-2026-10-13.md` from the frozen snapshot; owner reviews it against the rule text
-- [ ] **3.** Manifest, validator and prompt
-  - [ ] 3.1 Add the additive `dreamtoosa/repos.yml` keys (visibility from 0.1, backlog mapping, workflow lists, `dependabot_scope`, triage block, `force_read_only: false`, soft time box)
-  - [ ] 3.2 Add guarded checks to `dreamtoosa/validate.py` (no triage import; exit 2 on missing PyYAML or uncaught exception)
-  - [ ] 3.3 Extend `tests/test_validate.py` (negatives, backward compatibility, subprocess runs, raised floor)
-  - [ ] 3.4 Update `dreamtoosa/ROUTINE_PROMPT.md` (ten-tool line, Phase 0, 0.5, 1.5, 2, 3, 4, final summary, absolute paths)
-  - [ ] 3.5 Add `tests/test_routine_prompt.py` contract tests
-  - [ ] 3.6 Update `dreamtoosa/README.md` with write-boundary and visibility notes
+- [x] **2.** Deterministic engine (no routine change)
+  - [x] 2.1 Author synthetic fixtures under `tests/fixtures/triage/` (both snapshots, test manifest, `backlogs/*.md`)
+  - [x] 2.2 Write failing tests first in `tests/test_triage_rules.py`, `tests/test_triage_render.py`, `tests/test_triage_cli.py`
+  - [x] 2.3 Implement `dreamtoosa/triage.py` (pure rules, under 450 lines)
+  - [x] 2.4 Implement `dreamtoosa/triage_report.py` (check, render, heartbeat, verify-git, inject, under 450 lines)
+  - [x] 2.5 Generate `tests/fixtures/triage/expected-2026-10-13.md` from the frozen snapshot; owner reviews it against the rule text
+- [x] **3.** Manifest, validator and prompt
+  - [x] 3.1 Add the additive `dreamtoosa/repos.yml` keys (visibility from 0.1, backlog mapping, workflow lists, `dependabot_scope`, triage block, `force_read_only: false`, soft time box)
+  - [x] 3.2 Add guarded checks to `dreamtoosa/validate.py` (no triage import; exit 2 on missing PyYAML or uncaught exception)
+  - [x] 3.3 Extend `tests/test_validate.py` (negatives, backward compatibility, subprocess runs, raised floor)
+  - [x] 3.4 Update `dreamtoosa/ROUTINE_PROMPT.md` (ten-tool line, Phase 0, 0.5, 1.5, 2, 3, 4, final summary, absolute paths)
+  - [x] 3.5 Add `tests/test_routine_prompt.py` contract tests
+  - [x] 3.6 Update `dreamtoosa/README.md` with write-boundary and visibility notes
 - [ ] **4.** Verification, live deploy and acceptance
-  - [ ] 4.1 Local READ_ONLY simulation of `snapshot-read-only.json` in a scratch worktree (no push)
-  - [ ] 4.2 Run the gates (both unittest forms, validate.py, py_compile)
+  - [x] 4.1 Local READ_ONLY simulation of `snapshot-read-only.json` in a scratch worktree (no push)
+  - [x] 4.2 Run the gates (both unittest forms, validate.py, py_compile)
   - [ ] 4.3 CI green on the PR (`control-plane.yml` validate job, Python 3.12, PyYAML only)
   - [ ] 4.4 RemoteTrigger get, update with the full session_context, get again and diff `[manual]`
   - [ ] 4.5 Owner observes one READ_WRITE run with Fleet Triage at the top of the index `[manual]`
@@ -106,7 +106,7 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 
 | ID | Title | Type | Estimate | Epic | Priority | Clarity | Status |
 |----|-------|------|----------|------|----------|---------|--------|
-| DEV-005b | Feature: Fleet Triage ledger, dark-routine heartbeat and urgent push | Feature | M | DEV-100 | P1 | ready | 🟦 Todo — spec approved; depends on DEV-005a |
+| DEV-005b | Feature: Fleet Triage ledger, dark-routine heartbeat and urgent push | Feature | M | DEV-100 | P1 | ready | 🟨 In progress — local ledger, golden formula, notify, heartbeat job and prompt chain are implemented on `dreamtoosa/dev-005b-fleet-triage-ledger`; 2026-11-17: OI-1 recorded (DEV-153 score -1, awaiting owner review, task 1.3); golden render-path fixes (S term, CHANGELOG exclusion, private-row text) and dry-run fixes (chain_base engine, notify E_SCHEMA, day-1 empty prev-index) landed with tests; 6.3 and 8.2 local dry runs PASS; golden fixture still withheld; live steps open |
 
 ## Epics
 
@@ -180,3 +180,5 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 | 2026-10-14 | review DEV-005 — Review ✅ Approved (security+arch; 0 critical) | AgToosa |
 | 2026-10-14 | ship DEV-005 — smoke PASS; v0.1.1; spec/review archived; cycle idle | AgToosa |
 | 2026-10-14 | build DEV-005a resumed after main merge (DEV-005 shipped) | DreamToosa |
+| 2026-10-26 | build DEV-005b local engine on `dreamtoosa/dev-005b-fleet-triage-ledger` (no commit). Golden gate stopped: pinned backlogs select only DEV-153 (score 2, R=0 S=1 L=0 P=0 B=0 Rep=0, runner-up none). `golden_formula_validated` left false. Live trigger and push notification not run. DEV-005a task 4.1 scratch READ_ONLY simulation recorded; 4.4 and 4.5 still manual. | DreamToosa |
+| 2026-11-17 | Verified build state: 190 tests OK on Python 3.12 and 3.15, validate.py 40 checks, py_compile clean. DEV-005a 2.x, 3.x and 4.2 ticked from evidence (were stale). Haiku 5.5 jobs, each reviewed: CI on checkout@v7 / setup-python@v7 with 3.12+3.15 matrix and pyyaml==6.0.3; OI-1 golden record; golden fixes (TRI-B-006/010/011); dry runs 6.3 and 8.2 PASS; three dry-run defects fixed. Open: private-repo detail in Crapsino/Agtoosa2 reports (incl. committed ones), duplicate untracked dreams_api.py, 4.3 CI on PR, manual gates. Committed feature work; routine output and dreams_api.py left out. | DreamToosa |

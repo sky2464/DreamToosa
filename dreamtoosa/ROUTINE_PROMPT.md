@@ -78,11 +78,8 @@ The control plane lives in the DreamToosa clone.
    `triage.trusted_logins` `[sky2464, dependabot[bot]]`. A repo with no `visibility`
    is treated as private; no `dependabot_scope` means `unknown`. Read
    `hub.force_read_only` here.
-3. Read `"$CLONE_ROOT/DreamToosa/dreamtoosa/state.json"` — what previous runs did.
-4. `RUN_DATE=$(date +%Y-%m-%d)`.
-5. **Idempotency gate.** If `state.json`'s `last_run.date` equals `RUN_DATE` and
-   `"$CLONE_ROOT/DreamToosa/reports/dream-report-$RUN_DATE.md"` already exists, a run
-   already completed today. Stop and report that, changing nothing.
+3. `RUN_DATE=$(date +%Y-%m-%d)`. State is not read from the hub working tree.
+   Phase 0.5 reads `state.json` from `CHAIN_BASE` after the auth probe.
 
 **Fail-safe.** If `repos.yml` is missing or unparseable, **stop immediately**. Write
 nothing, file nothing, open nothing. Report exactly: "Control plane not found at
@@ -108,6 +105,30 @@ mcp__github__list_pull_requests {"owner": "sky2464", "repo": "DreamToosa", "stat
   the probe result. The forced mode behaves exactly like a failed probe: Phase 1.5
   makes no GitHub API call and every API-backed Fleet Triage section reads
   "not evaluable".
+
+The auth probe and the force switch happen before any fetch. Then:
+
+```bash
+git -C "$CLONE_ROOT/DreamToosa" fetch origin --quiet
+```
+
+Set `CHAIN_BASE`. When `EXECUTION_MODE` is `READ_WRITE` and `hub.pr_strategy` is
+`chain`, `CHAIN_BASE` is the newest `origin/dreamtoosa/report-*` by tip committer
+date that has an open hub PR and is not an ancestor of `origin/main`. Otherwise
+`CHAIN_BASE` is `origin/main`. When `EXECUTION_MODE` is `READ_ONLY`, the open-PR
+test is unavailable, so `CHAIN_BASE` uses the ancestor test only, and is used for
+reads only. Create no worktree, no branch and no push in `READ_ONLY`.
+
+Read state from `CHAIN_BASE`, and fall back to `origin/main` only when `CHAIN_BASE`
+has no `dreamtoosa/state.json`:
+
+```bash
+git -C "$CLONE_ROOT/DreamToosa" show "$CHAIN_BASE:dreamtoosa/state.json"
+```
+
+**Idempotency gate.** Use that copy. If its `last_run.date` equals `RUN_DATE` and
+`git -C "$CLONE_ROOT/DreamToosa" cat-file -e "$CHAIN_BASE:reports/dream-report-$RUN_DATE.md"`
+succeeds, a run already completed today. Stop and report that, changing nothing.
 
 ## Phase 1 — Review every enabled repo (read-only)
 
@@ -339,11 +360,23 @@ not write, move or edit any `fleet-triage` marker yourself; the script owns the 
 and replaces only the text between its markers. If step a of Phase 1.5 found the
 engine files changed, run none of the commands below: write the single line
 `Fleet Triage unavailable: E_ENGINE_TAMPERED` at the top of the index yourself.
+
+Before the engine call, confirm the hub `dreamtoosa/` tree is still clean
+(`git -C "$CLONE_ROOT/DreamToosa" diff --quiet HEAD -- dreamtoosa/` and an empty
+`status --porcelain -- dreamtoosa/`). Extract the previous index from `CHAIN_BASE`,
+choosing the newest `reports/dream-report-*.md` dated before `RUN_DATE`:
+
+```bash
+git -C "$CLONE_ROOT/DreamToosa" show "$CHAIN_BASE:reports/dream-report-<prev>.md" > "$SCRATCH/prev-index.md"
+```
+If the previous index cannot be read (no previous index exists, for example on the first run when `CHAIN_BASE` is `origin/main`), create an empty file instead: `: > "$SCRATCH/prev-index.md"`. Still pass `--prev-index`; an empty file is a baseline with no prior ledger, and the render runs as normal.
+
 ```bash
 python3 "$CLONE_ROOT/DreamToosa/dreamtoosa/triage_report.py" render \
   --snapshot "$SNAP_DIR/snapshot.json" \
   --manifest "$CLONE_ROOT/DreamToosa/dreamtoosa/repos.yml" \
   --clone-root "$CLONE_ROOT" \
+  --prev-index "$SCRATCH/prev-index.md" \
   --inject "$CLONE_ROOT/DreamToosa/reports/dream-report-$RUN_DATE.md"
 ```
 If `TRIAGE_CODE` is already set, skip straight to the fallback below. If render fails,
@@ -355,6 +388,7 @@ python3 "$CLONE_ROOT/DreamToosa/dreamtoosa/triage_report.py" render \
   --snapshot "$SNAP_DIR/snapshot.json" \
   --manifest "$CLONE_ROOT/DreamToosa/dreamtoosa/repos.yml" \
   --clone-root "$CLONE_ROOT" \
+  --prev-index "$SCRATCH/prev-index.md" \
   --inject "$CLONE_ROOT/DreamToosa/reports/dream-report-$RUN_DATE.md" \
   --unavailable <CODE>
 ```
@@ -421,35 +455,32 @@ Then push the branch and open a PR with `mcp__github__create_pull_request`:
 - Body: `Closes #<issue-number>`, reviewer notes, files changed
 - `draft: false`
 
-## Phase 6 — Commit state and report (PR Chaining)
+## Phase 6 — Commit state and report (worktree chain)
 
-1. Update `"$CLONE_ROOT/DreamToosa/dreamtoosa/state.json"`: `last_run` (date,
-   session id, repos reviewed, repos skipped), each repo's `last_reviewed_sha`,
-   `last_report_date`, `issues_filed`, `prs_opened`, `last_skip_reason`, and the
-   advanced `fix_rotation`.
-2. **Validate before committing:**
+Do not create the report branch on the hub. The hub `dreamtoosa/` tree is never written.
+Before and after this phase, `git -C "$CLONE_ROOT/DreamToosa" diff --quiet -- dreamtoosa/`
+and `git -C "$CLONE_ROOT/DreamToosa" status --porcelain dreamtoosa/` must be empty.
+
+1. **If `EXECUTION_MODE` is `READ_ONLY` or the hub circuit breaker is tripped:**
+   create no worktree, no branch and no push. Retain the report files locally,
+   output the full report index to the run log, and finish.
+2. **If `EXECUTION_MODE` is `READ_WRITE`:**
    ```bash
-   python3 "$CLONE_ROOT/DreamToosa/dreamtoosa/validate.py"
+   WT=$(mktemp -d)
+   git -C "$CLONE_ROOT/DreamToosa" worktree add "$WT" -b dreamtoosa/report-$RUN_DATE "$CHAIN_BASE"
    ```
-   If it exits non-zero, **fix it and re-run before committing**. Committing a broken
-   `state.json` disables every future run via the Phase 0 fail-safe.
-3. **If in `READ_ONLY` mode or hub circuit breaker tripped:**
-   - Retain the report files and `state.json` locally.
-   - Do NOT execute `git push` or create remote branches.
-   - Output the full report index directly to the run log and finish.
-4. **If in `READ_WRITE` mode:**
-   - Check `hub.pr_strategy`:
-     - If `"chain"` (default): Look for an unmerged report branch on `origin`
-       (`origin/dreamtoosa/report-*`). If one exists, branch from that latest report
-       branch to maintain continuous `state.json` lineage without merge conflicts.
-     - Otherwise: Branch from `origin/main`.
+   The `$WT` `dreamtoosa/state.json` blob equals `CHAIN_BASE`'s before the update.
+   Do not copy the hub `state.json` into `$WT`. Update only the checked-out
+   `dreamtoosa/state.json` inside `$WT` (`last_run`, each repo's
+   `last_reviewed_sha`, `last_report_date`, `issues_filed`, `prs_opened`,
+   `last_skip_reason`, and `fix_rotation`). Copy only the new
+   `dream-report-$RUN_DATE.md` files from hub `reports/` into `$WT`.
    ```bash
-   git -C "$CLONE_ROOT/DreamToosa" checkout -b dreamtoosa/report-$RUN_DATE "$BASE_REF"
-   git -C "$CLONE_ROOT/DreamToosa" add reports/ dreamtoosa/state.json
-   git -C "$CLONE_ROOT/DreamToosa" commit -m "chore: dream report for $RUN_DATE"
-   git -C "$CLONE_ROOT/DreamToosa" push -u origin dreamtoosa/report-$RUN_DATE
+   python3 "$WT/dreamtoosa/validate.py"
    ```
-5. Open one PR against DreamToosa `main` with the report index as body summary.
+   If it exits non-zero, do not commit and do not push. On exit 0, commit inside
+   `$WT` and push `dreamtoosa/report-$RUN_DATE`. Then `git worktree remove "$WT"`.
+3. Open one PR against DreamToosa `main` with the report index as body summary.
    `draft: false`.
 
 The state file and the report must land in the **same commit**.
@@ -460,10 +491,28 @@ Per run, across all repos: at most `budget.max_prs_per_run` pull requests total
 (one hub report PR plus at most one fix PR). If you find more work than that, write
 it down in the report and leave it for the next run.
 
+## Notify gate
+
+If `$SCRATCH/prev-index.md` does not exist, create it empty first with `: > "$SCRATCH/prev-index.md"`, because the notify command reads it. Then confirm the hub `dreamtoosa/` tree is clean, then:
+
+```bash
+python3 "$CLONE_ROOT/DreamToosa/dreamtoosa/triage_report.py" notify \
+  --snapshot "$SNAP_DIR/snapshot.json" \
+  --prev-index "$SCRATCH/prev-index.md" \
+  --manifest "$CLONE_ROOT/DreamToosa/dreamtoosa/repos.yml" \
+  --today "$RUN_DATE"
+```
+
+If `send` is true, call PushNotification once. Pass the `message` verbatim inside
+`<routine_summary>` tags. Do not add `PushNotification` to the ToolSearch select
+line, and do not add any GitHub tool beyond that ten-tool line. If PushNotification is unavailable,
+still print the `send` decision and the message, send nothing, and rely on the
+heartbeat. If `send` is false, push nothing. The golden pick is not an input.
+
 ## Final summary
 
-End with: repos reviewed, repos skipped and why, issues filed, PRs opened, which
-repo holds the fix rotation next, and the single most important thing a human
-should do before the next run. For that last item, copy the rank-1 action from the
-Fleet Triage header ("most important human action") verbatim, or write "none ranked"
-when the header says so or the block is unavailable. Do not compose it yourself.
+Print only these code-rendered fields. Do not add free-text prose.
+
+- notify message verbatim (the notify JSON `message`, inside `<routine_summary>` when `send` is true)
+- rank-1 action verbatim, or "none ranked"
+- repos reviewed, repos skipped, issues filed, PRs opened (counts from `state.json`)

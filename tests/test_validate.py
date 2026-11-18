@@ -2,7 +2,6 @@
 """
 Unit tests for the DreamToosa control plane validator (dreamtoosa/validate.py).
 """
-
 import ast
 import contextlib
 import copy
@@ -16,37 +15,29 @@ import tempfile
 import unittest
 from pathlib import Path
 import yaml
-
 from dreamtoosa.validate import (
     DEFAULT_MANIFEST,
     DEFAULT_PROFILES,
     DEFAULT_STATE,
     validate_control_plane,
 )
-
-
 class TestValidateControlPlane(unittest.TestCase):
     """Tests for validate_control_plane invariant assertions."""
-
     def setUp(self):
         self.tmp_dir = tempfile.TemporaryDirectory()
         self.tmp_path = Path(self.tmp_dir.name)
-
         # Base clean fixtures copied from repository defaults
         self.manifest_data = yaml.safe_load(DEFAULT_MANIFEST.read_text(encoding="utf-8"))
         self.state_data = json.loads(DEFAULT_STATE.read_text(encoding="utf-8"))
         self.profiles_dir = DEFAULT_PROFILES
-
     def tearDown(self):
         self.tmp_dir.cleanup()
-
     def _write_fixtures(self, manifest_data, state_data):
         m_file = self.tmp_path / "repos.yml"
         s_file = self.tmp_path / "state.json"
         m_file.write_text(yaml.safe_dump(manifest_data), encoding="utf-8")
         s_file.write_text(json.dumps(state_data), encoding="utf-8")
         return m_file, s_file
-
     def test_clean_configuration_passes(self):
         """Current repository control plane (triage block included) must pass all 35 checks cleanly."""
         checks_run, failures = validate_control_plane(
@@ -57,14 +48,12 @@ class TestValidateControlPlane(unittest.TestCase):
         )
         self.assertEqual(failures, [])
         self.assertGreaterEqual(checks_run, 35)  # 19 original + 16 guarded triage checks
-
     def test_invalid_yaml_fails(self):
         """Malformed YAML must trigger a YAML parse failure."""
         m_file = self.tmp_path / "repos.yml"
         s_file = self.tmp_path / "state.json"
         m_file.write_text("repos: [unclosed list", encoding="utf-8")
         s_file.write_text(json.dumps(self.state_data), encoding="utf-8")
-
         checks_run, failures = validate_control_plane(
             manifest_path=m_file,
             state_path=s_file,
@@ -72,14 +61,12 @@ class TestValidateControlPlane(unittest.TestCase):
             verbose=False,
         )
         self.assertIn("repos.yml parses as YAML", failures)
-
     def test_invalid_json_fails(self):
         """Malformed JSON in state.json must fail cleanly."""
         m_file = self.tmp_path / "repos.yml"
         s_file = self.tmp_path / "state.json"
         m_file.write_text(yaml.safe_dump(self.manifest_data), encoding="utf-8")
         s_file.write_text("{ unquoted_key: 123 ", encoding="utf-8")
-
         checks_run, failures = validate_control_plane(
             manifest_path=m_file,
             state_path=s_file,
@@ -87,12 +74,10 @@ class TestValidateControlPlane(unittest.TestCase):
             verbose=False,
         )
         self.assertIn("state.json parses as JSON", failures)
-
     def test_unsupported_pr_strategy_fails(self):
         """Unrecognized pr_strategy value must be rejected."""
         self.manifest_data["hub"]["pr_strategy"] = "invalid_strategy_foo"
         m_file, s_file = self._write_fixtures(self.manifest_data, self.state_data)
-
         checks_run, failures = validate_control_plane(
             manifest_path=m_file,
             state_path=s_file,
@@ -100,12 +85,10 @@ class TestValidateControlPlane(unittest.TestCase):
             verbose=False,
         )
         self.assertIn("hub.pr_strategy is a supported strategy", failures)
-
     def test_negative_hub_max_unmerged_report_prs_fails(self):
         """Zero or negative hub max_unmerged_report_prs must be rejected."""
         self.manifest_data["hub"]["max_unmerged_report_prs"] = 0
         m_file, s_file = self._write_fixtures(self.manifest_data, self.state_data)
-
         checks_run, failures = validate_control_plane(
             manifest_path=m_file,
             state_path=s_file,
@@ -113,12 +96,10 @@ class TestValidateControlPlane(unittest.TestCase):
             verbose=False,
         )
         self.assertIn("hub.max_unmerged_report_prs is a positive integer", failures)
-
     def test_invalid_clone_root_env_fails(self):
         """Invalid environment variable name in defaults.clone_root_env must be rejected."""
         self.manifest_data["defaults"]["clone_root_env"] = "INVALID-ENV NAME WITH SPACES"
         m_file, s_file = self._write_fixtures(self.manifest_data, self.state_data)
-
         checks_run, failures = validate_control_plane(
             manifest_path=m_file,
             state_path=s_file,
@@ -126,12 +107,10 @@ class TestValidateControlPlane(unittest.TestCase):
             verbose=False,
         )
         self.assertIn("defaults.clone_root_env is a valid environment variable name", failures)
-
     def test_missing_budget_cap_fails(self):
         """Omission of required budget keys must be caught."""
         del self.manifest_data["budget"]["max_prs_per_run"]
         m_file, s_file = self._write_fixtures(self.manifest_data, self.state_data)
-
         checks_run, failures = validate_control_plane(
             manifest_path=m_file,
             state_path=s_file,
@@ -139,7 +118,6 @@ class TestValidateControlPlane(unittest.TestCase):
             verbose=False,
         )
         self.assertIn("budget declares all required caps", failures)
-
     def test_manifest_and_state_repo_mismatch_fails(self):
         """State file tracking repos not declared in manifest must be caught."""
         self.state_data["repos"]["sky2464/OrphanRepo"] = {
@@ -150,7 +128,6 @@ class TestValidateControlPlane(unittest.TestCase):
             "last_skip_reason": None,
         }
         m_file, s_file = self._write_fixtures(self.manifest_data, self.state_data)
-
         checks_run, failures = validate_control_plane(
             manifest_path=m_file,
             state_path=s_file,
@@ -158,25 +135,18 @@ class TestValidateControlPlane(unittest.TestCase):
             verbose=False,
         )
         self.assertIn("state.json tracks exactly the manifest's repos", failures)
-
     def test_real_manifest_declares_triage_block(self):
         """The committed manifest carries the Fleet Triage keys with a visibility per repo."""
         self.assertIn("triage", self.manifest_data)
         for entry in self.manifest_data["repos"]:
             self.assertIn(entry.get("visibility"), {"public", "private"}, entry["repo"])
-
-
 # --- Fleet Triage keys (DEV-005a) -----------------------------------------
-
 REPO_ROOT = Path(__file__).resolve().parent.parent
 VALIDATE_PY = REPO_ROOT / "dreamtoosa" / "validate.py"
-BASELINE_CHECKS = 19  # checks that run with no triage block
-
+BASELINE_CHECKS = 20  # checks that run with no triage block, including last_run.date when present
 TRIAGE_DEFAULTS = ("stale_after_days", "dormant_after_days")
 TRIAGE_REPO_KEYS = ("visibility", "backlog", "product_workflows", "watch_workflows", "dependabot_scope")
 DEL = object()  # sentinel: remove the key
-
-
 def strip_triage(manifest):
     """Copy of manifest with every key the triage story added removed."""
     m = copy.deepcopy(manifest)
@@ -189,8 +159,6 @@ def strip_triage(manifest):
         for key in TRIAGE_REPO_KEYS:
             entry.pop(key, None)
     return m
-
-
 def with_triage(manifest):
     """Copy of manifest extended with a complete, valid triage configuration (test-only values)."""
     m = strip_triage(manifest)
@@ -221,11 +189,8 @@ def with_triage(manifest):
             dependabot_scope="runtime",
         )
     return m
-
-
 def edit(*pairs):
     """Mutator applying (dotted.path, value) pairs; a numeric segment indexes a list; DEL removes the key."""
-
     def apply(m):
         for dotted, value in pairs:
             *parents, leaf = dotted.split(".")
@@ -236,10 +201,7 @@ def edit(*pairs):
                 del node[leaf]
             else:
                 node[leaf] = value
-
     return apply
-
-
 def run_validator(tmp_path, manifest, state, verbose=False):
     """Write manifest and state under tmp_path and run the validator on them."""
     m_file = tmp_path / "repos.yml"
@@ -249,12 +211,11 @@ def run_validator(tmp_path, manifest, state, verbose=False):
     return validate_control_plane(
         manifest_path=m_file, state_path=s_file, profiles_dir=DEFAULT_PROFILES, verbose=verbose
     )
-
-
 L_MAPPING = "triage block is a mapping"
 L_CAPS = "triage caps are positive integers"
 L_CAPS_ORDER = "triage.max_items_total is at least triage.max_items_per_repo"
 L_WINDOWS = "triage idle, gap and heartbeat windows are positive integers"
+L_HEARTBEAT = "triage.heartbeat_max_age_days is an integer from 1 to 14"
 L_LOGINS = "triage.trusted_logins is a non-empty list of logins"
 L_DEF_POS = "defaults stale and dormant windows are positive integers"
 L_DEF_ORDER = "defaults.stale_after_days is less than defaults.dormant_after_days"
@@ -267,7 +228,6 @@ L_COLS = "every repo's backlog columns id, title, priority are names and status 
 L_LISTS = "every repo's backlog p0_values, done_values and done_sections are lists"
 L_WF = "every repo's workflow filenames and watch kinds are valid"
 L_SCOPE = "every repo's dependabot_scope is runtime, dev or unknown when present"
-
 BL = "repos.0.backlog."
 NEGATIVES = [
     (L_MAPPING, edit(("triage", None))),
@@ -280,6 +240,7 @@ NEGATIVES = [
     (L_WINDOWS, edit(("triage.pr_idle_days", 0))),
     (L_WINDOWS, edit(("triage.routine_gap_days", "2"))),
     (L_WINDOWS, edit(("triage.heartbeat_max_age_days", DEL))),
+    (L_HEARTBEAT, edit(("triage.heartbeat_max_age_days", 15))),
     (L_LOGINS, edit(("triage.trusted_logins", []))),
     (L_LOGINS, edit(("triage.trusted_logins", "owner-login"))),
     (L_LOGINS, edit(("triage.trusted_logins", ["owner-login", ""]))),
@@ -334,11 +295,8 @@ NEGATIVES = [
     (L_SCOPE, edit(("repos.0.dependabot_scope", 7))),
     (L_SCOPE, edit(("repos.0.dependabot_scope", ["runtime"]))),
 ]
-
-
 class TestTriageChecks(unittest.TestCase):
     """VA-1 and VA-2: the guarded Fleet Triage checks."""
-
     def setUp(self):
         self.tmp_dir = tempfile.TemporaryDirectory()
         self.tmp_path = Path(self.tmp_dir.name)
@@ -346,10 +304,8 @@ class TestTriageChecks(unittest.TestCase):
         self.base = strip_triage(real)
         self.valid = with_triage(real)
         self.state = json.loads(DEFAULT_STATE.read_text(encoding="utf-8"))
-
     def tearDown(self):
         self.tmp_dir.cleanup()
-
     def _labels(self, manifest):
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
@@ -359,12 +315,10 @@ class TestTriageChecks(unittest.TestCase):
             for line in buf.getvalue().splitlines()
             if line.startswith(("  ok    ", "  FAIL  "))
         ]
-
     def test_valid_triage_configuration_passes(self):
         checks_run, failures = run_validator(self.tmp_path, self.valid, self.state)
         self.assertEqual(failures, [])
         self.assertEqual(checks_run, BASELINE_CHECKS + len({label for label, _ in NEGATIVES}))
-
     def test_each_negative_fails_exactly_its_check(self):
         """VA-1: every malformed value trips the one check that owns it, and no other."""
         for index, (label, mutate) in enumerate(NEGATIVES):
@@ -373,18 +327,15 @@ class TestTriageChecks(unittest.TestCase):
                 mutate(manifest)
                 _, failures = run_validator(self.tmp_path, manifest, self.state)
                 self.assertEqual(failures, [label])
-
     def test_every_new_check_has_a_negative(self):
         """VA-1: the checks added for triage are exactly the ones the negatives cover."""
         new = set(self._labels(self.valid)) - set(self._labels(self.base))
         self.assertEqual(new, {label for label, _ in NEGATIVES})
-
     def test_manifest_without_triage_block_adds_no_checks(self):
-        """VA-2: a pre-triage manifest runs the original 19 checks and passes."""
+        """VA-2: a pre-triage manifest runs the baseline checks and passes."""
         checks_run, failures = run_validator(self.tmp_path, self.base, self.state)
         self.assertEqual(failures, [])
         self.assertEqual(checks_run, BASELINE_CHECKS)
-
     def test_new_keys_are_ignored_without_triage_block(self):
         """VA-2: the triage checks are guarded by the block, not by the individual keys."""
         manifest = copy.deepcopy(self.base)
@@ -394,18 +345,13 @@ class TestTriageChecks(unittest.TestCase):
         checks_run, failures = run_validator(self.tmp_path, manifest, self.state)
         self.assertEqual(failures, [])
         self.assertEqual(checks_run, BASELINE_CHECKS)
-
-
 class TestValidateSubprocess(unittest.TestCase):
     """VA-3 and VA-4: script mode and exit codes, always in a subprocess."""
-
     def setUp(self):
         self.tmp_dir = tempfile.TemporaryDirectory()
         self.tmp_path = Path(self.tmp_dir.name)
-
     def tearDown(self):
         self.tmp_dir.cleanup()
-
     def _run(self, script, env=None, cwd=None):
         return subprocess.run(
             [sys.executable, str(script)],
@@ -415,7 +361,6 @@ class TestValidateSubprocess(unittest.TestCase):
             env=env,
             cwd=cwd,
         )
-
     def _tree(self, manifest_text=None, state_data=None):
         """A throwaway copy of the control plane: the script resolves its data next to itself."""
         pkg = self.tmp_path / "tree" / "dreamtoosa"
@@ -429,12 +374,10 @@ class TestValidateSubprocess(unittest.TestCase):
         (pkg / "repos.yml").write_text(manifest_text, encoding="utf-8")
         (pkg / "state.json").write_text(json.dumps(state_data), encoding="utf-8")
         return pkg / "validate.py"
-
     def test_script_mode_from_repo_root_exits_zero(self):
         result = self._run(Path("dreamtoosa") / "validate.py", cwd=REPO_ROOT)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("PASSED", result.stdout)
-
     def test_validate_source_has_no_triage_import(self):
         tree = ast.parse(VALIDATE_PY.read_text(encoding="utf-8"))
         imported = []
@@ -446,7 +389,6 @@ class TestValidateSubprocess(unittest.TestCase):
         self.assertEqual([name for name in imported if "triage" in name.lower()], [])
         self.assertNotIn("importlib", imported)
         self.assertNotIn("__import__", VALIDATE_PY.read_text(encoding="utf-8"))
-
     def test_missing_pyyaml_exits_two(self):
         stub = self.tmp_path / "stub"
         stub.mkdir()
@@ -455,14 +397,12 @@ class TestValidateSubprocess(unittest.TestCase):
         result = self._run(VALIDATE_PY, env=env, cwd=REPO_ROOT)
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
         self.assertIn("PyYAML", result.stderr)
-
     def test_uncaught_exception_exits_two(self):
         """A manifest that parses but has the wrong top-level type crashes a check, not the exit code."""
         script = self._tree(manifest_text="- not\n- a mapping\n")
         result = self._run(script)
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
         self.assertIn("unexpected error", result.stderr)
-
     def test_check_failure_exits_one(self):
         state = json.loads(DEFAULT_STATE.read_text(encoding="utf-8"))
         state["repos"]["sky2464/OrphanRepo"] = {}
@@ -470,12 +410,46 @@ class TestValidateSubprocess(unittest.TestCase):
         result = self._run(script)
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertIn("FAILED", result.stdout)
-
     def test_copied_tree_passes_untouched(self):
         """Guards the harness: the throwaway tree is valid until a test breaks it."""
         result = self._run(self._tree())
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-
-
+class TestNew005bKeys(unittest.TestCase):
+    def run_bad(self, mutate, today="2026-10-26"):
+        manifest = yaml.safe_load(DEFAULT_MANIFEST.read_text(encoding="utf-8"))
+        state = json.loads(DEFAULT_STATE.read_text(encoding="utf-8"))
+        mutate(manifest, state)
+        return validate_control_plane(verbose=False, today=today, **_written(manifest, state))
+    def test_negatives(self):
+        cases = [
+            (lambda m, s: m["triage"].__setitem__("heartbeat_max_age_days", 0), "1 to 14"),
+            (lambda m, s: m["triage"].__setitem__("heartbeat_max_age_days", 15), "1 to 14"),
+            (lambda m, s: m["triage"].__setitem__("heartbeat_max_age_days", "3"), "1 to 14"),
+            (lambda m, s: m["triage"].__setitem__("golden_exclude", "DEV-1"), "golden_exclude"),
+            (lambda m, s: m["triage"].__setitem__("golden_formula_validated", "yes"), "golden_formula_validated"),
+            (lambda m, s: m["hub"].__setitem__("force_read_only", "true"), "force_read_only"),
+            (lambda m, s: s["last_run"].__setitem__("date", "2026-13-40"), "last_run.date"),
+            (lambda m, s: s["last_run"].__setitem__("date", "2026-10-28"), "last_run.date"),
+        ]
+        for mutate, needle in cases:
+            _n, failures = self.run_bad(mutate)
+            self.assertTrue(any(needle in f for f in failures), (needle, failures))
+    def test_absent_new_keys_add_no_failure_and_validate_imports_no_triage_module(self):
+        manifest = yaml.safe_load(DEFAULT_MANIFEST.read_text(encoding="utf-8"))
+        for key in ("golden_exclude", "golden_formula_validated", "upstream_repos"):
+            manifest["triage"].pop(key, None)
+        state = json.loads(DEFAULT_STATE.read_text(encoding="utf-8"))
+        _n, failures = validate_control_plane(verbose=False, today="2026-10-26", **_written(manifest, state))
+        self.assertFalse(any("golden_" in f or "upstream_repos" in f for f in failures), failures)
+        tree = ast.parse((Path(__file__).resolve().parent.parent / "dreamtoosa" / "validate.py").read_text(encoding="utf-8"))
+        imported = [a.name for n in ast.walk(tree) if isinstance(n, ast.Import) for a in n.names]
+        imported += [n.module or "" for n in ast.walk(tree) if isinstance(n, ast.ImportFrom)]
+        self.assertFalse(any("triage" in name for name in imported))
+def _written(manifest, state):
+    tmp = Path(tempfile.mkdtemp())
+    m, s = tmp / "repos.yml", tmp / "state.json"
+    m.write_text(yaml.safe_dump(manifest), encoding="utf-8")
+    s.write_text(json.dumps(state), encoding="utf-8")
+    return {"manifest_path": m, "state_path": s, "profiles_dir": DEFAULT_PROFILES}
 if __name__ == "__main__":
     unittest.main()
