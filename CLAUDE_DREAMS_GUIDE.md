@@ -24,9 +24,11 @@ The input store is never modified—the output is a separate, reviewable result.
 |--------|---------|
 | **Status** | Research Preview (requires access request) |
 | **Processing** | Asynchronous (typically minutes to tens of minutes) |
-| **Models** | `claude-opus-4-7`, `claude-sonnet-4-6` |
-| **Session Limit** | Up to 100 sessions per dream |
-| **Instructions Limit** | 4,096 characters |
+| **Models** | Fable 5.2/5.1/5, Opus 5.5/5/4.8/4.7, Sonnet 5.5/5/4.6 (e.g. `claude-opus-5-5`) |
+| **Session Limit** | 1–100 sessions per dream |
+| **Instructions** | Optional; steer synthesis only (no line-level edits). No documented length limit |
+| **Data handling** | Not ZDR or HIPAA eligible |
+| **Code** | `dreams_api.py` (docs-accurate `DreamsClient`), tests in `test_dreams_api.py` |
 | **Required Headers** | `managed-agents-2026-04-01` + `dreaming-2026-04-21` |
 
 ## Implementation Steps
@@ -178,7 +180,8 @@ inputs = [
 
 | Error | Cause | Resolution |
 |-------|-------|-----------|
-| `timeout` | Pipeline exceeded runtime | Use fewer sessions; increase budget |
+| `timeout` | Pipeline exceeded runtime | Use fewer sessions |
+| `internal_error` | Unclassified pipeline failure | Retry; contact support if persistent |
 | `memory_store_org_limit_exceeded` | Hit org memory store cap | Archive unused stores |
 | `input_memory_store_too_large` | Store exceeds size limit | Split into multiple dreams |
 | `input_memory_store_unavailable` | Input store deleted mid-dream | Don't delete during processing |
@@ -225,14 +228,9 @@ dream = client.beta.dreams.create(
 ### 3. Review Before Adoption
 ```python
 # Inspect output before using it
-output_store = client.beta.memory_stores.get(output_store_id)
-entries = client.beta.memory_stores.get_entries(output_store_id)
-
-# Review entries
-for entry in entries:
-    print(f"Key: {entry.key}")
-    print(f"Content: {entry.content}")
-    print("---")
+# Review the output via the Memory Stores API
+# (https://platform.claude.com/docs/en/managed-agents/memory#view-and-edit-memories)
+# or in the Claude Console. Method names for listing memories: check the SDK.
 
 # Only adopt if satisfied
 if approved_by_user:
