@@ -10,6 +10,9 @@
 name: control-plane
 
 on:
+  schedule:
+    - cron: '30 16 * * *'
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
@@ -32,21 +35,58 @@ permissions:
 jobs:
   validate:
     name: Validate manifest, state, and test suite
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    strategy:
+      matrix:
+        python-version: ['3.12', '3.15']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
-          python-version: '3.12'
+          python-version: ${{ matrix.python-version }}
 
       - name: Install PyYAML
-        run: pip install --quiet pyyaml
+        run: pip install --quiet 'pyyaml==6.0.3'
 
       - name: Validate control plane
         run: python3 dreamtoosa/validate.py
 
       - name: Run unit tests
         run: python3 -m unittest discover tests -v
+
+  heartbeat:
+    name: Hub heartbeat
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Fetch report refs
+        run: git fetch --no-tags origin '+refs/heads/dreamtoosa/report-*:refs/remotes/origin/dreamtoosa/report-*'
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Install PyYAML
+        run: pip install --quiet 'pyyaml==6.0.3'
+
+      - name: Heartbeat
+        run: |
+          set +e
+          out=$(python3 "$GITHUB_WORKSPACE/dreamtoosa/triage_report.py" heartbeat --repo-root "$GITHUB_WORKSPACE" --today "$(date -u +%F)")
+          code=$?
+          ref=$(printf '%s\n' "$out" | awk '{for(i=1;i<=NF;i++) if(index($i,"ref=")==1) print substr($i,5)}')
+          age=$(printf '%s\n' "$out" | awk '{for(i=1;i<=NF;i++) if(index($i,"age_days=")==1) print substr($i,10)}')
+          date=$(git show "refs/remotes/${ref}:dreamtoosa/state.json" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("last_run",{}).get("date",""))')
+          echo "ref=${ref} date=${date} age_days=${age}" >> "$GITHUB_STEP_SUMMARY"
+          exit "$code"
 
