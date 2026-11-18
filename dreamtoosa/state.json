@@ -2,8 +2,8 @@
   "schema_version": 1,
   "_comment": "Cross-run state for the Dream Report routine (trig_01PvQiwSRhJktFxMXwxf14Qi). The routine runs with persist_session=false, so this committed file is the only memory between runs. Every run reads it first and writes it back in the same commit as the report.",
   "last_run": {
-    "date": "2026-11-16",
-    "session_id": "session_89f74470-1969-4f14-b386-9bc3ab91de90",
+    "date": "2026-11-18",
+    "session_id": "session_9bbd6b13-f58e-4fb4-bfd5-618238302f2a",
     "repos_reviewed": [
       "sky2464/AgToosa",
       "sky2464/Crapsino",
@@ -12,7 +12,7 @@
       "sky2464/Agtoosa2"
     ],
     "repos_skipped": [],
-    "notes": "Reviewed all 5 repositories in manifest. GitHub MCP unavailable -- ran in read-only mode, no issues or PRs filed. AgToosa: 0 commits in window; milestone assignment verified on claude/approve-merge-branches-nkfdie (9ad3043); DEV-147 GIP-013 bats test passes; 0 open issues/PRs on main. Crapsino: 0 commits in window; Docker alpine pinning stable; 53 test files and 418 unit/component tests pass in Vitest. DreamToosa: 0 commits in window; 40/40 validate checks pass; py_compile clean; dev-005b work in progress on feature branch preserved. miToosa: 0 commits on origin/main (c6fb644); PR #69 awaiting review; flutter analyze on lib/test clean (0 errors/warnings). Agtoosa2: 0 commits on origin/main (b8dd70d); py_compile clean; 372/373 pytest pass with 1 failure on test_spec_cli due to uncommitted spec count drift (47 vs 46). Fix rotation advanced to index 4 (Agtoosa2); no fix PR opened in read-only mode."
+    "notes": "Reviewed all 5 repositories in manifest. GitHub MCP unavailable -- ran in read-only mode, no issues or PRs filed. AgToosa: 0 commits in window; milestone assignment verified on claude/approve-merge-branches-nkfdie (9ad3043); DEV-147 GIP-013 bats test passes; 0 open issues/PRs on main. Crapsino: 1 commit on origin/main (2b49279) merging PR #8 (Dockerfile alpine pinning); 53 test files and 418 unit/component tests pass in Vitest. DreamToosa: 2 commits on main (2d4f83f merging PR #35); dreams_api.py wrapper added; 40/40 validate checks pass; py_compile clean. miToosa: 0 commits on origin/main (c6fb644); PR #69 awaiting review; flutter analyze clean (0 errors/warnings). Agtoosa2: 0 commits on origin/main (b8dd70d); py_compile clean; 372/373 pytest pass with 1 failure on test_spec_cli due to uncommitted spec count drift (47 vs 46). Fix rotation advanced to index 1 (Crapsino); no fix PR opened in read-only mode."
   },
   "fix_rotation": {
     "_comment": "Exactly one repo carries fix work per run. Advance last_index by 1 (mod length) each run, skipping repos that are disabled, not fix_eligible, or over max_open_prs.",
@@ -23,13 +23,13 @@
       "sky2464/miToosa",
       "sky2464/Agtoosa2"
     ],
-    "last_index": 4,
-    "last_advanced": "2026-11-16"
+    "last_index": 1,
+    "last_advanced": "2026-11-18"
   },
   "repos": {
     "sky2464/AgToosa": {
       "last_reviewed_sha": "9ad3043cd13ead0815af565ec42d642e5d0b4978",
-      "last_report_date": "2026-11-16",
+      "last_report_date": "2026-11-18",
       "issues_filed": [
         166,
         168
@@ -38,8 +38,8 @@
       "last_skip_reason": null
     },
     "sky2464/Crapsino": {
-      "last_reviewed_sha": "b040a9b9bb280937910376d1572ad911642aeb4e",
-      "last_report_date": "2026-11-16",
+      "last_reviewed_sha": "2b4927984f855383af14540836f3aef05e2bcd26",
+      "last_report_date": "2026-11-18",
       "issues_filed": [
         7
       ],
@@ -47,8 +47,8 @@
       "last_skip_reason": null
     },
     "sky2464/DreamToosa": {
-      "last_reviewed_sha": "c8cc3eb0467eb19735858d9ee205eede78f7743c",
-      "last_report_date": "2026-11-16",
+      "last_reviewed_sha": "2d4f83f17465f3f8c320f92b951d864171b58c43",
+      "last_report_date": "2026-11-18",
       "issues_filed": [
         8,
         21,
@@ -61,9 +61,10 @@
     },
     "sky2464/miToosa": {
       "last_reviewed_sha": "06340fbea771e50b1e643e2320979ef851c2d789",
-      "last_report_date": "2026-11-16",
+      "last_report_date": "2026-11-18",
       "issues_filed": [
         64,
+        67,
         68
       ],
       "prs_opened": [
@@ -74,7 +75,7 @@
     },
     "sky2464/Agtoosa2": {
       "last_reviewed_sha": "b8dd70dd4b5cdb2da2722322d2ff358f5150a999",
-      "last_report_date": "2026-11-16",
+      "last_report_date": "2026-11-18",
       "issues_filed": [
         8
       ],
