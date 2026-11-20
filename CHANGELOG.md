@@ -16,8 +16,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), version
   - **CI:** the test suite and `validate.py` run in `.github/workflows/control-plane.yml`. Not yet released.
 - **Fleet Triage ledger, golden pick, heartbeat job and notify (DEV-005b), unreleased and not accepted.**
   - Ledger carry-forward (`merge_ledger`, `parse_ledger`, `serialize_ledger`), `golden_pick`, and `notify_decision` / `notify_message` live in `dreamtoosa/triage.py`. `triage_report.py` adds prev-index ledger injection, a `notify` subcommand, and chain-base selection. No `triage_ledger.py`.
-  - `repos.yml` adds `golden_exclude: []`, `golden_formula_validated: false`, and `upstream_repos: []`. The formula flag stays false.
-  - The golden fixture was not written. OI-1 is recorded for owner review: on the pinned public backlogs the only eligible row is AgToosa DEV-153 (score -1, R=0 S=1 L=0 P=0 B=1 Rep=0), with no runner-up.
+  - `repos.yml` adds `golden_exclude: []`, `golden_formula_validated: true` (owner accepted OI-1 on 2026-11-20), and `upstream_repos: []`.
+  - Golden fixtures: `tests/fixtures/triage/golden-pool-2026-10-13.json` and the section-5 line of `expected-2026-10-13.md` (synthetic snapshot: no eligible candidate; pinned OI-1 pick DEV-153 score -1).
   - Golden fixes: the rendered pick now checks the archived spec at the pinned tip (S term), drops IDs from released CHANGELOG sections, and keeps no row text, section or path for non-public rows (TRI-B-006, 010, 011).
   - Dry-run fixes: `chain_base_from_git` loads the engine first; `notify` exits `E_SCHEMA` when the snapshot misses an enabled manifest repo, instead of an uncaught `E_RUN`; the routine prompt seeds an empty prev-index on the first run so day 2 does not flag every finding as NEW.
   - CI: `actions/checkout@v7`, `actions/setup-python@v7`, validate job on Python 3.12 and 3.15, PyYAML pinned to 6.0.3.

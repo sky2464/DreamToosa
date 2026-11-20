@@ -491,7 +491,50 @@ class TestGoldenTerms(unittest.TestCase):
         self.assertIn("formula unvalidated", g.line)
         msg = triage.notify_message(["READ_ONLY"], ["C1:o/A:#1"], "2026-10-13")
         self.assertNotIn("DEV-153", msg)
-        self.assertFalse(Path("tests/fixtures/triage/golden-pool-2026-10-13.json").exists())
+
+
+class TestGoldenFixture(unittest.TestCase):  # TRI-B-009
+    """Pinned OI-1 pool fixture matches rule output at run_date 2026-10-13."""
+
+    FX = Path(__file__).resolve().parent / "fixtures" / "triage"
+
+    def test_golden_pool_fixture_matches_rules(self):
+        import json
+        import yaml
+
+        from dreamtoosa.triage_report import gather, spec_lookup
+
+        blob = json.loads((self.FX / "golden-pool-2026-10-13.json").read_text(encoding="utf-8"))
+        snap = json.loads((self.FX / "snapshot-2026-10-13.json").read_text(encoding="utf-8"))
+        man = yaml.safe_load((self.FX / "repos-2026-10-13.yml").read_text(encoding="utf-8"))
+        pinned = {
+            "fixture-owner/AgToosa": "pinned-agtoosa-9784e2d.md",
+            "fixture-owner/miToosa": "pinned-mitoosa-3886a34.md",
+            "fixture-owner/DreamToosa": "pinned-dreamtoosa-a8b4beb.md",
+            "fixture-owner/Crapsino": "crapsino.md",
+        }
+        texts = {repo: (self.FX / "backlogs" / fn).read_text(encoding="utf-8") for repo, fn in pinned.items()}
+        rows, links, cron = gather(snap, man, backlog_dir=self.FX / "backlogs")
+        ev = triage.evaluate(snap, rows, links, cron, man)
+        fresh_pub = {x["repo"] for x in ev.freshness if x.get("public")}
+        findings = [
+            {"id": f.key, "rule": f.rule, "sev": f.tier, "public": f.repo in fresh_pub, "repo": f.repo, "evidence": list(f.evidence)}
+            for f in ev.findings
+        ]
+        pool = triage.golden_pool(texts, man)
+        sl = spec_lookup(snap, man, backlog_dir=str(self.FX / "backlogs"))
+        g = triage.golden_pick(pool, findings, None, man["triage"], sl, blob["run_date"])
+        self.assertEqual(g.line, blob["line"])
+        self.assertEqual(g.pick_id, blob["pick_id"])
+        self.assertEqual(g.score, blob["pick_score"])
+        self.assertEqual(g.terms, blob["pick_terms"])
+        live = []
+        for row in pool:
+            terms, score = triage._terms(row, findings, None, man["triage"], sl, blob["run_date"])
+            live.append({"repo": row["repo"], "id": row["display_id"], "score": score, "terms": terms, "title": row.get("title")})
+        self.assertEqual(live, blob["pool"])
+
+
 from pathlib import Path
 if __name__ == "__main__":
     unittest.main()

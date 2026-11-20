@@ -172,9 +172,14 @@ def assemble(snap: object, manifest: dict, clone_root: str | Path | None = None,
         return codes, ""
     rows, links, cron = gather(snap, manifest, clone_root, backlog_dir)
     ev = triage.evaluate(snap, rows, links, cron, manifest)
-    if prev_text is None:
+    cfg = manifest.get("triage") or {}
+    if prev_text is None and not cfg.get("golden_formula_validated"):
         return [], render(ev, manifest, snap)
-    gline, carry, comment = _ledger_view(ev, manifest, snap, prev_text, clone_root, backlog_dir)
+    if prev_text is not None:
+        gline, carry, comment = _ledger_view(ev, manifest, snap, prev_text, clone_root, backlog_dir)
+    else:
+        golden = _golden_pick(ev, manifest, snap, clone_root, backlog_dir, None)
+        gline, carry, comment = (None, None, None) if triage.SECRET_RE.search(golden.line or "") else (golden.line, None, None)
     return [], render(ev, manifest, snap, gline, carry, comment)
 def _days(run: str, ts) -> int:
     a, b = triage._date(run), triage._date(ts)
@@ -333,6 +338,13 @@ def spec_lookup(snap, manifest, clone_root=None, backlog_dir=None):
     """spec_exists for golden_pick (TRI-B-011): (repo, plan ID) -> <backlog dir>/archived/spec-<ID>.md text at the pinned tip or in the fixture dir, else None."""
     tips, bps = {r["repo"]: r["tip"]["sha"] for r in snap["repos"]}, {m["repo"]: (m.get("backlog") or {}).get("path") or "" for m in enabled(manifest)}
     return lambda repo, pid: _show(repo_dir(clone_root, repo), tips[repo], (Path(bps.get(repo, "")).parent / "archived" / f"spec-{pid}.md").as_posix()) if clone_root else _read(backlog_dir, f"archived/spec-{pid}.md")
+def _golden_pick(ev, manifest, snap, clone_root, backlog_dir, ledger):
+    cfg = manifest.get("triage") or {}
+    fresh_pub = {x["repo"] for x in ev.freshness if x.get("public")}
+    findings = [{"id": f.key, "rule": f.rule, "sev": f.tier, "public": f.repo in fresh_pub, "repo": f.repo, "evidence": list(f.evidence)} for f in ev.findings]
+    pool = triage.golden_pool(_texts(snap, manifest, clone_root, backlog_dir, lambda m: (m.get("backlog") or {}).get("path"), ".md"), manifest, cfg.get("golden_exclude") or (),
+                              changelogs(snap, manifest, clone_root, backlog_dir))
+    return triage.golden_pick(pool, findings, ledger, cfg, spec_lookup(snap, manifest, clone_root, backlog_dir), ev.run_date)
 def _ledger_view(ev, manifest, snap, prev_text, clone_root, backlog_dir):
     parsed = triage.parse_ledger(prev_text or "")
     if isinstance(parsed, triage.LedgerError) and parsed.code != "BASELINE":
@@ -342,10 +354,7 @@ def _ledger_view(ev, manifest, snap, prev_text, clone_root, backlog_dir):
     fresh_pub = {x["repo"] for x in ev.freshness if x.get("public")}
     findings = [{"id": f.key, "rule": f.rule, "sev": f.tier, "public": f.repo in fresh_pub, "repo": f.repo, "evidence": list(f.evidence)} for f in ev.findings]
     _deltas, led = triage.merge_ledger(findings, set(), parsed if isinstance(parsed, triage.Ledger) else None, ev.run_date)
-    cfg = manifest.get("triage") or {}
-    pool = triage.golden_pool(_texts(snap, manifest, clone_root, backlog_dir, lambda m: (m.get("backlog") or {}).get("path"), ".md"), manifest, cfg.get("golden_exclude") or (),
-                              changelogs(snap, manifest, clone_root, backlog_dir))
-    golden = triage.golden_pick(pool, findings, parsed if isinstance(parsed, triage.Ledger) else None, cfg, spec_lookup(snap, manifest, clone_root, backlog_dir), ev.run_date)
+    golden = _golden_pick(ev, manifest, snap, clone_root, backlog_dir, parsed if isinstance(parsed, triage.Ledger) else None)
     if triage.SECRET_RE.search(golden.line or ""):
         return None, "carry-forward not evaluable (E_SECRET_PATTERN) ledger", None
     comment = triage.serialize_ledger(led)

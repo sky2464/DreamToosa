@@ -4,7 +4,7 @@
 The block is checked through the in-process API (tr.assemble: check, evaluate, render) and, where the exit code or stdout matters, through the
 script itself. Fixtures are the frozen synthetic snapshots; in the 2026-10-13 manifest Crapsino is private, the other three are public.
 Layout under test (TRI-A-027): header lines, then sections 1 Freshness, 2 Pull requests, 3 CI/issues/hygiene, 4 Next tasks, 5 Golden feature
-(placeholder), 6 Limits and integrity, all between the fleet-triage markers.
+(DEV-005b when `golden_formula_validated` is true), 6 Limits and integrity, all between the fleet-triage markers.
 """
 import json
 import random
