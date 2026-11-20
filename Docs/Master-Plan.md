@@ -1,7 +1,7 @@
 # Master-Plan
 
 > **Source of truth for active work.** Completed work lives in `Docs/archived/` — see Completed This Cycle for links.
-> **Last updated:** 2026-10-14 05:05
+> **Last updated:** 2026-11-20 03:50
 
 ## Project Charter
 
@@ -19,7 +19,7 @@
 | GitHub repo | https://github.com/sky2464/DreamToosa |
 | Milestone | v0.1.1 (DEV-005 shipped) |
 | Active cycle | Multi-repo routine enablement |
-| Cycle state | Active — DEV-005a in progress |
+| Cycle state | Active — DEV-005a and DEV-005b code merged (PR #34); awaiting manual live gates |
 | Cycle capacity | 5 story points |
 | Current phase | ✏️ Spec · 🏗️ Build · 🔍 Review · **🚢 Ship** (idle) |
 
@@ -28,11 +28,11 @@
 ## Active Cycle
 
 > Stories committed to the current sprint/cycle.
-> **Progress:** `▰▰▰▰▰▰▱▱ 15/20 tasks` ← DEV-005a; updated by `/agtoosa-build` after each task completes
+> **Progress:** `▰▰▰▰▰▰▰▱ 16/20 tasks` ← DEV-005a; updated by `/agtoosa-build` after each task completes
 
 | ID | Title | Type | Estimate | Status | Tasks Done |
 |----|-------|------|----------|--------|-----------|
-| DEV-005a | Feature: Fleet Triage report core (sections, severity engine, visibility key) | Feature | L | 🟨 In Progress | 15/20 |
+| DEV-005a | Feature: Fleet Triage report core (sections, severity engine, visibility key) | Feature | L | 🔧 Awaiting Manual | 16/20 |
 
 Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blocked · 🔧 Awaiting Manual · 🏁 Shipped
 
@@ -63,7 +63,7 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 - [ ] **4.** Verification, live deploy and acceptance
   - [x] 4.1 Local READ_ONLY simulation of `snapshot-read-only.json` in a scratch worktree (no push)
   - [x] 4.2 Run the gates (both unittest forms, validate.py, py_compile)
-  - [ ] 4.3 CI green on the PR (`control-plane.yml` validate job, Python 3.12, PyYAML only)
+  - [x] 4.3 CI green on the PR (`control-plane.yml` validate job, Python 3.12, PyYAML only) — shipped in PR #34: validate green on 3.12 and 3.15, heartbeat skipped on pull_request; main re-verified 2026-11-20 (194 tests OK, validate 40 checks)
   - [ ] 4.4 RemoteTrigger get, update with the full session_context, get again and diff `[manual]`
   - [ ] 4.5 Owner observes one READ_WRITE run with Fleet Triage at the top of the index `[manual]`
 
@@ -86,8 +86,13 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 
 | Story | Task # | Deferred Since | Description |
 |-------|--------|----------------|-------------|
-
-*(Empty — routine MCP re-auth is operational hygiene; re-open via `/agtoosa-task` if needed.)*
+| DEV-005a | 0.2 | 2026-10-13 | Restore routine `trig_01PvQiwSRhJktFxMXwxf14Qi`, re-authorize GitHub, run once by hand, confirm Python 3.12 + PyYAML |
+| DEV-005a | 0.3 | 2026-10-13 | `get_run_log`: does the routine session honour `.claude/settings.json` deny rules |
+| DEV-005a | 4.4 | 2026-10-13 | RemoteTrigger get → update with full session_context → get and diff |
+| DEV-005a | 4.5 | 2026-10-13 | Owner observes one READ_WRITE run with Fleet Triage at the top of the index |
+| DEV-005b | 1.3 | 2026-11-17 | Owner decides whether the OI-1 golden pick (DEV-153, score −1) is defensible; unblocks 3.3 golden fixture |
+| DEV-005b | 0.2 | 2026-10-13 | Verify PushNotification works from a RemoteTrigger routine and in `allowed_tools` |
+| DEV-005b | 8.1, 8.3–8.5 | 2026-10-13 | Trigger update with PushNotification; two chained READ_WRITE runs; heartbeat workflow_dispatch red→green; next-day delta run |
 
 ## Blocked
 
@@ -106,7 +111,7 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 
 | ID | Title | Type | Estimate | Epic | Priority | Clarity | Status |
 |----|-------|------|----------|------|----------|---------|--------|
-| DEV-005b | Feature: Fleet Triage ledger, dark-routine heartbeat and urgent push | Feature | M | DEV-100 | P1 | ready | 🟨 In progress — local ledger, golden formula, notify, heartbeat job and prompt chain are implemented on `dreamtoosa/dev-005b-fleet-triage-ledger`; 2026-11-17: OI-1 recorded (DEV-153 score -1, awaiting owner review, task 1.3); golden render-path fixes (S term, CHANGELOG exclusion, private-row text) and dry-run fixes (chain_base engine, notify E_SCHEMA, day-1 empty prev-index) landed with tests; 6.3 and 8.2 local dry runs PASS; golden fixture still withheld; live steps open |
+| DEV-005b | Feature: Fleet Triage ledger, dark-routine heartbeat and urgent push | Feature | M | DEV-100 | P1 | ready | 🔧 Awaiting Manual — code merged in PR #34 (2026-11-18); spec tasks 1.1–1.2, 2.x, 3.1–3.2, 4.x–7.x, 8.2, 9.x ticked from evidence 2026-11-20. Open: owner review of OI-1 (1.3, DEV-153 score −1) gates 3.3 golden fixture; manual 0.2, 0.3, 8.1, 8.3–8.5 |
 
 ## Epics
 
@@ -182,3 +187,4 @@ Status key: ⬜ Backlog · 🟦 Todo · 🟨 In Progress · ✅ Done · 🚫 Blo
 | 2026-10-14 | build DEV-005a resumed after main merge (DEV-005 shipped) | DreamToosa |
 | 2026-10-26 | build DEV-005b local engine on `dreamtoosa/dev-005b-fleet-triage-ledger` (no commit). Golden gate stopped: pinned backlogs select only DEV-153 (score 2, R=0 S=1 L=0 P=0 B=0 Rep=0, runner-up none). `golden_formula_validated` left false. Live trigger and push notification not run. DEV-005a task 4.1 scratch READ_ONLY simulation recorded; 4.4 and 4.5 still manual. | DreamToosa |
 | 2026-11-17 | Verified build state: 190 tests OK on Python 3.12 and 3.15, validate.py 40 checks, py_compile clean. DEV-005a 2.x, 3.x and 4.2 ticked from evidence (were stale). Haiku 5.5 jobs, each reviewed: CI on checkout@v7 / setup-python@v7 with 3.12+3.15 matrix and pyyaml==6.0.3; OI-1 golden record; golden fixes (TRI-B-006/010/011); dry runs 6.3 and 8.2 PASS; three dry-run defects fixed. Open: private-repo detail in Crapsino/Agtoosa2 reports (incl. committed ones), duplicate untracked dreams_api.py, 4.3 CI on PR, manual gates. Committed feature work; routine output and dreams_api.py left out. | DreamToosa |
+| 2026-11-20 | build tracking sync: PR #34 (DEV-005a + DEV-005b code) merged 2026-11-18; DEV-005a 4.3 ticked from PR CI; DEV-005b spec tasks ticked from evidence; main re-verified (194 tests OK, validate 40 checks, py_compile clean, hub `dreamtoosa/` clean). Both stories 🔧 Awaiting Manual; remaining gates listed under Manual / Deferred Tasks. | DreamToosa |

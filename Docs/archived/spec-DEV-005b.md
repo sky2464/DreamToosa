@@ -266,42 +266,42 @@ Out of scope        : dreamtoosa/state.json (no schema change), dreamtoosa/dream
   - [ ] 0.2 Verify PushNotification works from a RemoteTrigger routine, can be added to `allowed_tools`, and whether routines need it in the ToolSearch select line (TRI-B-022). — _Requirements: TRI-B-021, TRI-B-022, TRI-B-023_ `[manual]`
   - [ ] 0.3 Restore the routine: `RemoteTrigger` get, list_runs and get_run_log; re-authorize GitHub; one manual READ_WRITE run; read the cron hour. — _Requirements: TRI-B-017, TRI-B-024_ `[manual]`
 - [ ] **1.** Golden formula validation (precedes any golden fixture)
-  - [ ] 1.1 After 0.1, freeze backlog files at pinned tips under `tests/fixtures/triage/backlogs/` for each repo confirmed public; other repos get synthetic `P-` fixtures (2.1). Predecessor: 0.1, per repo. — _Requirements: TRI-B-009, TRI-B-010_
-  - [ ] 1.2 Run `golden_pick` over the frozen files through the DEV-005a parser. Record the pick, its terms and the runner-up per repo in OI-1. — _Requirements: TRI-B-009, TRI-B-011, TRI-B-012_
+  - [x] 1.1 After 0.1, freeze backlog files at pinned tips under `tests/fixtures/triage/backlogs/` for each repo confirmed public; other repos get synthetic `P-` fixtures (2.1). Predecessor: 0.1, per repo. — _Requirements: TRI-B-009, TRI-B-010_
+  - [x] 1.2 Run `golden_pick` over the frozen files through the DEV-005a parser. Record the pick, its terms and the runner-up per repo in OI-1. — _Requirements: TRI-B-009, TRI-B-011, TRI-B-012_
   - [ ] 1.3 If the record shows the pick is not defensible, stop and amend this spec before 3.3. — _Requirements: TRI-B-009, TRI-B-013_
-- [ ] **2.** Ledger
-  - [ ] 2.1 Write failing tests in `tests/test_triage_ledger.py`. — _Requirements: TRI-B-001 to TRI-B-008_
-  - [ ] 2.2 Implement `merge_ledger`, `parse_ledger` and `serialize_ledger` in `triage.py` (pure). — _Requirements: TRI-B-001, TRI-B-003, TRI-B-004, TRI-B-006, TRI-B-007_
-  - [ ] 2.3 Implement prev-index extraction, marker-pair parsing and ledger injection in `triage_report.py`. — _Requirements: TRI-B-002, TRI-B-005, TRI-B-008_
+- [x] **2.** Ledger
+  - [x] 2.1 Write failing tests in `tests/test_triage_ledger.py`. — _Requirements: TRI-B-001 to TRI-B-008_
+  - [x] 2.2 Implement `merge_ledger`, `parse_ledger` and `serialize_ledger` in `triage.py` (pure). — _Requirements: TRI-B-001, TRI-B-003, TRI-B-004, TRI-B-006, TRI-B-007_
+  - [x] 2.3 Implement prev-index extraction, marker-pair parsing and ledger injection in `triage_report.py`. — _Requirements: TRI-B-002, TRI-B-005, TRI-B-008_
 - [ ] **3.** Golden pick
-  - [ ] 3.1 Write failing golden tests in `tests/test_triage_rules.py`. — _Requirements: TRI-B-010 to TRI-B-014_
-  - [ ] 3.2 Implement `golden_pick` in `triage.py`, and the golden section in render. — _Requirements: TRI-B-010 to TRI-B-013_
+  - [x] 3.1 Write failing golden tests in `tests/test_triage_rules.py`. — _Requirements: TRI-B-010 to TRI-B-014_
+  - [x] 3.2 Implement `golden_pick` in `triage.py`, and the golden section in render. — _Requirements: TRI-B-010 to TRI-B-013_
   - [ ] 3.3 After 1.3 passes, generate `golden-pool-2026-10-13.json` and the golden line of `expected-2026-10-13.md` from the rules. — _Requirements: TRI-B-009, TRI-B-012_
-- [ ] **4.** Heartbeat and notify
-  - [ ] 4.1 Write failing tests in `tests/test_triage_cli.py`. — _Requirements: TRI-B-015 to TRI-B-021_
-  - [ ] 4.2 Implement `notify_decision` and `notify_message` in `triage.py` (heartbeat logic is DEV-005a's). — _Requirements: TRI-B-020, TRI-B-021_
-  - [ ] 4.3 Add the `notify` subcommand to `triage_report.py` (`heartbeat` is DEV-005a's). — _Requirements: TRI-B-020, TRI-B-021_
-- [ ] **5.** Manifest and validator
-  - [ ] 5.1 Add the three repos.yml keys in 2.1 (`golden_exclude`, `golden_formula_validated`, `upstream_repos`); the DEV-005a keys are used as they are. — _Requirements: TRI-B-010, TRI-B-013, TRI-B-019, TRI-B-030_
-  - [ ] 5.2 Write negative and compatibility tests in `tests/test_validate.py`, then the `validate.py` checks. — _Requirements: TRI-B-029_
-- [ ] **6.** Chaining fix and routine prompt
-  - [ ] 6.1 Write failing prompt-text tests in `tests/test_routine_prompt.py`. — _Requirements: TRI-B-021 to TRI-B-027, TRI-B-030_
-  - [ ] 6.2 Rewrite Phase 0 and 0.5 (auth probe first, CHAIN_BASE state gate), Phase 3 extraction, Phase 6 (worktree), the notify gate and the Final summary in `ROUTINE_PROMPT.md`. The Final summary is template-only: the notify message verbatim and code-rendered fields, with no free-text LLM prose. — _Requirements: TRI-B-021, TRI-B-023 to TRI-B-027, TRI-B-030_
-  - [ ] 6.3 Local two-run chain dry run against a bare scratch remote (no push to origin). — _Requirements: TRI-B-024, TRI-B-026, TRI-B-028_
-- [ ] **7.** Heartbeat workflow and docs
-  - [ ] 7.1 Write failing YAML tests in `tests/test_control_plane_workflow.py`. — _Requirements: TRI-B-018_
-  - [ ] 7.2 Add `schedule`, `workflow_dispatch`, the validate gate and the heartbeat job to `control-plane.yml`. — _Requirements: TRI-B-018, TRI-B-031_
-  - [ ] 7.3 Update `dreamtoosa/README.md`: create the ownership matrix section, heartbeat runbook, 60-day caveat, PushNotification note. — _Requirements: TRI-B-022, TRI-B-032_
+- [x] **4.** Heartbeat and notify
+  - [x] 4.1 Write failing tests in `tests/test_triage_cli.py`. — _Requirements: TRI-B-015 to TRI-B-021_
+  - [x] 4.2 Implement `notify_decision` and `notify_message` in `triage.py` (heartbeat logic is DEV-005a's). — _Requirements: TRI-B-020, TRI-B-021_
+  - [x] 4.3 Add the `notify` subcommand to `triage_report.py` (`heartbeat` is DEV-005a's). — _Requirements: TRI-B-020, TRI-B-021_
+- [x] **5.** Manifest and validator
+  - [x] 5.1 Add the three repos.yml keys in 2.1 (`golden_exclude`, `golden_formula_validated`, `upstream_repos`); the DEV-005a keys are used as they are. — _Requirements: TRI-B-010, TRI-B-013, TRI-B-019, TRI-B-030_
+  - [x] 5.2 Write negative and compatibility tests in `tests/test_validate.py`, then the `validate.py` checks. — _Requirements: TRI-B-029_
+- [x] **6.** Chaining fix and routine prompt
+  - [x] 6.1 Write failing prompt-text tests in `tests/test_routine_prompt.py`. — _Requirements: TRI-B-021 to TRI-B-027, TRI-B-030_
+  - [x] 6.2 Rewrite Phase 0 and 0.5 (auth probe first, CHAIN_BASE state gate), Phase 3 extraction, Phase 6 (worktree), the notify gate and the Final summary in `ROUTINE_PROMPT.md`. The Final summary is template-only: the notify message verbatim and code-rendered fields, with no free-text LLM prose. — _Requirements: TRI-B-021, TRI-B-023 to TRI-B-027, TRI-B-030_
+  - [x] 6.3 Local two-run chain dry run against a bare scratch remote (no push to origin). — _Requirements: TRI-B-024, TRI-B-026, TRI-B-028_
+- [x] **7.** Heartbeat workflow and docs
+  - [x] 7.1 Write failing YAML tests in `tests/test_control_plane_workflow.py`. — _Requirements: TRI-B-018_
+  - [x] 7.2 Add `schedule`, `workflow_dispatch`, the validate gate and the heartbeat job to `control-plane.yml`. — _Requirements: TRI-B-018, TRI-B-031_
+  - [x] 7.3 Update `dreamtoosa/README.md`: create the ownership matrix section, heartbeat runbook, 60-day caveat, PushNotification note. — _Requirements: TRI-B-022, TRI-B-032_
 - [ ] **8.** Live deploy and acceptance (after gates 0.1 to 0.3 and the DEV-005b merge)
   - [ ] 8.1 `RemoteTrigger` get; update with the full `session_context` plus PushNotification (and the select line if gate 0.2 requires it); get again and diff. — _Requirements: TRI-B-022_ `[manual]`
-  - [ ] 8.2 Notify dry run: local copy with `hub.force_read_only: true`. Expect one send with the READ_ONLY reason, and no push. — _Requirements: TRI-B-020, TRI-B-021, TRI-B-030_
+  - [x] 8.2 Notify dry run: local copy with `hub.force_read_only: true`. Expect one send with the READ_ONLY reason, and no push. — _Requirements: TRI-B-020, TRI-B-021, TRI-B-030_
   - [ ] 8.3 Two consecutive READ_WRITE runs with no merge between them. — _Requirements: TRI-B-024, TRI-B-026, TRI-B-028_ `[manual]`
   - [ ] 8.4 Heartbeat `workflow_dispatch`: red before recovery (`last_run` 2026-09-18 is 25 days old), green after a run lands. — _Requirements: TRI-B-017_ `[manual]`
   - [ ] 8.5 Next-day run: every prior finding ID has a delta, and carry-forward triggers no Phase 4 filing. — _Requirements: TRI-B-003, TRI-B-005_ `[manual]`
-- [ ] **9.** Verification gate
-  - [ ] 9.1 Both unit forms green; `py_compile` clean; `validate.py` PASSED. — _Requirements: TRI-B-029_
-  - [ ] 9.2 control-plane CI green on the PR, with the heartbeat job skipped on pull_request. — _Requirements: TRI-B-018_
-  - [ ] 9.3 Hub `dreamtoosa/` clean check after the build. — _Requirements: TRI-B-026_
+- [x] **9.** Verification gate
+  - [x] 9.1 Both unit forms green; `py_compile` clean; `validate.py` PASSED. — _Requirements: TRI-B-029_
+  - [x] 9.2 control-plane CI green on the PR, with the heartbeat job skipped on pull_request. — _Requirements: TRI-B-018_
+  - [x] 9.3 Hub `dreamtoosa/` clean check after the build. — _Requirements: TRI-B-026_
 
 ### 3.2 Wave Plan
 
