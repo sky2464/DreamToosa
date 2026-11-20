@@ -1,0 +1,30 @@
+{
+  "line": "DEV-153 score -1 R=0 S=1 L=0 P=0 B=1 Rep=0; runner-up none; low confidence",
+  "pick_id": "DEV-153",
+  "pick_score": -1,
+  "pick_terms": {
+    "B": 1,
+    "L": 0,
+    "P": 0,
+    "R": 0,
+    "Rep": 0,
+    "S": 1
+  },
+  "pool": [
+    {
+      "id": "DEV-153",
+      "repo": "fixture-owner/AgToosa",
+      "score": -1,
+      "terms": {
+        "B": 1,
+        "L": 0,
+        "P": 0,
+        "R": 0,
+        "Rep": 0,
+        "S": 1
+      },
+      "title": "Feature: Bats Tiering & Smoke-Set Extraction"
+    }
+  ],
+  "run_date": "2026-10-13"
+}

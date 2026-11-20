@@ -99,3 +99,6 @@ triage:
   routine_gap_days: 2
   heartbeat_max_age_days: 3
   trusted_logins: [fixture-owner, fixture-helper, "dependabot[bot]"]
+  golden_exclude: []
+  golden_formula_validated: true
+  upstream_repos: []
