@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """CLI tests for dreamtoosa/triage_report.py (DEV-005a CL-1..CL-7, plus a guard against drift between the fixture manifest and the real repos.yml).
 Everything is offline. Git behaviour runs against throw-away repositories in temp dirs, never this repository: a $CLONE_ROOT holding the four clones
-(the DreamToosa clone doubles as the hub whose dreamtoosa/ directory is the integrity subject), origin/* refs made with update-ref, and the frozen
-snapshot patched to the real SHAs of those repos. Exit codes: 0 ok, 1 fixed codes on stdout, 2 usage error or cannot run (E_RUN). Secret-shaped strings are assembled at run time so that no literal token sits in this file.
+(the DreamToosa clone doubles as the hub whose dreamtoosa/ directory is the integrity subject), origin/* refs made with update-ref, and the frozen snapshot patched to the real SHAs of those repos. Exit codes: 0 ok, 1 fixed codes on stdout, 2 usage error or cannot run (E_RUN). Secret-shaped strings are assembled at run time so that no literal token sits in this file.
 """
 import copy
 import datetime
@@ -60,6 +59,7 @@ def build_world(root):
         files = {m["backlog"]["path"]: (FX / "backlogs" / (s["name"].lower() + ".md")).read_text(encoding="utf-8")}
         if s["name"] == "AgToosa":
             files[".github/workflows/security-scan.yml"] = "on:\n  schedule:\n    - cron: '23 4 * * 1'\njobs: {}\n"
+            files["docs/archived/spec-DEV-153.md"] = (FX / "backlogs" / "archived" / "spec-DEV-153.md").read_text(encoding="utf-8")
         if s["name"] == "DreamToosa":
             files["dreamtoosa/state.json"] = json.dumps({"last_run": {"date": "2026-09-18"}})
         first = commit(d, files, "synthetic first commit", s["tip"]["prev_committer_date"])
@@ -412,9 +412,9 @@ class TestGoldenInputs(World):  # TRI-B-010 (changelog exclusion), TRI-B-011 (S 
             shutil.copytree(FX / "backlogs", t, dirs_exist_ok=True)
             (Path(t) / "agtoosa.md").write_text(
                 (FX / "backlogs" / "agtoosa.md").read_text(encoding="utf-8")
-                + "\n## Backlog\n| ID | Title | Type | Priority | Status |\n|---|---|---|---|---|\n| DEV-150 | synthetic feature | Feature | P1 | Todo |\n"
+                + "\n## Backlog\n| ID | Title | Type | Priority | Status |\n|---|---|---|---|---|\n| DEV-150 | synthetic feature | Feature | P0 | Todo |\n"
                   "| DEV-151 | released feature | Feature | P1 | Todo |\n", encoding="utf-8")
-            (Path(t) / "archived").mkdir()
+            (Path(t) / "archived").mkdir(exist_ok=True)
             (Path(t) / "archived" / "spec-DEV-150.md").write_text("synthetic spec\n", encoding="utf-8")
             (Path(t) / "agtoosa.changelog.md").write_text("## v1.0\n- DEV-151 shipped\n", encoding="utf-8")
             block = tr.assemble(jload("snapshot-2026-10-13.json"), tr.load_manifest(MANIFEST), backlog_dir=t, prev_text="")[1]

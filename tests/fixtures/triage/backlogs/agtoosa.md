@@ -43,3 +43,9 @@
 | Date | Event | By |
 |------|-------|----|
 | 2026-09-10 | synthetic log entry | fixture-owner |
+
+## Active Cycle
+
+| ID | Title | Type | Estimate | Status | Tasks Done |
+|----|-------|------|----------|--------|------------|
+| DEV-153 | synthetic bats tiering | Feature | M | Todo | 0/5 |

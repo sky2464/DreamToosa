@@ -1,7 +1,7 @@
 """Offline tests for DreamsClient using a fake SDK client. Run: python3 -m pytest -q  (or python3 this file)."""
 from types import SimpleNamespace as NS
 
-import dreams_implementation as di
+import dreams_api as di
 
 
 class FakeDreams:
