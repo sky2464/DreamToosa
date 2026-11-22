@@ -70,7 +70,8 @@ def dream_with_guidance(
     Args:
         memory_store_id: Memory store to curate
         session_ids: Up to 100 session IDs to analyze
-        instructions: Guidance for the dream (max 4,096 chars)
+        instructions: High-level synthesis guidance (focus areas, content to
+            preserve). Line-targeted edit directives produce no change.
 
     Returns:
         Output memory store ID or None
@@ -78,9 +79,6 @@ def dream_with_guidance(
     # Validate inputs
     if len(session_ids) > 100:
         raise ValueError("Maximum 100 sessions per dream")
-
-    if len(instructions) > 4096:
-        raise ValueError("Instructions limited to 4,096 characters")
 
     # Create dream with guidance
     dream = client.beta.dreams.create(
@@ -106,8 +104,8 @@ def dream_with_guidance(
 
         # Show progress
         if dream.status == "running":
-            progress = (dream.usage.output_tokens / 1000) * 100
-            print(f"Running... {dream.usage.output_tokens} output tokens ({progress:.1f}%)")
+            # The API exposes token usage only, not a completion percentage.
+            print(f"Running... {dream.usage.output_tokens} output tokens so far")
 
     # Extract and return output
     output_store_id = next(
